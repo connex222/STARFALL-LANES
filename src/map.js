@@ -1,6 +1,6 @@
 // Starfall Lanes — shared star-map renderer (TV + phone)
 function MapView(canvas, opts) {
-  opts = Object.assign({ stars: true, theme: 'dark', labels: true, quality: 1, padTop: 0, padBottom: 0 }, opts || {});
+  opts = Object.assign({ stars: true, theme: 'dark', labels: true, quality: 1, cinematic: false, padTop: 0, padBottom: 0 }, opts || {});
   const ctx = canvas.getContext('2d');
   const S3 = Math.sqrt(3);
   let st = null, AV = [], hexById = {}, lanes = [], size = 20, ox = 0, oy = 0, W = 0, H = 0, dpr = 1;
@@ -90,15 +90,19 @@ function MapView(canvas, opts) {
     if (!f || !st || !st.game) return;
     const now = performance.now();
     const E = (k, dur, extra) => effects.push(Object.assign({ k, t0: now, dur }, extra));
-    if (f.k === 'found') E('beam', 1400, { hex: f.hex, color: colorOf(f.pid) });
-    if (f.k === 'spire') { E('beam', 1400, { hex: f.hex, color: colorOf(f.pid) }); E('ring', 1600, { hex: f.hex, color: colorOf(f.pid) }); }
-    if (f.k === 'lane') E('sweep', 1300, { lane: f.lane, color: colorOf(f.pid) });
+    // Cinematic effects are view-only; they never change ownership or rules.
+    if (f.k === 'found') { E('beam', 1400, { hex: f.hex, color: colorOf(f.pid) }); if (opts.cinematic) E('construct', 1600, { hex: f.hex, color: colorOf(f.pid) }); }
+    if (f.k === 'spire') { E('beam', 1400, { hex: f.hex, color: colorOf(f.pid) }); E('ring', 1600, { hex: f.hex, color: colorOf(f.pid) }); if (opts.cinematic) E('construct', 2200, { hex: f.hex, color: colorOf(f.pid), spire: true }); }
+    if (f.k === 'lane') { E('sweep', 1300, { lane: f.lane, color: colorOf(f.pid) }); if (opts.cinematic) E('warp', 1450, { lane: f.lane, color: colorOf(f.pid) }); }
     if (f.k === 'fleet') E('pop', 1100, { hex: f.hex, color: colorOf(f.pid), text: '+' + f.n });
-    if (f.k === 'move') E('laser', 900, { from: f.from, to: f.to, color: colorOf(f.pid), soft: true });
-    if (f.k === 'clash') { E('laser', 1700, { from: f.from, to: f.to, color: colorOf(f.pid) }); E('ring', 1500, { hex: f.to, color: f.win ? colorOf(f.pid) : colorOf(f.did), delay: 700 }); }
+    if (f.k === 'move') { E('laser', 900, { from: f.from, to: f.to, color: colorOf(f.pid), soft: true }); if (opts.cinematic) E('convoy', 1150, { from: f.from, to: f.to, color: colorOf(f.pid) }); }
+    if (f.k === 'clash') { E('laser', 1700, { from: f.from, to: f.to, color: colorOf(f.pid) }); E('ring', 1500, { hex: f.to, color: f.win ? colorOf(f.pid) : colorOf(f.did), delay: 700 }); if (opts.cinematic) E('battle', 2050, { from: f.from, to: f.to, color: colorOf(f.pid), shield: colorOf(f.did), win: f.win }); }
     if (f.k === 'card' && f.hex) E('ring', 1300, { hex: f.hex, color: '#33D6FF' });
     if (f.k === 'storm') E('storm', 1400, {});
+    if (opts.cinematic && f.k === 'era') E('eraWave', 2300, { era: f.era });
+    if (opts.cinematic && f.k === 'over') E('eraWave', 2800, { era: 3 });
     if (f.k === 'income') E('storm', 0, {});
+    if (effects.length > 28) effects.splice(0, effects.length - 28);
   }
 
   function drawBackground(t) {
@@ -285,6 +289,28 @@ function MapView(canvas, opts) {
       const [x, y] = cen(h);
       if (h.type === 'beacon') beacon(x, y, t); else planet(h, x, y, t);
     }
+    // Solar Storm curtain: subtle ambient glow + deterministic energy filaments.
+    // The striped overlays are retained for players who cannot distinguish hues.
+    if (opts.cinematic && opts.theme !== 'light' && !reduce) {
+      for (const id of stormSet) {
+        const h = hexById[id]; if (!h) continue;
+        const [x,y] = cen(h);
+        ctx.save(); hexPath(x,y,size * .95); ctx.clip();
+        const w = (.72 + Math.sin(t*.002 + h.q*2.3 + h.r)*.16);
+        const grad = ctx.createLinearGradient(x-size,y-size,x+size,y+size);
+        grad.addColorStop(0,'rgba(244,72,43,0)'); grad.addColorStop(w*.63,'rgba(255,100,42,.18)'); grad.addColorStop(1,'rgba(255,200,91,.025)');
+        ctx.fillStyle=grad;ctx.fillRect(x-size,y-size,size*2,size*2);
+        ctx.strokeStyle='rgba(255,210,137,.43)';ctx.lineWidth=Math.max(.8,size*.019);
+        for(let i=0;i<2;i++){
+          const o=Math.sin(t*.0025+h.q*1.7+h.r*3+i*1.7)*size*.4;
+          ctx.beginPath();ctx.moveTo(x-size,y+o-size*.3);
+          ctx.lineTo(x-size*.28,y+o+size*.1);
+          ctx.lineTo(x+size*.19,y+o-size*.15);
+          ctx.lineTo(x+size,y+o+size*.32);ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
     // storm overlays
     const sCol = opts.theme === 'light' ? '#E8622A' : '#FF7A3D';
     for (const h of g.hexes) {
@@ -326,6 +352,54 @@ function MapView(canvas, opts) {
       if (e.k === 'sweep') { const l = lanes.find(x => x.id === e.lane); if (!l) continue; const [ax, ay] = cen(hexById[l.a]), [bx, by] = cen(hexById[l.b]); const px = ax + (bx - ax) * p, py = ay + (by - ay) * p; const gr = ctx.createRadialGradient(px, py, 0, px, py, size * 0.6); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.3, e.color); gr.addColorStop(1, e.color + '00'); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(px, py, size * 0.6, 0, 7); ctx.fill(); }
       if (e.k === 'laser') { const A = hexById[e.from], B = hexById[e.to]; if (!A || !B) continue; const [ax, ay] = cen(A), [bx, by] = cen(B); const on = e.soft ? true : Math.floor(p * 9) % 2 === 0; if (on) { ctx.strokeStyle = e.color; ctx.lineWidth = e.soft ? size * 0.08 : size * 0.12; ctx.globalAlpha = e.soft ? 1 - p : 0.95; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax + (bx - ax) * Math.min(1, p * 2.2), ay + (by - ay) * Math.min(1, p * 2.2)); ctx.stroke(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = size * 0.035; ctx.stroke(); ctx.globalAlpha = 1; } if (!e.soft && p > 0.45) { const fa = 1 - (p - 0.45) / 0.55; ctx.fillStyle = `rgba(255,255,255,${fa * 0.8})`; ctx.beginPath(); ctx.arc(bx, by, size * (0.4 + (1 - fa) * 0.5), 0, 7); ctx.fill(); } }
       if (e.k === 'storm') { const a = Math.sin(p * Math.PI) * 0.5; for (const id of stormSet) { const h = hexById[id]; if (!h) continue; const [x, y] = cen(h); hexPath(x, y, size); ctx.fillStyle = `rgba(255,200,120,${a})`; ctx.fill(); } }
+      if (!reduce && opts.cinematic && e.k === 'construct') {
+        const h=hexById[e.hex]; if (!h) continue; const [x,y]=cen(h), height=size*(e.spire?1.35:.75), progress=Math.min(1,p*1.25);
+        ctx.save(); ctx.translate(x,y);ctx.globalAlpha=(1-p)*.8;
+        ctx.lineWidth=Math.max(1,size*.04);ctx.strokeStyle=e.color;ctx.shadowColor=e.color;ctx.shadowBlur=size*.35;
+        for(let k=-1;k<=1;k++){const xx=k*size*.22;ctx.beginPath();ctx.moveTo(xx,size*.28);ctx.lineTo(xx,size*.28-height*progress);ctx.stroke();}
+        ctx.beginPath();ctx.ellipse(0,size*.25,size*(.25+.6*p),size*(.09+.2*p),0,0,Math.PI*2);ctx.stroke();ctx.restore();
+      }
+      if (!reduce && opts.cinematic && e.k === 'warp') {
+        const l=lanes.find(k=>k.id===e.lane);if(!l||!hexById[l.a]||!hexById[l.b])continue;
+        const [ax,ay]=cen(hexById[l.a]),[bx,by]=cen(hexById[l.b]);
+        ctx.save();ctx.lineCap='round';ctx.shadowColor=e.color;ctx.shadowBlur=size*.6;
+        for(let j=0;j<3;j++){
+          const d=Math.max(0,Math.min(1,p*1.32-j*.075));
+          ctx.globalAlpha=(1-p)*(.9-j*.22);ctx.strokeStyle=j===0?'#fff':e.color;ctx.lineWidth=Math.max(1,size*(.12-j*.032));
+          ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax+(bx-ax)*d,ay+(by-ay)*d);ctx.stroke();
+        }ctx.restore();
+      }
+      if (!reduce && opts.cinematic && e.k === 'convoy') {
+        const a=hexById[e.from],b=hexById[e.to];if(!a||!b)continue;
+        const [ax,ay]=cen(a),[bx,by]=cen(b);ctx.save();
+        ctx.translate(ax+(bx-ax)*p,ay+(by-ay)*p);ctx.rotate(Math.atan2(by-ay,bx-ax));
+        ctx.fillStyle='#eafaff';ctx.shadowColor=e.color;ctx.shadowBlur=size*.65;ctx.globalAlpha=Math.sin(Math.PI*p);
+        ctx.beginPath();ctx.moveTo(size*.35,0);ctx.lineTo(-size*.18,-size*.19);ctx.lineTo(-size*.1,0);ctx.lineTo(-size*.18,size*.19);ctx.closePath();ctx.fill();ctx.restore();
+      }
+      if (!reduce && opts.cinematic && e.k === 'battle') {
+        const a=hexById[e.from],b=hexById[e.to];if(!a||!b)continue;
+        const [ax,ay]=cen(a),[bx,by]=cen(b);ctx.save();
+        const angle=Math.atan2(by-ay,bx-ax);
+        for(let j=0;j<3;j++){
+          const q=Math.max(0,Math.min(1,(p-j*.095)*2.6));if(q<=0||q>=1)continue;
+          const ox=Math.cos(angle+Math.PI/2)*size*(j-1)*.17,oy=Math.sin(angle+Math.PI/2)*size*(j-1)*.17;
+          const xx=ax+(bx-ax)*q+ox,yy=ay+(by-ay)*q+oy;
+          ctx.strokeStyle='#ffffff';ctx.lineWidth=size*.06;ctx.shadowColor=e.color;ctx.shadowBlur=size*.6;
+          ctx.beginPath();ctx.moveTo(xx-Math.cos(angle)*size*.34,yy-Math.sin(angle)*size*.34);ctx.lineTo(xx,yy);ctx.stroke();
+        }
+        if(p>.3){let k=Math.min(1,(p-.3)/.55);ctx.globalAlpha=(1-k)*.85;
+          const halo=ctx.createRadialGradient(bx,by,0,bx,by,size*(.4+1.1*k));
+          halo.addColorStop(0,'rgba(255,255,255,.75)');halo.addColorStop(.35,e.win?'rgba(255,214,115,.46)':'rgba(92,190,255,.38)');halo.addColorStop(1,'rgba(255,255,255,0)');
+          ctx.fillStyle=halo;ctx.beginPath();ctx.arc(bx,by,size*(.4+1.1*k),0,7);ctx.fill();
+          ctx.strokeStyle=e.shield;ctx.lineWidth=Math.max(2,size*.09);ctx.beginPath();ctx.arc(bx,by,size*(.35+k*.9),0,7);ctx.stroke();
+        }ctx.restore();
+      }
+      if (!reduce && opts.cinematic && e.k === 'eraWave') {
+        ctx.save();ctx.globalAlpha=(1-p)*.25;const c=['#5fdbff','#927eff','#f9c572','#ffe3ab'][Math.min(3,e.era||0)];
+        const g2=ctx.createRadialGradient(ox,oy,size*p,ox,oy,Math.max(W,H)*(.25+p*.7));
+        g2.addColorStop(0,c+'00');g2.addColorStop(.55,c+'66');g2.addColorStop(1,c+'00');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);ctx.restore();
+      }
+
     }
   }
   function arrow(a, b, color) {

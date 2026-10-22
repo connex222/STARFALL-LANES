@@ -164,6 +164,45 @@ body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparen
 #foot:has(.engage-hint){flex-wrap:wrap}
 @media(max-width:355px){#top .who small{font-size:.63rem}#top .inf{font-size:1rem}#resbar .r small{font-size:.52rem}#head .cmd{padding:.5rem}#head .cmd b{font-size:.85rem}}
 @media(prefers-reduced-motion:reduce){#head .cmd:not(:disabled):active,#body button:not(:disabled):active{transform:none}}
+/* Phase 4 — accessible mobile tactics, card ranking, diplomacy and objective progress. */
+#pickAssist{margin:.5rem .75rem 0;padding:.7rem;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+#pickAssist:empty{display:none}
+#pickAssist .pick-kicker{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;font-size:.78rem;font-weight:800;color:var(--muted)}
+#pickAssist .pick-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem;max-height:13rem;overflow-y:auto;overscroll-behavior:contain}
+#pickAssist .pick-option{min-height:52px;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:.45rem .55rem;display:flex;flex-direction:column;justify-content:center;gap:.15rem}
+#pickAssist .pick-option strong{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
+#pickAssist .pick-option small{font-size:.7rem;color:var(--muted)}
+#pickAssist .pick-option.selected{outline:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+.pick-instructions{font-size:.78rem;color:var(--muted);margin:.3rem 0 0;line-height:1.35}
+.draft-progress{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:0 0 .65rem;padding:.55rem .7rem;border-radius:12px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));border:1px solid var(--line)}
+.draft-progress b{font-size:.82rem}.draft-progress span{font-size:.76rem;color:var(--muted)}
+.draft-row{display:grid;grid-template-columns:30px minmax(0,1fr) 44px 44px 44px;gap:.2rem;align-items:center;padding:.35rem .3rem;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.draft-row:first-child{border-color:var(--accent)}.draft-row.drop-here{outline:2px solid var(--accent)}
+.draft-row.dragging{opacity:.55}.draft-row .rankn{width:30px}
+.draft-row .draft-text{min-width:0}.draft-row .draft-text b{font-size:.88rem;display:block;overflow-wrap:anywhere}.draft-row .draft-text small{display:block;font-size:.72rem;line-height:1.3;color:var(--muted)}
+.draft-row button{width:44px;height:44px;display:grid;place-items:center;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-weight:800}
+.draft-row button:disabled{opacity:.3}.draft-row .rank-handle{touch-action:none;cursor:grab;color:var(--accent);font-size:1.15rem}
+.draft-row .rank-handle:active{cursor:grabbing}
+.trade-section{padding:.75rem .7rem;margin-bottom:.65rem;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.trade-section h2{margin:0 0 .3rem}.trade-section .lead{margin-bottom:.6rem}
+.trade-section .f{margin:.6rem 0 .3rem}.trade-section .list{gap:.25rem}
+.trade-section .trade-balance{font-size:.76rem;color:var(--muted);font-weight:800;margin-bottom:.55rem}
+.trade-bundle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem}
+.trade-bundle{background:var(--panel2);border-radius:12px;padding:.4rem;border:1px solid var(--line);min-width:0}
+.trade-bundle .f{margin:.15rem 0 .35rem}.trade-bundle .trade-item{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:.15rem;padding:.35rem .2rem;border-top:1px solid var(--line)}
+.trade-item .resource-name{font-size:.75rem;font-weight:800;display:flex;align-items:center;gap:.25rem}
+.trade-item .stepper{gap:.15rem;justify-content:space-between}.trade-item .stepper button{width:38px;height:38px;min-height:38px;font-size:1.15rem}
+.trade-item .stepper output{font-size:1rem;min-width:1.7ch}.trade-item .stepper button:disabled{opacity:.35}
+.trade-summary{font-size:.82rem;margin:.6rem 0 .25rem;padding:.6rem;border:1px solid var(--line);border-radius:10px;background:var(--panel2);line-height:1.4}
+.offer-status{font-size:.77rem;font-weight:800;padding:.2rem .5rem;border-radius:10px;background:var(--panel2);border:1px solid var(--line);width:fit-content}
+.offer-status.accepted{color:var(--good)}.offer-status.failed,.offer-status.declined,.offer-status.expired{color:var(--bad)}
+.mission-summary{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.55rem .7rem;margin-bottom:.6rem;border-radius:11px;background:var(--panel2);border:1px solid var(--line);font-weight:800;font-size:.83rem}
+.mission-card{padding-bottom:.65rem}.mission-card .mission-meta{font-size:.78rem;font-weight:700;color:var(--muted);margin-top:.35rem}
+.mission-card .progress{height:7px;background:var(--panel2);border-radius:8px;overflow:hidden;margin-top:.5rem;border:1px solid var(--line)}
+.mission-card .progress span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--good));border-radius:8px}
+button:focus-visible,[draggable]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(max-width:355px){.draft-row{grid-template-columns:22px minmax(0,1fr) 40px 40px 40px;gap:.12rem}.draft-row button{width:40px;height:40px}.draft-row .rankn{width:22px}.trade-item .stepper button{width:34px;height:36px;min-height:36px}}
+@media(prefers-reduced-motion:reduce){.draft-row,.pick-option{transition:none}}
 </style>
 </head>
 <body>
@@ -174,6 +213,7 @@ body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparen
   <div id="tabs" class="tabs" hidden></div>
   <div id="head"></div>
   <div id="mapBox"><canvas id="cv"></canvas><div class="mapcap" id="mapcap"></div></div>
+  <div id="pickAssist" aria-live="polite"></div>
   <div id="body"></div>
   <div id="foot"></div>
 </div>
@@ -185,7 +225,7 @@ body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparen
 
 const $ = id => document.getElementById(id);
 let C = null, pub = null, priv = null, now = () => Date.now(), joined = false, joinErr = '', replaced = false;
-let ui = { tab: 'console', pick: null, editSlot: null, planRound: -1, plan: null, discard: null, setupSel: null, ex: { give: null, get: null }, offer: { to: null, give: {}, get: {} }, modal: null, lastSeenOffer: null };
+let ui = { tab: 'console', pick: null, editSlot: null, planRound: -1, plan: null, discard: null, setupSel: null, ex: { give: null, get: null }, offer: { to: null, give: {}, get: {} }, modal: null, lastSeenOffer: null, prevOffersSent: null, offerPending: false };
 const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
 const map = MapView($('cv'), { theme: dark() ? 'dark' : 'light', stars: false, quality: 0.9 });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { map.setTheme(dark() ? 'dark' : 'light'); });
@@ -198,7 +238,7 @@ const conn = Conn(onMsg, send => {
   const s = saved();
   if (s && s.room && (!urlRoom || urlRoom === s.room)) send({ t: 'join', room: s.room, playerId: s.playerId, token: s.token });
   else render();
-}, ok => $('conn').classList.toggle('show', !ok));
+}, ok => { $('conn').classList.toggle('show', !ok); if (!ok) ui.offerPending = false; });
 const send = o => conn.send(o);
 function onMsg(m) {
   if (m.t === 'welcome') {
@@ -211,7 +251,7 @@ function onMsg(m) {
     render();
   }
   if (m.t === 'kicked') { joined = false; joinErr = 'The host removed you from the game.'; try { localStorage.removeItem('sf_phone'); } catch (e) { } pub = null; render(); }
-  if (m.t === 'toast') toast(m.text);
+  if (m.t === 'toast') { if (/offer|trade/i.test(m.text)) ui.offerPending = false; toast(m.text); }
   if (m.t === 'replaced') { conn.stop(); replaced = true; render(); return; }
   if (m.t === 'state') { pub = m.pub; priv = m.priv; now = clockFrom(pub); onState(); }
 }
@@ -263,13 +303,13 @@ function ensurePlan() {
     ui.planRound = g.round; ui.pick = null; ui.editSlot = null; ui.tab = 'console';
     ui.plan = JSON.parse(JSON.stringify(priv.plan || { cmds: [null, null], rank: [], play: [] }));
     if (!ui.plan.rank || !ui.plan.rank.length) ui.plan.rank = g.pool.map(c => c.uid);
-    ui.ex = { give: null, get: null }; ui.offer = { to: null, give: {}, get: {} };
+    ui.ex = { give: null, get: null }; ui.offer = { to: null, give: {}, get: {} }; ui.prevOffersSent = null; ui.offerPending = false;
     if (navigator.vibrate) navigator.vibrate(60);
   }
   ui.plan.rank = ui.plan.rank.filter(u => g.pool.some(c => c.uid === u)).concat(g.pool.map(c => c.uid).filter(u => !ui.plan.rank.includes(u)));
 }
 function pushPlan(engage) {
-  const o = { t: 'plan', cmds: ui.plan.cmds, rank: ui.plan.rank, play: ui.plan.play };
+  const o = { t: 'plan', cmds: ui.plan.cmds, rank: ui.plan.rank, play: ui.plan.play, supply: ui.plan.supply || null };
   if (engage !== undefined) o.engage = engage;
   else if (priv.engaged) o.engage = false;
   send(o);
@@ -284,6 +324,10 @@ function onState() {
   if (g && g.phase === 'setup' && g.setupTurn !== priv.pid) ui.setupSel = null;
   if (g && g.phase === 'setup' && g.setupTurn === priv.pid && ui.lastBuzz !== 'setup' + g.hexes.filter(h => h.owner === priv.pid).length) { ui.lastBuzz = 'setup' + g.hexes.filter(h => h.owner === priv.pid).length; if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
   ensurePlan();
+  if (g && g.phase === 'plan' && priv && ui.prevOffersSent !== null && priv.offersSent > ui.prevOffersSent) {
+    ui.offer = { to: null, give: {}, get: {} }; ui.offerPending = false; toast('Offer sent — awaiting their decision');
+  }
+  if (priv) ui.prevOffersSent = priv.offersSent;
   // incoming offer → modal
   if (priv && priv.offersIn && priv.offersIn.length) { const o = priv.offersIn[0]; if (ui.lastSeenOffer !== o.id) { ui.lastSeenOffer = o.id; ui.modal = 'offer'; if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } }
   else if (ui.modal === 'offer') ui.modal = null;
@@ -306,6 +350,7 @@ function render() {
   else if (pub.phase === 'lobby') { renderTop(); renderLobby(); }
   else if (showGame) { renderTop(); renderRes(); const r = renderGame(); mapOn = r.map; mapH = r.h || 0; }
   setMarks();
+  renderPickAssist();
   const box = $('mapBox');
   box.classList.toggle('show', mapOn);
   if (mapOn) {
@@ -398,8 +443,24 @@ function renderGame() {
   if (g.phase === 'over') return renderOver();
   return renderWatch();
 }
+// Progress is advisory, derived from public sectors and the player's private Missions.
+// The server alone determines completion, including network connection rules.
+function missionProgress(m) {
+  const g = G(); if (!g || !priv) return null;
+  const owned = g.hexes.filter(h => h.owner === priv.pid);
+  let current = 0, total = 0, detail = '';
+  if (m.type === 'hold') { current = owned.filter(h => h.type === m.world).length; total = 3; detail = `${Math.min(current, total)} of 3 worlds owned`; }
+  else if (m.type === 'spires') { current = owned.filter(h => h.build === 'spire' || h.build === 'mega').length; total = 2; detail = `${Math.min(current, total)} of 2 Spires owned`; }
+  else if (m.type === 'lanes') { current = g.lanes.filter(l => l.owner === priv.pid).length; total = 3; detail = `${Math.min(current, total)} of 3 hyperlanes owned`; }
+  else if (m.type === 'asteroid') { current = Math.max(0, ...owned.filter(h => h.type === 'asteroid').map(h => h.fleets)); total = 3; detail = `${Math.min(current, total)} of 3 Fleets on your strongest Asteroid Field`; }
+  else if (m.type === 'link' || m.type === 'beacon') { detail = m.met || m.done ? 'Network connected' : 'Complete your connected route'; }
+  if (m.done) { current = total; detail = 'Completed in an earlier Reveal'; }
+  return { current: Math.min(current, total), total, detail };
+}
 function missionCard(m, extra) {
-  return `<div class="card${m.done ? ' done' : ''}${extra || ''}"><span class="tag">${m.done ? '✔ Done' : m.met ? 'Scores at Reveal' : '+' + m.inf}</span><b>${esc(m.text)}</b><p>${m.done ? `Scored ${m.inf} Influence` : `Worth ${m.inf} Influence`}</p></div>`;
+  const progress = missionProgress(m);
+  const bar = progress && progress.total ? `<div class="progress" role="progressbar" aria-label="${esc(m.text)} progress" aria-valuemin="0" aria-valuemax="${progress.total}" aria-valuenow="${progress.current}"><span style="width:${100 * progress.current / progress.total}%"></span></div>` : '';
+  return `<div class="card mission-card${m.done ? ' done' : ''}${extra || ''}"><span class="tag">${m.done ? '✔ Scored' : m.met ? 'Scores at Reveal' : '+' + m.inf}</span><b>${esc(m.text)}</b><div class="mission-meta">${esc(progress ? progress.detail : '')}${m.done ? ` · ${m.inf} Influence earned` : ` · ${m.inf} Influence available`}</div>${bar}</div>`;
 }
 function renderMissions() {
   if (priv.keepDone) {
@@ -432,8 +493,9 @@ function renderSetup() {
 }
 function renderEra() {
   const g = G();
-  set('head', `<h2>The ${C.ERA_NAMES[g.era]} era</h2><p class="lead">Pick one upgrade. It lasts the rest of the game.</p>`);
-  set('body', `<div class="list">${g.eraOffer.map(k => `<button class="card${priv.eraPick === k ? ' on' : ''}" data-up="${k}">${priv.upgrades.includes(k) ? '<span class="tag">Owned</span>' : priv.eraPick === k ? '<span class="tag">✔ Picked</span>' : ''}<b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></button>`).join('')}</div>`);
+  const yourTurn = g.eraTurn === priv.pid, current = pub.players.find(p => p.id === g.eraTurn);
+  set('head', `<h2>The ${C.ERA_NAMES[g.era]} era</h2><p class="lead">Last place chooses first. ${yourTurn ? 'Your turn: choose one upgrade.' : priv.eraPick ? 'Your upgrade is locked in.' : 'Waiting for ' + esc(current ? current.name : 'the next house') + ' to choose.'}</p>`);
+  set('body', `<div class="list">${g.eraOffer.map(k => `<button class="card${priv.eraPick === k ? ' on' : ''}" data-up="${k}" ${yourTurn && !priv.eraPick ? '' : 'disabled'}>${priv.upgrades.includes(k) ? '<span class="tag">Owned</span>' : priv.eraPick === k ? '<span class="tag">✔ Picked</span>' : ''}<b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></button>`).join('')}</div>`);
   set('foot', '');
   document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => send({ t: 'eraPick', id: b.dataset.up }));
   return { map: false };
@@ -462,6 +524,7 @@ function renderOver() {
   return { map: false };
 }
 const mapHeight = () => Math.round(Math.min(innerHeight * 0.58, innerWidth * 1.0));
+const pickerMapHeight = () => Math.round(Math.max(175, Math.min(innerHeight * 0.38, innerWidth * 0.82)));
 
 // ───────── Plan ─────────
 function renderPlan() {
@@ -603,55 +666,109 @@ function renderPicker() {
     set('head', head); set('body', d.target ? `<div class="row"><b>${esc(hexName(d.target))}</b></div>` : ''); set('foot', foot); bindCommon();
     $('pOk').onclick = () => { ui.plan.play = ui.plan.play.filter(x => x.uid !== d.uid).concat({ uid: d.uid, target: d.target }); ui.pick = null; ui.tab = 'cards'; pushPlan(); render(); };
   }
-  return { map: mapOn, h: mapHeight() };
+  return { map: mapOn, h: pickerMapHeight() };
+}
+// ▲/▼ remain available for screen readers and one-handed play.
+// Pointer drag is an additional direct-manipulation shortcut, not the only control.
+function moveDraftRank(from, to) {
+  const r = ui.plan.rank; if (from === to || from < 0 || to < 0 || from >= r.length || to >= r.length) return;
+  r.splice(to, 0, r.splice(from, 1)[0]); pushPlan(); render();
+}
+function bindDraftDrag() {
+  let dragged = null;
+  const rows = Array.from(document.querySelectorAll('.draft-row'));
+  rows.forEach(row => {
+    row.addEventListener('dragstart', e => { dragged = +row.dataset.rank; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragged)); row.classList.add('dragging'); });
+    row.addEventListener('dragover', e => { e.preventDefault(); row.classList.add('drop-here'); });
+    row.addEventListener('dragleave', () => row.classList.remove('drop-here'));
+    row.addEventListener('drop', e => { e.preventDefault(); const from = dragged; dragged = null; if (from !== null) moveDraftRank(from, +row.dataset.rank); });
+    row.addEventListener('dragend', () => { dragged = null; rows.forEach(x => x.classList.remove('dragging', 'drop-here')); });
+  });
+  document.querySelectorAll('.rank-handle').forEach(handle => {
+    let from = null, target = null;
+    handle.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse') return; // Native drag handles desktop mouse.
+      from = +handle.closest('.draft-row').dataset.rank; target = from;
+      handle.setPointerCapture(e.pointerId);
+      handle.closest('.draft-row').classList.add('dragging');
+    });
+    handle.addEventListener('pointermove', e => {
+      if (from === null) return;
+      const hover = document.elementFromPoint(e.clientX, e.clientY)?.closest('.draft-row');
+      if (hover) target = +hover.dataset.rank;
+      rows.forEach(row => row.classList.toggle('drop-here', +row.dataset.rank === target));
+    });
+    const finish = (cancel) => {
+      if (from === null) return;
+      const f = from, t = target; from = null; target = null;
+      rows.forEach(row => row.classList.remove('dragging', 'drop-here'));
+      if (!cancel) moveDraftRank(f, t);
+    };
+    handle.addEventListener('pointerup', () => finish(false));
+    handle.addEventListener('pointercancel', () => finish(true));
+  });
 }
 function renderDraft() {
-  const g = G();
-  set('head', `<h2>Draft pool</h2><p class="lead">Put the card you want most at the top. At Reveal, in turn order, each house gets its highest-ranked card that's still left.</p>`);
-  if (!g.pool.length) { set('body', `<p class="note">No draft this round.</p>`); engageFoot(); return { map: false }; }
-  set('body', `<div class="list">${ui.plan.rank.map((uid, i) => { const c = g.pool.find(x => x.uid === uid); if (!c) return ''; const d = C.DRAFT[c.key]; return `<div class="row"><span class="rankn">${i + 1}</span><div class="grow"><b>${esc(d.name)}</b><small>${esc(d.text)} · ${d.type}</small></div><button class="icon-btn" data-up="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">▲</button><button class="icon-btn" data-dn="${i}" ${i === ui.plan.rank.length - 1 ? 'disabled' : ''} aria-label="Move down">▼</button></div>`; }).join('')}</div>
-    <p class="note"><b>Instant</b> cards work as soon as you get them. <b>Held</b> cards stay on your phone to play in a later round (max 3). <b>Kept</b> cards score while their condition is true.</p>`);
-  const sw = (i, j) => { const r = ui.plan.rank; [r[i], r[j]] = [r[j], r[i]]; pushPlan(); render(); };
-  document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => sw(+b.dataset.up, +b.dataset.up - 1));
-  document.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => sw(+b.dataset.dn, +b.dataset.dn + 1));
-  engageFoot();
+  const g = G(), n = ui.plan.rank.length;
+  set('head', `<h2>Draft priority</h2><p class="lead">Drag the handle to rank cards. You can also use the arrow buttons. Each house receives its highest-ranked available card in turn order.</p>
+    <div class="draft-progress"><b>Priority 1 is your first choice</b><span>${n} cards in this Draft</span></div>`);
+  if (!g.pool.length) { set('body', '<p class="note">No Draft cards this round.</p>'); engageFoot(); return { map: false }; }
+  set('body', `<div class="list" id="draftList">${ui.plan.rank.map((uid, i) => {
+    const c = g.pool.find(x => x.uid === uid); if (!c) return '';
+    const d = C.DRAFT[c.key];
+    return `<div class="draft-row" data-rank="${i}" draggable="true"><span class="rankn" aria-label="Priority ${i + 1}">${i + 1}</span>
+      <div class="draft-text"><b>${esc(d.name)}</b><small>${esc(d.text)} · ${esc(d.type)}</small></div>
+      <button class="rank-handle" aria-label="Drag ${esc(d.name)} to change priority" title="Drag to rank">⠿</button>
+      <button data-up="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Raise ${esc(d.name)} priority">↑</button>
+      <button data-dn="${i}" ${i === n - 1 ? 'disabled' : ''} aria-label="Lower ${esc(d.name)} priority">↓</button></div>`;
+  }).join('')}</div>${g.pool.some(c => c.key === 'supply') ? `<section class="trade-section"><b>Supply Drop preference</b><p class="note">If you receive Supply Drop, gain two of your chosen resource. Without a selection, the game uses your scarcest resource.</p><div class="chips">${['ore','ice','crystal','plasma'].map(k => `<button class="chip res-${k}${ui.plan.supply === k ? ' on' : ''}" data-supply="${k}" aria-pressed="${ui.plan.supply === k}">${ricon(k)} ${RES_NAMES[k]}</button>`).join('')}</div></section>` : ''}<p class="note"><b>Instant</b> cards work immediately. <b>Held</b> cards can be played in a later Plan phase (maximum three). <b>Kept</b> cards score while their conditions are met.</p>`);
+  document.querySelectorAll('[data-supply]').forEach(b => b.onclick = () => { ui.plan.supply = b.dataset.supply; pushPlan(); renderDraft(); });
+  document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => moveDraftRank(+b.dataset.up, +b.dataset.up - 1));
+  document.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => moveDraftRank(+b.dataset.dn, +b.dataset.dn + 1));
+  bindDraftDrag(); engageFoot();
   return { map: false };
+}
+function tradeBundleText(bundle) {
+  return C.RES.filter(k => (bundle[k] || 0) > 0).map(k => `${bundle[k]} ${RES_NAMES[k]}`).join(', ') || 'nothing';
 }
 function renderTrade() {
   const g = G(), res = priv.res, rt = priv.rates, ex = ui.ex, of = ui.offer;
-  let h = `<h2>Exchange with the bank</h2><p class="lead">Instant. Usually 3 for 1.</p>
-    <label class="f">Give</label><div class="chips">${C.RES.map(k => `<button class="chip res-${k}${ex.give === k ? ' on' : ''}" data-give="${k}" ${res[k] < rt[k] ? 'disabled' : ''}>${rt[k]} ${ricon(k)}</button>`).join('')}</div>
-    <label class="f">Get</label><div class="chips">${C.RES.map(k => `<button class="chip res-${k}${ex.get === k ? ' on' : ''}" data-get="${k}" ${k === ex.give ? 'disabled' : ''}>1 ${ricon(k)}</button>`).join('')}</div>
-    <div style="margin-top:.6rem"><button class="btn primary" id="doEx" ${ex.give && ex.get && res[ex.give] >= rt[ex.give] ? '' : 'disabled'} style="width:100%">${ex.give && ex.get ? `Exchange ${rt[ex.give]} ${RES_NAMES[ex.give]} for 1 ${RES_NAMES[ex.get]}` : 'Choose what to give and get'}</button></div>`;
-  const others = pub.players.filter(p => p.id !== priv.pid);
-  const left = g.phaseEnds - now();
-  const canOffer = priv.offersSent < 2 && left > 20500;
-  h += `<h2 style="margin-top:1.4rem">Offer a trade to a player</h2><p class="lead">They get 20 seconds to accept. ${2 - priv.offersSent} offer${priv.offersSent === 1 ? '' : 's'} left this round.${left <= 20500 ? ' Too late to send one now.' : ''}</p>`;
-  h += `<div class="chips">${others.map(p => `<button class="chip${of.to === p.id ? ' on' : ''}" data-to="${p.id}">${avatarHTML(AVof(p), { size: 26 })}${esc(p.name)}</button>`).join('')}</div>`;
-  const stepRow = (side) => C.RES.map(k => `<div class="row" style="padding:.35rem .5rem"><span class="res-${k}" style="display:flex;align-items:center;gap:.35rem;flex:1;font-weight:800">${ricon(k)} ${RES_NAMES[k]}</span><div class="stepper"><button data-s="${side}" data-k="${k}" data-d="-1">−</button><output>${of[side][k] || 0}</output><button data-s="${side}" data-k="${k}" data-d="1">+</button></div></div>`).join('');
-  if (of.to) h += `<label class="f">You give</label><div class="list">${stepRow('give')}</div><label class="f">You get</label><div class="list">${stepRow('get')}</div>`;
-  const ok = of.to && canOffer && Object.values(of.give).some(v => v > 0) && Object.values(of.get).some(v => v > 0) && canPay(res, of.give);
-  if (of.to) h += `<div style="margin-top:.6rem"><button class="btn primary" id="sendOf" ${ok ? '' : 'disabled'} style="width:100%">Send offer</button></div>`;
-  if (priv.offersOut.length) h += `<label class="f">Your offers</label><div class="list">${priv.offersOut.map(o => `<div class="row"><div class="grow"><b>To ${esc(pub.players.find(p => p.id === o.to).name)}</b><small>${o.status ? o.status : 'Waiting…'}</small></div></div>`).join('')}</div>`;
-  set('head', h); set('body', '');
-  engageFoot();
+  let h = `<section class="trade-section"><h2>Bank exchange</h2><p class="lead">Swap resources immediately during Plan. Exchange rates include any active bonuses.</p>
+    <div class="trade-balance">You have ${C.RES.map(k => `${res[k]} ${RES_NAMES[k]}`).join(' · ')}</div>
+    <label class="f">Give</label><div class="chips">${C.RES.map(k => `<button class="chip res-${k}${ex.give === k ? ' on' : ''}" data-give="${k}" ${res[k] < rt[k] ? 'disabled' : ''} aria-pressed="${ex.give === k}">${rt[k]} ${ricon(k)}</button>`).join('')}</div>
+    <label class="f">Receive</label><div class="chips">${C.RES.map(k => `<button class="chip res-${k}${ex.get === k ? ' on' : ''}" data-get="${k}" ${k === ex.give ? 'disabled' : ''} aria-pressed="${ex.get === k}">1 ${ricon(k)}</button>`).join('')}</div>
+    <div style="margin-top:.65rem"><button class="btn primary" id="doEx" ${ex.give && ex.get && ex.give !== ex.get && res[ex.give] >= rt[ex.give] ? '' : 'disabled'} style="width:100%">${ex.give && ex.get ? `Exchange ${rt[ex.give]} ${RES_NAMES[ex.give]} for 1 ${RES_NAMES[ex.get]}` : 'Select give and receive'}</button></div></section>`;
+  const others = pub.players.filter(p => p.id !== priv.pid), left = g.phaseEnds - now();
+  const canOffer = priv.offersSent < 2 && left > 20000;
+  h += `<section class="trade-section"><h2>Player diplomacy</h2><p class="lead">Offer a private trade. Your recipient has 20 seconds to respond.</p>
+    <div class="trade-balance">${Math.max(0,2 - priv.offersSent)} of 2 offers remaining · ${canOffer ? 'Trading open' : left <= 20000 ? 'Offer window closed (last 20 seconds)' : 'Limit reached'}</div>
+    <label class="f">Trade with</label><div class="chips">${others.map(p => `<button class="chip${of.to === p.id ? ' on' : ''}" data-to="${p.id}" aria-pressed="${of.to === p.id}">${avatarHTML(AVof(p), { size: 26 })}${esc(p.name)}</button>`).join('')}</div>`;
+  const stepRows = side => C.RES.map(k => `<div class="trade-item"><span class="resource-name res-${k}">${ricon(k)} ${RES_NAMES[k]}</span><div class="stepper"><button data-s="${side}" data-k="${k}" data-d="-1" aria-label="Give ${side === 'give' ? 'one less' : 'request one less'} ${RES_NAMES[k]}" ${(of[side][k] || 0) === 0 ? 'disabled' : ''}>−</button><output>${of[side][k] || 0}</output><button data-s="${side}" data-k="${k}" data-d="1" aria-label="${side === 'give' ? 'Give one more' : 'Request one more'} ${RES_NAMES[k]}" ${of[side][k] >= (side === 'give' ? res[k] : 9) ? 'disabled' : ''}>+</button></div></div>`).join('');
+  if (of.to) h += `<div class="trade-bundle-grid"><div class="trade-bundle"><label class="f">You give</label>${stepRows('give')}</div><div class="trade-bundle"><label class="f">You receive</label>${stepRows('get')}</div></div><div class="trade-summary"><b>Offer summary</b><div>Give: ${esc(tradeBundleText(of.give))}</div><div>Receive: ${esc(tradeBundleText(of.get))}</div></div>`;
+  const ok = of.to && canOffer && !ui.offerPending && Object.values(of.give).some(v => v > 0) && Object.values(of.get).some(v => v > 0) && canPay(res, of.give);
+  if (of.to) h += `<button class="btn primary" id="sendOf" ${ok ? '' : 'disabled'} style="width:100%">${ui.offerPending ? 'Sending…' : 'Send trade offer'}</button>`;
+  if (priv.offersOut.length) h += `<label class="f">Offers sent</label><div class="list">${priv.offersOut.slice().reverse().map(o => { const other = pub.players.find(p => p.id === o.to); const status = o.status || 'Waiting for reply'; return `<div class="row"><div class="grow"><b>To ${esc(other ? other.name : 'another house')}</b><small>${esc(tradeBundleText(o.give))} → ${esc(tradeBundleText(o.get))}</small></div><span class="offer-status ${esc(o.status || '')}">${esc(status)}</span></div>`; }).join('')}</div>`;
+  h += `</section>`;
+  set('head', h); set('body', ''); engageFoot();
   document.querySelectorAll('[data-give]').forEach(b => b.onclick = () => { ex.give = b.dataset.give; if (ex.get === ex.give) ex.get = null; render(); });
   document.querySelectorAll('[data-get]').forEach(b => b.onclick = () => { ex.get = b.dataset.get; render(); });
   if ($('doEx')) $('doEx').onclick = () => { send({ t: 'exchange', give: ex.give, get: ex.get }); };
   document.querySelectorAll('[data-to]').forEach(b => b.onclick = () => { of.to = b.dataset.to; render(); });
-  document.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { const s = b.dataset.s, k = b.dataset.k; of[s][k] = Math.max(0, Math.min(9, (of[s][k] || 0) + +b.dataset.d)); render(); });
-  if ($('sendOf')) $('sendOf').onclick = () => { send({ t: 'offer', to: of.to, give: of.give, get: of.get }); ui.offer = { to: null, give: {}, get: {} }; toast('Offer sent'); render(); };
+  document.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { const side = b.dataset.s, k = b.dataset.k, max = side === 'give' ? res[k] : 9; of[side][k] = Math.max(0, Math.min(max, (of[side][k] || 0) + +b.dataset.d)); render(); });
+  if ($('sendOf')) $('sendOf').onclick = () => { if (!ok) return; ui.offerPending = true; send({ t: 'offer', to: of.to, give: of.give, get: of.get }); render(); };
   return { map: false };
 }
 function renderMyMissions() {
   let h = '';
-  if (priv.surveyOffer) h += `<h2>Survey Drone</h2><p class="lead">Keep one of these Missions.</p><div class="list">${priv.surveyOffer.map(m => `<button class="card" data-sv="${m.uid}"><span class="tag">+${m.inf}</span><b>${esc(m.text)}</b><p>Tap to keep</p></button>`).join('')}</div>`;
-  h += `<h2 style="margin-top:${priv.surveyOffer ? '1.2rem' : 0}">Your Missions</h2><p class="lead">Secret goals. They score the moment they're true at the end of a Reveal.${priv.perks ? ' Unfinished Missions cost 1 Influence each at the end.' : ''}</p>`;
+  if (priv.surveyOffer) h += `<h2>Survey Drone</h2><p class="lead">Choose one of these secret Missions to keep.</p><div class="list">${priv.surveyOffer.map(m => `<button class="card" data-sv="${m.uid}"><span class="tag">+${m.inf}</span><b>${esc(m.text)}</b><p>Tap to keep</p></button>`).join('')}</div>`;
+  const done = priv.missions.filter(m => m.done).length, ready = priv.missions.filter(m => !m.done && m.met).length;
+  h += `<h2 style="margin-top:${priv.surveyOffer ? '1.2rem' : 0}">Secret Missions</h2><p class="lead">Track progress here. The server checks Missions at the end of Reveal; your TV only shows them once scored.</p>
+    <div class="mission-summary"><span>${done} of ${priv.missions.length} completed</span><span>${ready ? `${ready} ready to score` : 'Keep expanding'}</span></div>`;
+  if (priv.perks) h += '<p class="note bad">Advanced mode: each unfinished Mission costs 1 Influence at game end.</p>';
   h += `<div class="list">${priv.missions.map(m => missionCard(m)).join('')}</div>`;
   set('head', h); set('body', '');
   document.querySelectorAll('[data-sv]').forEach(b => b.onclick = () => send({ t: 'survey', uid: b.dataset.sv }));
-  engageFoot();
-  return { map: false };
+  engageFoot(); return { map: false };
 }
 function renderCards() {
   let h = `<h2>Held cards</h2><p class="lead">Play one now and it works during this round's Reveal. You can hold 3.</p>`;
@@ -671,25 +788,51 @@ function renderCards() {
   return { map: false };
 }
 
-// ───────── Map taps ─────────
+// ───────── Sector choice: map + accessible, deterministic list ─────────
+function pickSectorIds() {
+  if (!ui.pick || !G() || !priv) return [];
+  const P = ui.pick, d = P.d || {}, L = priv.legal || {};
+  if (P.kind === 'setup') return G().setupTurn === priv.pid ? priv.setupLegal || [] : [];
+  if (P.kind === 'found' || P.kind === 'spire') return L[P.kind] || [];
+  if (P.kind === 'shields') return L.shields || [];
+  if (P.kind === 'fleet') return P.step === 0 ? L.fleetPlace || [] : d.from ? (L.move || []).filter(x => x[0] === d.from).map(x => x[1]) : [...new Set((L.move || []).map(x => x[0]))];
+  if (P.kind === 'strike') return d.from ? (L.strike || []).filter(x => x[0] === d.from).map(x => x[1]) : [...new Set((L.strike || []).map(x => x[0]))];
+  return [];
+}
+function selectSector(id) {
+  if (!ui.pick || !G() || !priv) return;
+  const P = ui.pick, d = P.d || {}, L = priv.legal || {};
+  if (!pickSectorIds().includes(id)) return;
+  if (P.kind === 'setup') ui.setupSel = id;
+  else if (['found','spire','shields'].includes(P.kind)) d.target = id;
+  else if (P.kind === 'fleet' && P.step === 0) d.place = id;
+  else if (P.kind === 'fleet' && P.step === 1) {
+    if (!d.from) { d.from = id; d.to = null; d.mn = null; }
+    else { d.to = id; d.mn = null; }
+  } else if (P.kind === 'strike') {
+    if (!d.from) { d.from = id; d.to = null; }
+    else d.to = id;
+  }
+  render();
+}
+function renderPickAssist() {
+  const el = $('pickAssist'), P = ui.pick;
+  if (!P || !priv || !G()) { set('pickAssist', ''); set('mapcap',''); return; }
+  const ids = pickSectorIds();
+  if (!ids.length || P.kind === 'lane' || P.kind === 'research') { set('pickAssist', ''); set('mapcap', '<span>Glowing = available</span><span>Striped = Solar Storm</span>'); return; }
+  const d = P.d || {}, choice = P.kind === 'setup' ? ui.setupSel : (d.to || d.target || d.place || d.from);
+  const topic = P.kind === 'setup' ? 'Landing sites' : P.kind === 'strike' ? d.from ? 'Enemy targets' : 'Attacking Fleets' : P.kind === 'fleet' ? P.step ? d.from ? 'Move destination' : 'Move from' : 'Place new Fleets' : 'Available sectors';
+  const selection = `<div class="pick-kicker"><span>${esc(topic)}</span><span>${ids.length} legal choice${ids.length === 1 ? '' : 's'}</span></div>`;
+  set('pickAssist', selection + `<div class="pick-options">${ids.map(id => { const h = hex(id); return `<button class="pick-option${id === choice ? ' selected' : ''}" data-pick-sector="${esc(id)}" aria-pressed="${id === choice}"><strong>${esc(hexName(id))}</strong><small>${h ? `${esc(TYPE_NAMES[h.type])}${h.fleets ? ` · ${h.fleets} Fleets` : ''}` : ''}</small></button>`; }).join('')}</div><p class="pick-instructions">Tap an option here or a glowing sector on the map. Only legal targets are selectable.</p>`);
+  document.querySelectorAll('[data-pick-sector]').forEach(b => b.onclick = () => selectSector(b.dataset.pickSector));
+  set('mapcap','<span>Glowing = available</span><span>Striped = Solar Storm</span>');
+}
 $('cv').addEventListener('click', e => {
   if (!ui.pick || !G()) return;
   const r = $('cv').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
   const P = ui.pick, d = P.d || {}, L = priv.legal || {};
   if (P.kind === 'lane') { const id = map.hitLane(x, y); if (id && L.lane.includes(id)) { d.lane = id; render(); } return; }
-  const id = map.hit(x, y); if (!id) return;
-  if (P.kind === 'setup') { if ((priv.setupLegal || []).includes(id)) { ui.setupSel = id; render(); } return; }
-  if ((P.kind === 'found' || P.kind === 'spire') && L[P.kind].includes(id)) { d.target = id; render(); }
-  if (P.kind === 'shields' && L.shields.includes(id)) { d.target = id; render(); }
-  if (P.kind === 'fleet' && P.step === 0 && L.fleetPlace.includes(id)) { d.place = id; render(); }
-  if (P.kind === 'fleet' && P.step === 1) {
-    if (!d.from || (d.from && !L.move.some(m => m[0] === d.from && m[1] === id) && L.move.some(m => m[0] === id))) { if (L.move.some(m => m[0] === id)) { d.from = id; d.to = null; d.mn = null; render(); } }
-    else if (L.move.some(m => m[0] === d.from && m[1] === id)) { d.to = id; d.mn = null; render(); }
-  }
-  if (P.kind === 'strike') {
-    if (d.from && L.strike.some(s => s[0] === d.from && s[1] === id)) { d.to = id; render(); }
-    else if (L.strike.some(s => s[0] === id)) { d.from = id; d.to = null; render(); }
-  }
+  selectSector(map.hit(x, y));
 });
 
 // ───────── Modals ─────────

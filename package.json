@@ -7,11 +7,24 @@
     "start": "node server.js",
     "build": "python3 build.py",
     "test": "node test-sim.js",
-    "test:ui": "node test-ui-static.js"
+    "test:ui": "node test-ui-static.js && node test-phase4-ui.js && node test-phase5-cinematic.js",
+    "test:phase4": "node test-phase4-ui.js",
+    "test:phase5": "node test-phase5-cinematic.js",
+    "test:phase6": "node --test test-phase6-rules.js && node --test test-phase6-simulation.js",
+    "test:rules": "node --test test-phase6-rules.js",
+    "test:offline": "npm run test:ui && npm run test:phase6"
   },
-  "engines": { "node": ">=18" },
-  "dependencies": { "ws": "^8.18.0" },
-  "devDependencies": { "@fontsource/inter": "^5.0.0", "@fontsource/orbitron": "^5.0.0", "qrcode-generator": "^2.0.4" },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.0.0",
+    "@fontsource/orbitron": "^5.0.0",
+    "qrcode-generator": "^2.0.4"
+  },
   "license": "UNLICENSED",
   "private": true
 }

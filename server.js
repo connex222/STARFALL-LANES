@@ -35,7 +35,7 @@ const AVATARS = [
   { id: 'bramble', name: 'Captain Bramble', short: 'Bramble', title: 'Floran · The Gardener', color: '#E8C21F', badge: '✚', perk: 'Sectors produce +1 the round after the storm leaves them.' }
 ];
 const DRAFT = {
-  supply: { name: 'Supply Drop', n: 4, type: 'instant', text: '+2 of your scarcest resource' },
+  supply: { name: 'Supply Drop', n: 4, type: 'instant', text: '+2 of one resource of your choice' },
   cache: { name: 'Credit Cache', n: 4, type: 'instant', text: '+3 Credits' },
   overdrive: { name: 'Overdrive', n: 3, type: 'held', text: 'One of your Strikes this round gets +2' },
   warp: { name: 'Warp Gate', n: 3, type: 'held', text: 'Your next hyperlane this round: 1 segment free' },
@@ -242,8 +242,8 @@ function startGame(room) {
     storm: null, twin: null, round: 0, era: 0, firstIdx: rnd(n), order: [],
     phase: 'missions', phaseEnds: 0, draftDeck: [], draftDiscard: [], pool: [],
     missionDeck: [], eventDeck: [], event: null, ps: {}, trophies: { network: null, armada: null },
-    log: [], fx: null, fxSeq: 0, setupTurn: null, eraOffer: [], eraPicks: {}, offers: [], offerSeq: 0,
-    results: null, moods: {}, uid: 0, incomeShow: null
+    log: [], fx: null, fxSeq: 0, setupTurn: null, eraOffer: [], eraPicks: {}, leftoverUpgrades: [], offers: [], offerSeq: 0,
+    results: null, moods: {}, uid: 0, incomeShow: null, eraTurn: null
   };
   room.game = g; room.phase = 'game';
   g.storm = spawnStorm(g, true);
@@ -262,7 +262,7 @@ function startGame(room) {
   setOrder(room);
   runGame(room).catch(e => { console.error('game error', e); });
 }
-function emptyPlan() { return { cmds: [null, null], rank: [], play: [] }; }
+function emptyPlan() { return { cmds: [null, null], rank: [], play: [], supply: null }; }
 function setOrder(room) {
   const g = room.game, ids = room.players.map(p => p.id);
   g.order = ids.slice(g.firstIdx % ids.length).concat(ids.slice(0, g.firstIdx % ids.length));
@@ -361,7 +361,7 @@ function legal(g, room, pid) {
     if (strikeOk(g, room, pid, h, n)) L.strike.push([h.id, n.id]);
   }
   if (g.missionDeck.length) L.research.push('mission');
-  for (const [k, u] of Object.entries(UPGRADES)) if (u.era <= g.era && !hasUp(g, pid, k)) L.research.push(k);
+  for (const k of g.leftoverUpgrades || []) if (!hasUp(g, pid, k)) L.research.push(k);
   return L;
 }
 function connected(g, pid, a, b) {
@@ -493,6 +493,11 @@ function hexLabel(h) {
   return { rock: 'a Rock World', ice: 'an Ice World', crystal: 'a Crystal World', gas: 'a Gas Giant', asteroid: 'an Asteroid Field' }[h.type] || 'a sector';
 }
 
+function eraPickOrder(room) {
+  const g = room.game;
+  // Reverse Influence, with the current first-player order breaking ties.
+  return g.order.slice().sort((a, b) => influence(g, a) - influence(g, b) || g.order.indexOf(a) - g.order.indexOf(b));
+}
 async function eraPhase(room, eraIdx) {
   const g = room.game;
   g.phase = 'era';
@@ -501,17 +506,27 @@ async function eraPhase(room, eraIdx) {
   for (const p of room.players) if (eraIdx > 0 && hasUp(g, p.id, 'militia')) addFleets(g, p.id, 1);
   g.eraOffer = Object.keys(UPGRADES).filter(k => UPGRADES[k].era === eraIdx);
   g.eraPicks = {};
-  for (const p of room.players) if (p.isAI) g.eraPicks[p.id] = pick(g.eraOffer);
-  await waitFor(room, 30000, () => room.players.every(p => g.eraPicks[p.id]));
-  if (!live(room, g)) return;
-  for (const p of room.players) {
-    const k = g.eraPicks[p.id] && g.eraOffer.includes(g.eraPicks[p.id]) ? g.eraPicks[p.id] : pick(g.eraOffer);
-    applyUpgrade(room, p.id, k);
+  // Picks are sequential, last place first. All three upgrades remain available to
+  // every house, as required by the v2 design; they are not exclusive cards.
+  for (const pid of eraPickOrder(room)) {
+    if (!live(room, g)) return;
+    g.eraTurn = pid;
+    const player = room.players.find(p => p.id === pid);
+    if (player.isAI) g.eraPicks[pid] = pick(g.eraOffer);
+    else await waitFor(room, 10000, () => !!g.eraPicks[pid] || player.isAI);
+    if (!live(room, g)) return;
+    const k = g.eraOffer.includes(g.eraPicks[pid]) ? g.eraPicks[pid] : pick(g.eraOffer);
+    g.eraPicks[pid] = k;
+    applyUpgrade(room, pid, k);
+    sync(room);
   }
+  g.leftoverUpgrades.push(...g.eraOffer.filter(k => !Object.values(g.eraPicks).includes(k)));
+  g.eraTurn = null;
   g.eraOffer = []; g.eraPicks = {};
   sync(room);
   await sleep(1500);
 }
+
 function addFleets(g, pid, n) {
   const mine = owned(g, pid);
   if (!mine.length) return;
@@ -577,8 +592,9 @@ async function incomePhase(room) {
       if (g.event === 'ion' && !perk(g, room, pid, 'oolu')) continue;
       inc.credits += (hasUp(g, pid, 'couriers') ? 2 : 1) + (l.a === '0,0' || l.b === '0,0' ? 1 : 0);
     }
-    if (g.event === 'supernova') for (const k of RES) inc[k] *= 2;
     if (infs[pid] === low) inc.credits += 1;
+    // The catch-up Credit is income too: Supernova doubles all income.
+    if (g.event === 'supernova') for (const k of RES) inc[k] *= 2;
     const res = P(g, pid).res;
     gain(res, inc);
     if (g.event === 'pirate' && fleetsOf(g, pid) === 0 && res.credits > 0) { res.credits -= 1; inc.credits -= 1; }
@@ -716,7 +732,13 @@ function receiveCard(room, pid, card) {
   }
   if (d.type === 'kept') { ps.kept.push(card); return; }
   g.draftDiscard.push(card);
-  if (card.key === 'supply') { const k = RAW.slice().sort((a, b) => ps.res[a] - ps.res[b])[0]; ps.res[k] += 2; }
+  if (card.key === 'supply') {
+    // A submitted preference is applied only if the player actually wins Supply Drop.
+    // Bot, timeout and older phone clients fall back to the scarcest resource.
+    const k = RAW.includes(ps.plan.supply) ? ps.plan.supply : RAW.slice().sort((a, b) => ps.res[a] - ps.res[b])[0];
+    ps.res[k] += 2;
+    log(g, `${nameOf(room, pid)} received 2 ${k} from Supply Drop.`);
+  }
   if (card.key === 'cache') ps.res.credits += 3;
   if (card.key === 'prospector') {
     const prod = new Set(owned(g, pid).map(h => PROD[h.type]).filter(Boolean));
@@ -801,7 +823,7 @@ function resolveCmd(room, pid, cmd) {
       if (!g.missionDeck.length) return fail(room, pid, cmd, 'no Missions left');
       pay(res, C.research); ps.missions.push(g.missionDeck.shift());
       log(g, `${who} researched a new Mission.`);
-    } else if (UPGRADES[cmd.choice] && UPGRADES[cmd.choice].era <= g.era && !hasUp(g, pid, cmd.choice)) {
+    } else if (UPGRADES[cmd.choice] && (g.leftoverUpgrades || []).includes(cmd.choice) && !hasUp(g, pid, cmd.choice)) {
       pay(res, C.research); applyUpgrade(room, pid, cmd.choice);
     } else return fail(room, pid, cmd, 'that research is unavailable');
     ps.round.researched = true;
@@ -1011,7 +1033,7 @@ function pubState(room) {
     lanes: g.lanes, storm, ghost, twin, stormDir: g.storm.label, round: g.round, maxRounds: g.M.rounds, era: g.era,
     target: g.M.target, order: g.order, phase: g.phase, phaseEnds: g.phaseEnds, pool: g.pool, event: g.event,
     trophies: g.trophies, log: g.log.slice(-8), fx: g.fx, setupTurn: g.setupTurn, eraOffer: g.eraOffer,
-    results: g.results, income: g.incomeShow, mode: g.mode, deckLeft: g.draftDeck.length
+    results: g.results, income: g.incomeShow, mode: g.mode, deckLeft: g.draftDeck.length, eraTurn: g.eraTurn
   };
   return out;
 }
@@ -1132,7 +1154,7 @@ function onMessage(ws, msg) {
     if (setupLegal(g, p.id).includes(msg.hex)) g.setupChoice = msg.hex;
     return;
   }
-  if (t === 'eraPick' && g.phase === 'era' && g.eraOffer.includes(msg.id)) { g.eraPicks[p.id] = msg.id; return sync(room); }
+  if (t === 'eraPick' && g.phase === 'era' && g.eraTurn === p.id && !g.eraPicks[p.id] && g.eraOffer.includes(msg.id)) { g.eraPicks[p.id] = msg.id; return sync(room); }
   if (t === 'survey' && g.phase === 'plan') { chooseSurvey(g, p.id, msg.uid); return sync(room); }
   if (t === 'plan' && g.phase === 'plan') {
     const cmds = Array.isArray(msg.cmds) ? msg.cmds.slice(0, 2) : [];
@@ -1144,7 +1166,11 @@ function onMessage(ws, msg) {
       return o;
     };
     ps.plan.cmds = [clean(cmds[0]), clean(cmds[1])];
-    if (Array.isArray(msg.rank)) ps.plan.rank = msg.rank.filter(u => typeof u === 'string').slice(0, 12);
+    if (Array.isArray(msg.rank)) {
+      const available = new Set(g.pool.map(c => c.uid));
+      ps.plan.rank = [...new Set(msg.rank.filter(u => typeof u === 'string' && available.has(u)))].slice(0, 9);
+    }
+    if (msg.supply !== undefined) ps.plan.supply = RAW.includes(msg.supply) ? msg.supply : null;
     if (Array.isArray(msg.play)) ps.plan.play = msg.play.filter(x => x && ps.held.some(c => c.uid === x.uid)).map(x => ({ uid: x.uid, target: typeof x.target === 'string' ? x.target : null }));
     if (msg.engage !== undefined) ps.engaged = !!msg.engage;
     return sync(room);
@@ -1161,7 +1187,7 @@ function onMessage(ws, msg) {
     g.offers.push(o);
     if (to.isAI) {
       setTimeout(() => {
-        if (o.status) return;
+        if (o.status || room.game !== g || g.phase !== 'plan' || Date.now() >= o.expires) return;
         const tps = P(g, to.id);
         const gv = Object.values(give).reduce((a, b) => a + b, 0), gt = Object.values(get).reduce((a, b) => a + b, 0);
         resolveOffer(room, o, canPay(tps.res, get) && gv >= gt && Math.random() < 0.7);
@@ -1169,7 +1195,7 @@ function onMessage(ws, msg) {
     }
     return sync(room);
   }
-  if (t === 'offerReply') {
+  if (t === 'offerReply' && g.phase === 'plan') {
     const o = g.offers.find(x => x.id === msg.id && x.to === p.id && !x.status);
     if (o) resolveOffer(room, o, !!msg.accept);
     return sync(room);
@@ -1177,6 +1203,7 @@ function onMessage(ws, msg) {
 }
 function resolveOffer(room, o, accept) {
   const g = room.game; if (!g || o.status) return;
+  if (g.phase !== 'plan' || Date.now() >= o.expires) { o.status = 'expired'; sync(room); return; }
   const a = P(g, o.from), b = P(g, o.to);
   if (accept && canPay(a.res, o.give) && canPay(b.res, o.get)) {
     pay(a.res, o.give); gain(b.res, o.give); pay(b.res, o.get); gain(a.res, o.get);
@@ -1194,26 +1221,31 @@ function lanIPs() {
 }
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.json': 'application/json' };
 const server = http.createServer((req, res) => {
-  const url = decodeURIComponent((req.url || '/').split('?')[0]);
+  let url;
+  try { url = decodeURIComponent((req.url || '/').split('?')[0]); }
+  catch (_) { res.writeHead(400); return res.end('Invalid URL'); }
   if (url === '/') { res.writeHead(302, { Location: '/tv.html' }); return res.end(); }
   if (url === '/info') { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify({ ips: lanIPs(), port: PORT })); }
   if (url === '/health') { res.writeHead(200); return res.end('ok'); }
-  const file = path.normalize(path.join(PUBLIC, url));
-  if (!file.startsWith(PUBLIC)) { res.writeHead(403); return res.end(); }
+  const file = path.resolve(PUBLIC, '.' + url);
+  if (file !== PUBLIC && !file.startsWith(PUBLIC + path.sep)) { res.writeHead(403); return res.end(); }
   fs.readFile(file, (err, data) => {
     if (err) { res.writeHead(404); return res.end('Not found'); }
     res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
     res.end(data);
   });
 });
-const wss = new WebSocketServer({ server });
+// Keep inbound packets bounded so one rogue controller cannot consume unbounded memory.
+const wss = new WebSocketServer({ server, maxPayload: 32 * 1024 });
 wss.on('connection', ws => {
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
   ws.on('message', raw => {
     let msg; try { msg = JSON.parse(raw); } catch (e) { return; }
+    if (!msg || typeof msg !== 'object' || Array.isArray(msg)) return;
     try { onMessage(ws, msg); } catch (e) { console.error('message error', e); }
   });
+  ws.on('error', err => { console.warn('WebSocket connection error:', err.message); });
   ws.on('close', () => {
     const room = ws.room; if (!room) return;
     if (ws.role === 'tv') room.tvs.delete(ws);
@@ -1236,4 +1268,9 @@ if (require.main === module) {
     for (const ip of lanIPs()) console.log(`  TV:     http://${ip}:${PORT}/tv.html`);
   });
 }
-module.exports = { server, rooms, genMap, MAPS, _internal: { startGame, influence, legal } };
+module.exports = { server, rooms, genMap, MAPS, _internal: {
+  startGame, makeRoom, onMessage, pubState, privState, sync, P, costs, legal, influence, owned, inStorm, moveStorm,
+  incomePhase, planPhase, revealPhase, eraPhase, eraPickOrder, receiveCard, resolveCmd, resolveStrike,
+  resolveOffer, updateTrophies, networkSize, missionMet, genMissions, endGame, emptyPlan,
+  applyUpgrade, cleanBundle, canPay, spawnStorm, bandHas, setOrder, doExchange
+} };
