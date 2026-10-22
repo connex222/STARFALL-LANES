@@ -7,11 +7,21 @@ function initials(name) {
   const w = name.split(/[\s-]+/).filter(x => !/^(Commander|Matriarch|Archon|Dr\.|Captain)$/.test(x));
   return w.map(x => x[0]).join('').slice(0, 2).toUpperCase();
 }
+// Era and expression files take precedence; a missing variation falls back to the
+// real, neutral master portrait instead of reverting to initials. No external assets.
+function avatarArtFallback(el, master) {
+  const attempted = el.getAttribute('src');
+  artFailed.add(attempted);
+  if (attempted !== master && !artFailed.has(master)) el.src = master;
+  else el.remove();
+}
 function avatarHTML(av, o) {
   o = o || {};
-  const s = o.size || 48, mood = o.mood || 'neutral', era = ERA_IDS[o.era || 0];
-  const src = `art/avatars/${av.id}_${era}_${mood}.png`;
-  const img = artFailed.has(src) ? '' : `<img src="${src}" alt="" onerror="artFailed.add(this.getAttribute('src'));this.remove()">`;
+  const s = o.size || 48, mood = o.mood || 'neutral', era = ERA_IDS[o.era || 0] || 'frontier';
+  const master = `art/avatars/${av.id}_frontier_neutral.png`;
+  const wanted = `art/avatars/${av.id}_${era}_${mood}.png`;
+  const src = artFailed.has(wanted) ? master : wanted;
+  const img = artFailed.has(master) ? '' : `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${master}')">`;
   return `<div class="av mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}"><span class="av-ini">${initials(av.name)}</span>${img}<span class="av-badge">${av.badge}</span></div>`;
 }
 function costHTML(c) {

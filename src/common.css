@@ -44,3 +44,21 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 .num{font-family:Inter,system-ui,sans-serif!important;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* Starfall Lanes cinematic design system. Keeps all functional buttons and
+   shape badges, with accessible focus contrast and reduced-motion support. */
+:root[data-theme="dark"] {
+  --panel:rgba(10,23,43,.93);--panel2:#112640;
+  --line:rgba(102,177,220,.28);--muted:#a5bdd5;
+  --shadow:0 10px 34px rgba(0,5,20,.53);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --panel:rgba(10,23,43,.93);--panel2:#112640;
+  --line:rgba(102,177,220,.28);--muted:#a5bdd5;
+  --shadow:0 10px 34px rgba(0,5,20,.53);
+}}
+.av{border:2px solid var(--c);background:#091b31;box-shadow:0 0 0 2px rgba(3,11,25,.8),0 0 16px color-mix(in srgb,var(--c) 22%,transparent)}
+.av img{object-position:center 24%;filter:contrast(1.06) saturate(1.05)}
+.av-ini{position:relative;z-index:0}
+.av-badge{background:#061627;color:#fff;border:2px solid var(--c);text-shadow:0 1px 2px #000;box-shadow:0 2px 8px rgba(0,0,0,.7);z-index:2}
+:focus-visible{outline:3px solid #7be9ff;outline-offset:3px}

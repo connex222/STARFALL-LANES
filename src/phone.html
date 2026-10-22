@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="theme-color" content="#070A16">
 <title>Starfall Lanes</title>
+<link rel="icon" type="image/svg+xml" href="art/brand/starfall-mark.svg">
 <style>
 /*CSS*/
 html{font-size:16px}
@@ -110,6 +111,28 @@ label.f{display:block;font-weight:800;font-size:.85rem;margin:.9rem 0 .35rem}
 .res-tbl tr.win td{color:var(--gold)}
 .mapcap{position:absolute;left:.5rem;bottom:.5rem;right:.5rem;display:flex;gap:.4rem;flex-wrap:wrap;pointer-events:none}
 .mapcap span{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.2rem .45rem;font-size:.72rem;font-weight:800}
+/* Phase 1 + 2: coherent mobile command-console styling */
+body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparent 33%),var(--bg)}
+#top{background:var(--panel);box-shadow:0 5px 25px rgba(0,10,30,.18)}
+#wrap{position:relative}
+#head{padding-top:1rem}
+.phone-brand{text-align:center;position:relative;min-height:175px;margin:1.2rem 0 .8rem;padding:1.1rem .7rem 1rem;border-radius:21px;background:radial-gradient(ellipse at 50% 22%,rgba(38,195,245,.24),transparent 70%),linear-gradient(145deg,#05172c,#0d2842);border:1px solid rgba(82,181,232,.33);box-shadow:0 15px 40px rgba(0,11,25,.22)}
+.phone-brand-label{font-size:.63rem;color:#91cae9;font-weight:800;letter-spacing:.16em;margin-bottom:1rem}
+.phone-brand img{width:min(100%,380px);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 0 14px rgba(37,198,243,.24))}
+.phone-brand .lead{margin:.1rem 0 0;color:#bfd5e8;font-size:.82rem}
+.btn.primary{background:linear-gradient(125deg,#119bcc,#3ddaff);color:#031623;box-shadow:0 5px 20px rgba(3,170,228,.25);border:1px solid rgba(159,246,255,.68)}
+.btn.primary:disabled{box-shadow:none}
+.btn,.cmd,.card,.slot,.row,.seg button{box-shadow:inset 0 1px 0 rgba(145,210,244,.06)}
+.house{border-color:var(--line)}
+.grid2>.house{flex-direction:column;justify-content:center;align-items:center;min-height:167px;text-align:center;gap:.45rem;background:linear-gradient(155deg,var(--panel),var(--panel2));padding:.75rem .45rem}
+.grid2>.house .av{box-shadow:0 0 0 3px rgba(28,128,191,.13),0 8px 18px rgba(0,0,0,.26)}
+.grid2>.house span{max-width:100%}
+.grid2>.house b{font-size:.84rem;max-width:100%;white-space:normal}
+.grid2>.house small{font-size:.72rem;line-height:1.35}
+.grid2>.house.mine{background:linear-gradient(155deg,var(--panel2),color-mix(in srgb,var(--accent) 15%,var(--panel)))}
+#resbar{box-shadow:0 5px 15px rgba(0,0,0,.08)}
+.tabs button.on{box-shadow:inset 0 3px 0 rgba(255,255,255,.35)}
+@media(max-width:340px){.grid2>.house{min-height:155px;padding:.45rem .25rem}.grid2{gap:.35rem}.grid2>.house .av{max-width:74px;max-height:74px}}
 </style>
 </head>
 <body>
@@ -265,7 +288,7 @@ function set(id, html) { const el = $(id); if (el.innerHTML !== html) el.innerHT
 
 // ───────── Join ─────────
 function renderJoin() {
-  set('head', `<h2 class="orb" style="font-size:1.6rem;margin-top:1.2rem">Starfall Lanes</h2><p class="lead">Join the game showing on the TV.</p>`);
+  set('head', `<div class="phone-brand"><div class="phone-brand-label">INTERSTELLAR COMMAND NETWORK</div><img src="art/brand/starfall-logo.svg" alt="Starfall Lanes"><p class="lead">Join the game showing on the TV.</p></div>`);
   const s = saved();
   set('body', `<label class="f" for="jc">Game code</label><input id="jc" class="code" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(urlRoom || (s && s.room) || '')}">
     <label class="f" for="jn">Your name</label><input id="jn" type="text" maxlength="14" autocomplete="nickname" placeholder="Optional" value="${esc(localStorage.getItem('sf_name') || '')}">
@@ -310,7 +333,7 @@ function renderLobby() {
   set('head', `<h2>Choose your house</h2><p class="lead">Your colour and badge mark everything you own on the TV.</p>`);
   let body = `<div class="grid2">` + C.AVATARS.map((a, i) => {
     const t = taken[i], mine = t && t.id === p.id;
-    return `<button class="house${mine ? ' mine' : ''}" data-av="${i}" ${t && !mine ? 'disabled' : ''} aria-pressed="${mine}">${avatarHTML(a, { size: 46 })}<span><b>${esc(a.name)}</b><small>${t && !mine ? esc(t.name) : esc(a.title)}</small></span></button>`;
+    return `<button class="house${mine ? ' mine' : ''}" data-av="${i}" ${t && !mine ? 'disabled' : ''} aria-pressed="${mine}">${avatarHTML(a, { size: 86 })}<span><b>${esc(a.name)}</b><small>${t && !mine ? esc(t.name) : esc(a.title)}</small></span></button>`;
   }).join('') + `</div>`;
   body += `<label class="f" for="nm">Your name</label><div style="display:flex;gap:.5rem"><input id="nm" type="text" maxlength="14" value="${esc(p.name)}"><button class="btn small" id="nmSave">Save</button></div>`;
   if (pub.mode === 'advanced') body += `<p class="note"><b>House perk:</b> ${esc(AVof(p).perk)}</p>`;

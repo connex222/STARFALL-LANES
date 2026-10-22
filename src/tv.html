@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Starfall Lanes — TV</title>
+<link rel="icon" type="image/svg+xml" href="art/brand/starfall-mark.svg">
 <style>
 /*CSS*/
 html{font-size:clamp(14px,1.15vw,26px)}
@@ -88,6 +89,36 @@ body{overflow:hidden;background:#070A16}
 .over th{color:var(--muted);font-size:.75rem;font-weight:700}
 .over td.n{font-family:Inter;font-weight:800;text-align:right}
 .over tr.win td{color:var(--gold)}
+/* Phase 1 + 2: cinematic TV shell and responsive lobby */
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17 100%)}
+#lobby{isolation:isolate;gap:clamp(1.5rem,4vw,4.5rem);padding:clamp(1.4rem,4vw,4rem);background:radial-gradient(ellipse at 22% 43%,rgba(16,93,147,.34),transparent 44%),linear-gradient(114deg,rgba(2,11,25,.54),rgba(2,10,25,.64))}
+#lobby:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(2,10,23,.13),rgba(2,10,23,.43)),repeating-linear-gradient(0deg,transparent 0 91px,rgba(75,176,229,.035) 92px),repeating-linear-gradient(90deg,transparent 0 91px,rgba(75,176,229,.035) 92px)}
+#lobby>div{position:relative;z-index:1;min-width:0}
+#lobby .lobby-logo{display:block;width:min(100%,39rem);height:auto;filter:drop-shadow(0 0 24px rgba(31,192,255,.24))}
+.brand-kicker{display:flex;align-items:center;gap:.7rem;margin-bottom:1.3rem;font-size:.78rem;letter-spacing:.26em;font-weight:800;color:#91cae9}
+.brand-kicker .signal{width:9px;height:9px;background:#38d9ff;box-shadow:0 0 16px #38d9ff;transform:rotate(45deg)}
+#lobby .sub{line-height:1.55;max-width:42rem;color:#c1d3e6}
+#lobby .join{width:100%;background:linear-gradient(130deg,rgba(13,31,54,.92),rgba(12,24,44,.78));border-color:rgba(93,195,241,.42);box-shadow:inset 0 1px 0 rgba(163,219,250,.14),0 18px 52px rgba(0,0,0,.34)}
+#lobby .code{letter-spacing:.13em;text-shadow:0 0 20px rgba(55,212,255,.48)}
+#lobby .join canvas{flex:none;box-shadow:0 0 25px rgba(24,204,255,.18)}
+#lobby .roster{align-content:center}
+#lobby .slot{min-width:0;min-height:5.2rem;border:1px solid rgba(107,183,225,.28);background:linear-gradient(125deg,rgba(20,41,68,.91),rgba(11,26,47,.89));box-shadow:inset 0 1px 0 rgba(157,227,255,.06)}
+#lobby .slot:not(.empty){border-left:3px solid rgba(76,201,247,.65)}
+#lobby .slot.empty{border:1px dashed rgba(92,148,185,.27);background:rgba(7,22,40,.23)}
+#lobby .slot b{max-width:15rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+#top{background:linear-gradient(90deg,rgba(9,26,46,.97),rgba(12,31,52,.95));border-color:rgba(98,180,228,.22);box-shadow:0 8px 27px rgba(0,0,0,.22)}
+#top .top-logo{width:2.6rem;height:2.6rem;filter:drop-shadow(0 0 12px rgba(38,211,255,.28));margin-right:.2rem}
+#top .era{color:#d6ecfa}
+#rail{background:linear-gradient(90deg,rgba(4,14,31,.96),rgba(9,24,45,.68));border-right:1px solid rgba(94,170,214,.16)}
+#rail .house{background:linear-gradient(100deg,rgba(22,43,71,.93),rgba(10,25,45,.93));border:1px solid rgba(80,159,210,.25);border-left:3px solid var(--line);box-shadow:inset 0 1px 0 rgba(155,212,255,.05)}
+#rail .house.turn{border-color:var(--accent)}
+#side{background:linear-gradient(270deg,rgba(4,14,31,.96),rgba(8,24,44,.83));border-left:1px solid rgba(94,170,214,.16)}
+#side .card{background:linear-gradient(120deg,rgba(18,43,69,.96),rgba(12,28,49,.94));border-color:rgba(88,170,221,.26)}
+#tick{background:rgba(6,20,39,.98);border-color:rgba(96,179,221,.23)}
+#banner{background:rgba(7,26,47,.95);border-color:rgba(82,205,255,.49)}
+@media(max-width:1100px){#lobby{grid-template-columns:1fr 1fr;gap:1.2rem;padding:1.4rem}#lobby .join{gap:.75rem;padding:.75rem}#lobby .join canvas{width:8rem;height:8rem}#lobby .code{font-size:2.7rem}#lobby .slot{gap:.45rem;padding:.4rem}}
+@media(max-width:760px){#lobby{grid-template-columns:1fr;overflow:auto;align-items:start;gap:1rem}#lobby .lobby-logo{max-width:26rem}#lobby .roster{grid-template-columns:repeat(2,minmax(0,1fr))}#lobby .join{margin-top:1.1rem}}
 </style>
 </head>
 <body>
@@ -95,7 +126,9 @@ body{overflow:hidden;background:#070A16}
 <section id="lobby" aria-label="Lobby">
   <canvas class="bg" id="lobbyBg"></canvas>
   <div>
-    <h1>Starfall<br>Lanes</h1>
+    <div class="brand-kicker"><span class="signal"></span> A GALAXY OF RIVAL HOUSES</div>
+    <img class="lobby-logo" src="art/brand/starfall-logo.svg" alt="STARFALL LANES">
+    <h1 class="visually-hidden">Starfall Lanes</h1>
     <p class="sub">Claim worlds, open hyperlanes, outrun the Solar Storm. First to Influence <span id="lTarget">15</span> becomes Warden of the Cluster.</p>
     <div class="join">
       <canvas id="qr" width="264" height="264" aria-label="QR code to join"></canvas>
@@ -115,6 +148,7 @@ body{overflow:hidden;background:#070A16}
 </section>
 <div id="app" hidden>
   <header id="top">
+    <img class="top-logo" src="art/brand/starfall-mark.svg" alt="Starfall Lanes">
     <span class="era" id="tEra"></span><span class="round" id="tRound"></span>
     <span class="storm" id="tStorm"><i></i><span></span></span>
     <span class="phase"><span id="tPhase"></span><span class="timer" id="tTimer"></span></span>

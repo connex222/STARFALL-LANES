@@ -7,11 +7,12 @@ A space-colony strategy game for 2–8 players. The **TV shows the star map**. E
 | Path | What it is |
 |---|---|
 | `server.js` | The game server. It holds the real game state and enforces every rule. |
-| `public/tv.html` | The TV screen (self-contained: fonts, code and QR generator inlined). |
-| `public/phone.html` | The phone controller (self-contained). |
-| `public/art/avatars/` | Optional avatar art. The game works without it. |
+| `public/tv.html` | The redesigned TV screen (self-contained: fonts, code and QR generator inlined). |
+| `public/phone.html` | The redesigned phone controller (self-contained). |
+| `public/art/avatars/` | Eight installed cinematic leader portraits; missing Era/Mood variations use the master portrait. |
 | `src/` | Editable source for the two pages. Run `npm run build` after editing. |
 | `build.py` | Inlines fonts, shared code and the QR library into `public/`. |
+| `public/art/brand/` | Vector game logo, icon and preview PNG. |
 | `test-sim.js` | Plays 12 full games at high speed with bots to check the rules engine. |
 
 ## Play at home (same Wi-Fi)
@@ -51,3 +52,23 @@ Render's free plan sleeps after about 15 minutes idle and takes **30–60 second
 ## Editing
 
 Change files in `src/`, then run `npm install` (to fetch the fonts and QR library) and `npm run build`. Run `npm test` to replay 12 full bot games and confirm nothing broke.
+
+## Visual upgrade — Phase 1 & Phase 2 (first delivery)
+
+- Added the **Starfall Lanes** vector wordmark and eight-point stellar navigator emblem.
+- Applied new branding to the TV lobby, TV game header, phone joining screen and browser favicons.
+- Added eight **realistic, cinematic master portraits**, one for each existing house leader. Art appears in TV player lists, TV lobby, phone avatar selection, phone header, results and clashes through the existing shared renderer.
+- Upgraded the lobby cards, command-console surfaces, typography hierarchy and buttons while preserving the underlying rules, player colours and non-colour badge cues.
+- Added robust portrait fallback: `id_era_mood.png` → `id_frontier_neutral.png` → coloured initials and house badge.
+- Preserved all other server code and game modes unchanged. Both files in `public/` are already generated and do not require the build step to run.
+
+**Still to produce:** distinct Expansion and Ascension outfits and Smug/Furious expression artwork; a complete functional UI overhaul; gameplay and network acceptance tests. Mood indication currently uses the original coloured outline and movement effects when a distinct portrait file is missing. Master portraits are cropped from a generated cinematic character-reference composition and upscaled for interface use, not individually commissioned high-resolution portraits.
+
+### Design assets
+
+- `public/art/brand/starfall-logo.svg` — transparent primary wordmark.
+- `public/art/brand/starfall-mark.svg` — matching navigation insignia.
+- `public/art/brand/starfall-logo-preview.png` — convenient preview.
+- `public/art/avatars/{id}_frontier_neutral.png` — the eight 512 × 512 master portraits.
+
+To create an outfit or facial expression variant, save a 512×512 PNG using the existing `id_era_mood.png` format. It automatically takes priority over the neutral master portrait.
