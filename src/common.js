@@ -22,7 +22,12 @@ function avatarHTML(av, o) {
   const wanted = `art/avatars/${av.id}_${era}_${mood}.png`;
   const src = artFailed.has(wanted) ? master : wanted;
   const img = artFailed.has(master) ? '' : `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${master}')">`;
-  return `<div class="av mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}"><span class="av-ini">${initials(av.name)}</span>${img}<span class="av-badge">${av.badge}</span></div>`;
+  // The eight master portraits remain canonical. Era rings and status glyphs are
+  // UI treatments only; no missing era/expression paintings are implied.
+  const state = mood === 'furious' ? 'under pressure' : mood === 'smug' ? 'celebrating' : 'ready';
+  const eraChip = s >= 68 ? `<span class="av-era" aria-hidden="true">${era === 'expansion' ? 'II' : era === 'ascension' ? 'III' : 'I'}</span>` : '';
+  const moodChip = mood === 'furious' ? '<span class="av-state" aria-hidden="true">!</span>' : mood === 'smug' ? '<span class="av-state" aria-hidden="true">★</span>' : '';
+  return `<div class="av era-${era} mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}, ${era} era, ${state}"><span class="av-ini">${initials(av.name)}</span>${img}${eraChip}${moodChip}<span class="av-badge" aria-hidden="true">${av.badge}</span></div>`;
 }
 function costHTML(c) {
   const parts = Object.entries(c || {}).filter(([, v]) => v > 0).map(([k, v]) => `<span class="cost res-${k}">${v}${ricon(k)}</span>`);

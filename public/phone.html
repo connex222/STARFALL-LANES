@@ -287,6 +287,58 @@ input,button{max-width:100%}
 @media(min-width:920px){#wrap{max-width:760px}#body{padding:1.15rem}#head{padding:1rem 1.15rem}#resbar{top:61px}#top{padding:.65rem 1rem}.phone-brand img{max-height:260px}.phone-brand{min-height:250px}.grid2{gap:.75rem}}
 @media(max-width:360px){#infoNav{gap:.2rem;padding:.35rem .3rem}#infoNav a,#phoneSound{font-size:.68rem;padding:.3rem .4rem;min-height:42px}#head,#body{padding:.55rem}.phone-brand{padding:.65rem .4rem;min-height:145px}.phone-brand-label{letter-spacing:.08em;font-size:.59rem}.phone-brand img{max-height:160px}}
 @media(prefers-reduced-motion:reduce){.phone-brand:before{box-shadow:none}}
+
+/* Phase 8: era identity and expression cues retain realistic master portraits.
+   Shape/text cues are deliberately used alongside the existing house colours. */
+.av.era-expansion{box-shadow:0 0 0 2px rgba(129,169,255,.9),0 0 17px rgba(129,169,255,.65)}
+.av.era-ascension{box-shadow:0 0 0 2px rgba(255,210,109,.95),0 0 20px rgba(255,207,106,.7)}
+.av.era-frontier{box-shadow:0 0 0 2px rgba(117,206,236,.55),0 0 10px rgba(117,206,236,.26)}
+.av.mood-furious{box-shadow:0 0 0 3px #ff897d,0 0 15px rgba(255,77,77,.6)}
+.av.mood-smug{box-shadow:0 0 0 3px #fff0af,0 0 15px rgba(255,203,66,.65)}
+.av-era,.av-state{position:absolute;z-index:3;display:grid;place-items:center;color:#fff;background:#09263c;border:1px solid #d4f6ff;border-radius:8px;font:900 calc(var(--s) * .16)/1 Inter,system-ui,sans-serif;text-shadow:0 1px 2px #000;min-width:25%;min-height:25%;padding:1px}
+.av-era{left:-10%;top:-10%}
+.av-state{left:-7%;bottom:-10%;border-color:#fff0af;background:#442819}
+
+
+/* Phase 8: keyboard, focus and readable compact overlays */
+#wrap[aria-hidden="true"]{pointer-events:none}
+body.dialog-open{overflow:hidden}
+.modal.show{align-items:center}
+.modal .sheet{border:1px solid var(--line);border-radius:20px;max-height:min(88dvh,800px);box-shadow:0 24px 80px #000b}
+#head button:focus-visible,#body button:focus-visible,#foot button:focus-visible,#tabs button:focus-visible,#pickAssist button:focus-visible,#infoNav button:focus-visible,.sheet button:focus-visible{outline:3px solid #ffedac;outline-offset:3px;box-shadow:0 0 0 6px #17324a}
+#pickAssist .pick-kicker{font-weight:850}
+.draft-row:focus-within{outline:2px solid #ffe9a5;outline-offset:2px}
+#quickStatus{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:600px){.modal.show{align-items:flex-end}.modal .sheet{border-radius:20px 20px 0 0;max-height:90dvh}}
+@media(prefers-reduced-motion:reduce){.toast{transition:none!important}.av{transition:none!important}}
+
+
+/* Phase 9 — structured Galaxy Intel and quiet configurable sound */
+#phoneIntel[hidden]{display:none!important}
+#phoneIntel[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+#phoneAudioOptions{margin:.1rem .75rem .35rem;font-size:.76rem;color:var(--muted)}
+#phoneAudioOptions summary{cursor:pointer;min-height:36px;padding:.48rem .7rem;font-weight:800;border-radius:10px;border:1px solid var(--line);background:var(--panel)}
+#phoneAudioOptions .sound-row{display:flex;align-items:center;gap:.8rem;background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;padding:.65rem .75rem}
+#phoneAudioOptions input{width:100%;max-width:280px;flex:1;accent-color:var(--accent);min-height:34px}
+.intel-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.65rem 0}
+.intel-summary .intel-stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.65rem .45rem;text-align:center}
+.intel-summary strong{display:block;color:var(--accent);font-family:Inter,sans-serif;font-size:1.3rem}
+.intel-summary small{display:block;color:var(--muted);font-size:.67rem}
+.intel-select{width:100%;min-height:48px;font:700 .95rem Inter,sans-serif;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:.5rem;margin:.5rem 0}
+.intel-zone{margin:.6rem 0 1rem}
+.intel-zone h3{font-size:.9rem;margin-bottom:.4rem}
+.intel-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem}
+.intel-item{padding:.55rem .7rem;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.intel-item strong{font-size:.88rem;display:block}
+.intel-item small{font-size:.74rem;color:var(--muted);line-height:1.4;display:block;margin-top:.2rem}
+.intel-item .flag{font-style:normal;font-weight:800;color:var(--accent);font-size:.75rem}
+.intel-item.storm-hit{border-left:4px solid var(--storm)}
+.intel-item.own-sector{border-left:4px solid var(--accent)}
+.intel-items details{padding:0}
+.intel-items summary{padding:.6rem;font-weight:800;cursor:pointer;min-height:44px}
+.intel-empty{padding:.75rem;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+@media(max-width:400px){#infoNav{flex-wrap:wrap}#infoNav a,#infoNav button{font-size:.68rem} .intel-item{padding:.55rem}}
+
 </style>
 </head>
 <body>
@@ -295,14 +347,14 @@ input,button{max-width:100%}
   <div id="top" hidden></div>
   <div id="resbar" hidden></div>
   <div id="tabs" class="tabs" hidden></div>
-  <nav id="infoNav" aria-label="Help and sound"><a href="/how-to-play.html" target="_blank" rel="noopener">? How to Play</a><a href="/lore.html" target="_blank" rel="noopener">✦ Lore</a><button type="button" id="phoneSound" aria-pressed="false" aria-label="Enable phone sound effects">♫ Sound off</button></nav>
+  <nav id="infoNav" aria-label="Help and sound"><a href="/how-to-play.html" target="_blank" rel="noopener">? How to Play</a><a href="/lore.html" target="_blank" rel="noopener">✦ Lore</a><button type="button" id="phoneSound" aria-pressed="false" aria-label="Enable phone sound effects">♫ Sound off</button><button type="button" id="phoneIntel" hidden aria-pressed="false" aria-controls="head">◎ Galaxy Intel</button></nav><details id="phoneAudioOptions"><summary>Sound settings</summary><div class="sound-row"><label for="phoneVolume">Effect volume</label><input id="phoneVolume" type="range" min="0" max="100" step="5" value="30" aria-label="Phone effect volume"><output id="phoneVolumeValue" for="phoneVolume">30%</output></div></details>
   <div id="head"></div>
-  <div id="mapBox"><canvas id="cv"></canvas><div class="mapcap" id="mapcap"></div></div>
-  <div id="pickAssist" aria-live="polite"></div>
+  <div id="mapBox"><canvas id="cv" role="img" aria-label="Visual galaxy map. Use the legal sector choices underneath to select, or open Galaxy Intel for a complete readable sector and route register."></canvas><div class="mapcap" id="mapcap"></div></div>
+  <div id="pickAssist" aria-label="Legal map choices"></div><div id="quickStatus" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="body"></div>
   <div id="foot"></div>
 </div>
-<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true"><div class="sheet" id="sheet" tabindex="-1"></div></div>
 <div class="toast" id="toast" role="status"></div>
 <script>
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -329,7 +381,12 @@ function avatarHTML(av, o) {
   const wanted = `art/avatars/${av.id}_${era}_${mood}.png`;
   const src = artFailed.has(wanted) ? master : wanted;
   const img = artFailed.has(master) ? '' : `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${master}')">`;
-  return `<div class="av mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}"><span class="av-ini">${initials(av.name)}</span>${img}<span class="av-badge">${av.badge}</span></div>`;
+  // The eight master portraits remain canonical. Era rings and status glyphs are
+  // UI treatments only; no missing era/expression paintings are implied.
+  const state = mood === 'furious' ? 'under pressure' : mood === 'smug' ? 'celebrating' : 'ready';
+  const eraChip = s >= 68 ? `<span class="av-era" aria-hidden="true">${era === 'expansion' ? 'II' : era === 'ascension' ? 'III' : 'I'}</span>` : '';
+  const moodChip = mood === 'furious' ? '<span class="av-state" aria-hidden="true">!</span>' : mood === 'smug' ? '<span class="av-state" aria-hidden="true">★</span>' : '';
+  return `<div class="av era-${era} mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}, ${era} era, ${state}"><span class="av-ini">${initials(av.name)}</span>${img}${eraChip}${moodChip}<span class="av-badge" aria-hidden="true">${av.badge}</span></div>`;
 }
 function costHTML(c) {
   const parts = Object.entries(c || {}).filter(([, v]) => v > 0).map(([k, v]) => `<span class="cost res-${k}">${v}${ricon(k)}</span>`);
@@ -778,18 +835,46 @@ function MapView(canvas, opts) {
 const $ = id => document.getElementById(id);
 // Phone sound is always opt-in. The TV supplies ambient audio; the phone plays only quiet local cues.
 const PhoneAudio = {
-  on:false, volume:.32, lastKey:null,
+  on:false, volume:.30, lastKey:null, pool:{}, lastPlayed:{},
   sounds:{join:'credits',ready:'credits',trade:'credits',turn:'era-transition',storm:'solar-storm',battle:'fleet-clash',victory:'victory',alert:'solar-storm'},
-  play(type){
-    if(!this.on)return;
-    const name=this.sounds[type];if(!name)return;
-    try {const a=new Audio('audio/'+name+'.mp3');a.volume=this.volume;a.play().catch(()=>{});}catch(_){}
+  init(){
+    try {const saved=Number(localStorage.getItem('sf_phone_volume'));if(Number.isFinite(saved)&&saved>=0&&saved<=100)this.volume=saved/100;}catch(_){}
+    const s=$('phoneVolume');s.value=String(Math.round(this.volume*100));$('phoneVolumeValue').textContent=s.value+'%';
   },
-  toggle(){this.on=!this.on;const b=$('phoneSound');b.textContent=this.on?'♫ Sound on':'♫ Sound off';b.setAttribute('aria-pressed',String(this.on));b.setAttribute('aria-label',this.on?'Disable phone sound effects':'Enable phone sound effects');if(this.on)this.play('join');}
+  setVolume(value){
+    const n=Number(value);if(!Number.isFinite(n))return;
+    this.volume=Math.max(0,Math.min(1,n/100));
+    try{localStorage.setItem('sf_phone_volume',String(Math.round(this.volume*100)));}catch(_){}
+    $('phoneVolumeValue').textContent=String(Math.round(this.volume*100))+'%';
+    for(const voices of Object.values(this.pool))for(const a of voices)a.volume=this.volume;
+  },
+  play(type){
+    if(!this.on || this.volume===0 || document.visibilityState==='hidden')return;
+    const name=this.sounds[type];if(!name)return;
+    const tick=performance.now();if(tick-(this.lastPlayed[type]||-1000)<120)return;
+    this.lastPlayed[type]=tick;
+    try {
+      // Reuse two audio channels per sample; bounded memory and simultaneous event support.
+      const voices=this.pool[name] || (this.pool[name]=[0,1].map(()=>{const a=new Audio('audio/'+name+'.mp3');a.preload='auto';return a;}));
+      const a=voices.find(v=>v.paused||v.ended)||voices[0];
+      a.pause();a.currentTime=0;a.volume=this.volume;a.play().catch(()=>{});
+    }catch(_){}
+  },
+  stop(){for(const voices of Object.values(this.pool))for(const a of voices){try{a.pause();a.currentTime=0;}catch(_){}}},
+  toggle(){
+    this.on=!this.on;const b=$('phoneSound');
+    b.textContent=this.on?'♫ Sound on':'♫ Sound off';b.setAttribute('aria-pressed',String(this.on));
+    b.setAttribute('aria-label',this.on?'Disable phone sound effects':'Enable phone sound effects');
+    if(this.on)this.play('join');else this.stop();
+  }
 };
+PhoneAudio.init();
 $('phoneSound').addEventListener('click',()=>PhoneAudio.toggle());
+$('phoneVolume').addEventListener('input',e=>PhoneAudio.setVolume(e.target.value));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')PhoneAudio.stop();});
+function announce(message){const el=$('quickStatus'); if(el) el.textContent=message;}
 let C = null, pub = null, priv = null, now = () => Date.now(), joined = false, joinErr = '', replaced = false;
-let ui = { tab: 'console', pick: null, editSlot: null, planRound: -1, plan: null, discard: null, setupSel: null, ex: { give: null, get: null }, offer: { to: null, give: {}, get: {} }, modal: null, lastSeenOffer: null, prevOffersSent: null, offerPending: false };
+let ui = { intel: false, intelFilter: 'all', tab: 'console', pick: null, editSlot: null, planRound: -1, plan: null, discard: null, setupSel: null, ex: { give: null, get: null }, offer: { to: null, give: {}, get: {} }, modal: null, lastSeenOffer: null, prevOffersSent: null, offerPending: false };
 const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
 const map = MapView($('cv'), { theme: dark() ? 'dark' : 'light', stars: false, quality: 0.9 });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { map.setTheme(dark() ? 'dark' : 'light'); });
@@ -899,6 +984,9 @@ function onState() {
       else if(g.phase==='income') PhoneAudio.play('storm');
       else if(g.phase==='over') PhoneAudio.play('victory');
     }
+    if (PhoneAudio.lastKey !== phaseKey && PhoneAudio.lastKey !== null) {
+      announce(`Round ${g.round}: ${g.phase} phase${g.phase === 'era' ? '. Choose an era upgrade when it is your turn.' : '.'}`);
+    }
     PhoneAudio.lastKey=phaseKey;
   } else PhoneAudio.lastKey=null;
   if (g && g.phase === 'plan' && priv && ui.prevOffersSent !== null && priv.offersSent > ui.prevOffersSent) {
@@ -919,15 +1007,18 @@ function render() {
     return;
   }
   const showGame = joined && pub && pub.phase === 'game' && G();
+  $('phoneIntel').hidden = !showGame;
+  $('phoneIntel').setAttribute('aria-pressed',String(Boolean(showGame && ui.intel)));
+  if (!showGame) ui.intel = false;
   $('top').hidden = !(joined && pub && priv);
   $('resbar').hidden = !showGame;
   $('tabs').hidden = true;
   let mapOn = false, mapH = 0;
   if (!joined || !pub) { renderJoin(); }
   else if (pub.phase === 'lobby') { renderTop(); renderLobby(); }
-  else if (showGame) { renderTop(); renderRes(); const r = renderGame(); mapOn = r.map; mapH = r.h || 0; }
+  else if (showGame) { renderTop(); renderRes(); const r = ui.intel ? renderIntel() : renderGame(); mapOn = r.map; mapH = r.h || 0; }
   setMarks();
-  renderPickAssist();
+  if (ui.intel) set('pickAssist',''); else renderPickAssist();
   const box = $('mapBox');
   box.classList.toggle('show', mapOn);
   if (mapOn) {
@@ -936,6 +1027,7 @@ function render() {
     map.setState(pub, C.AVATARS);
   }
   renderModal();
+  synchroniseDialogFocus();
 }
 function set(id, html) { const el = $(id); if (el.innerHTML !== html) el.innerHTML = html; }
 
@@ -1104,14 +1196,78 @@ function renderOver() {
 const mapHeight = () => Math.round(Math.min(innerHeight * 0.58, innerWidth * 1.0));
 const pickerMapHeight = () => Math.round(Math.max(175, Math.min(innerHeight * 0.38, innerWidth * 0.82)));
 
+// Galaxy Intel is a complete textual alternative to the visual Canvas map.
+// All information comes from PUBLIC game state. Secret missions and hands never enter this view.
+function getIntelRows(g, filter) {
+  const storm = new Set([...(g.storm || []), ...(g.twin || [])]);
+  const next = new Set(g.ghost || []);
+  const players = new Map(pub.players.map(p => [p.id, p]));
+  const filtered = g.hexes.filter(h => {
+    if (filter === 'mine') return h.owner === priv.pid;
+    if (filter === 'rivals') return h.owner && h.owner !== priv.pid;
+    if (filter === 'open') return !h.owner && !['void','beacon'].includes(h.type);
+    if (filter === 'storm') return storm.has(h.id) || next.has(h.id);
+    return true;
+  });
+  // Stable order: own sectors first, then rival sectors, then free and immutable hexes.
+  filtered.sort((a,b)=>{
+    const score = h=>h.owner === priv.pid?0:h.owner?1:['void','beacon'].includes(h.type)?3:2;
+    return score(a)-score(b)||String(a.name||TYPE_NAMES[a.type]).localeCompare(String(b.name||TYPE_NAMES[b.type]))||a.id.localeCompare(b.id);
+  });
+  return filtered.map(h=>{
+    const owner=players.get(h.owner);
+    const ownership=h.owner === priv.pid?'Your house':owner?owner.name+' ('+C.AVATARS[owner.avatar].badge+')':h.type==='void'||h.type==='beacon'?'Cannot be claimed':'Unclaimed';
+    const condition=storm.has(h.id)?'Solar Storm active':next.has(h.id)?'Storm forecast next round':'';
+    const upgrade=h.build === 'mega'?'Megaspire':h.build === 'spire'?'Spire':h.build === 'outpost'?'Outpost':'';
+    const details=[TYPE_NAMES[h.type]||h.type,ownership,upgrade,h.fleets?`${h.fleets} Fleet${h.fleets===1?'':'s'}`:'No Fleets',condition].filter(Boolean);
+    return `<li class="intel-item${storm.has(h.id)?' storm-hit':''}${h.owner === priv.pid?' own-sector':''}"><strong>${esc(h.name || TYPE_NAMES[h.type] || 'Sector')} <small>(${esc(h.id)})</small></strong><small>${esc(details.join(' · '))}</small>${condition?`<em class="flag">${esc(condition)}</em>`:''}</li>`;
+  });
+}
+function renderIntel(){
+  const g=G();if(!g)return {map:false};
+  $('tabs').hidden=true;
+  const own=g.hexes.filter(h=>h.owner===priv.pid).length;
+  const open=g.hexes.filter(h=>!h.owner && !['void','beacon'].includes(h.type)).length;
+  const storm=new Set([...(g.storm||[]),...(g.twin||[])]);
+  set('head',`<h2 id="intelTitle" tabindex="-1">Galaxy Intel</h2><p class="lead">A readable, complete map of public sector ownership, Fleets, hyperlanes and the Solar Storm. Use this overview without leaving your seat.</p>
+    <div class="intel-summary"><div class="intel-stat"><strong>${own}</strong><small>Your sectors</small></div><div class="intel-stat"><strong>${open}</strong><small>Claimable free</small></div><div class="intel-stat"><strong>${storm.size}</strong><small>Storm sectors</small></div></div>`);
+  const filters=[['all','Every sector'],['mine','My sectors'],['rivals','Rival sectors'],['open','Unclaimed'],['storm','Storm and forecast']];
+  const rows=getIntelRows(g,ui.intelFilter);
+  const sectorList=rows.length?`<ul class="intel-list">${rows.join('')}</ul>`:'<p class="intel-empty">No sectors match this filter.</p>';
+  const players=new Map(pub.players.map(p=>[p.id,p]));
+  const lanes=g.lanes.map(l=>{
+    const owner=players.get(l.owner);
+    const label=owner?(l.owner===priv.pid?'Your house':owner.name):'Unclaimed';
+    return `<li class="intel-item"><strong>${esc(hexName(l.a))} ↔ ${esc(hexName(l.b))}</strong><small>${l.len} hex segment${l.len===1?'':'s'} · ${esc(label)}${(hex(l.a)?.type==='beacon'||hex(l.b)?.type==='beacon')?' · Beacon connection':''}</small></li>`;
+  });
+  set('body',`<label class="f" for="intelFilter">Show sectors</label><select id="intelFilter" class="intel-select">${filters.map(([k,label])=>`<option value="${k}"${ui.intelFilter===k?' selected':''}>${label}</option>`).join('')}</select>
+    <section class="intel-zone" aria-label="Galaxy sector catalogue"><h3>${rows.length} of ${g.hexes.length} sectors</h3>${sectorList}</section>
+    <section class="intel-zone" aria-label="Galaxy hyperlanes"><details class="intel-items"><summary>Hyperlane register (${lanes.length} routes)</summary>${lanes.length?`<ul class="intel-list">${lanes.join('')}</ul>`:'<p class="intel-empty">No lanes on this map.</p>'}</details></section>
+    <p class="note">This screen lists public information only. Private Missions, Draft rankings and hidden orders remain on their owners’ phones.</p>`);
+  set('foot','<button class="btn primary" id="intelReturn">Return to game</button>');
+  $('intelFilter').onchange=e=>{ui.intelFilter=e.target.value;render();$('intelFilter').focus();announce('Sector filter updated: '+e.target.selectedOptions?.[0]?.textContent);};
+  $('intelReturn').onclick=()=>{ui.intel=false;render();$('phoneIntel').focus();};
+  return {map:false};
+}
+$('phoneIntel').addEventListener('click',()=>{
+  if (!joined || !G())return;
+  ui.intel=!ui.intel;
+  render();
+  if(ui.intel) {$('intelTitle')?.focus();announce('Galaxy Intel open. Your game stays connected.');}
+  else {$('phoneIntel').focus();announce('Returned to game controls.');}
+});
+
 // ───────── Plan ─────────
 function renderPlan() {
   const g = G();
   const dots = { cards: priv.held.length, missions: priv.surveyOffer ? 1 : 0, trade: priv.offersIn.length };
   const tabs = [['console', 'Orders'], ['draft', 'Draft'], ['trade', 'Trade'], ['missions', 'Missions'], ['cards', 'Cards']];
   $('tabs').hidden = !!ui.pick;
-  set('tabs', tabs.map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-tab="${k}">${l}${dots[k] ? `<span class="dot">${dots[k]}</span>` : ''}</button>`).join(''));
-  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { ui.tab = b.dataset.tab; render(); });
+  set('tabs', tabs.map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-tab="${k}" aria-pressed="${ui.tab === k}" aria-label="${l}${dots[k] ? `, ${dots[k]} alerts` : ''}">${l}${dots[k] ? `<span class="dot" aria-hidden="true">${dots[k]}</span>` : ''}</button>`).join(''));
+  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+    ui.tab = b.dataset.tab; render();
+    document.querySelector(`[data-tab="${ui.tab}"]`)?.focus();
+  });
   if (ui.pick) return renderPicker();
   if (ui.tab === 'draft') return renderDraft();
   if (ui.tab === 'trade') return renderTrade();
@@ -1250,7 +1406,12 @@ function renderPicker() {
 // Pointer drag is an additional direct-manipulation shortcut, not the only control.
 function moveDraftRank(from, to) {
   const r = ui.plan.rank; if (from === to || from < 0 || to < 0 || from >= r.length || to >= r.length) return;
+  const moveButton = document.activeElement && document.activeElement.matches('[data-up],[data-dn]');
+  const card = G().pool.find(c => c.uid === r[from]);
+  const label = card ? C.DRAFT[card.key].name : 'Draft card';
   r.splice(to, 0, r.splice(from, 1)[0]); pushPlan(); render();
+  if(moveButton) document.querySelector(`[data-${to < from ? 'up' : 'dn'}="${to}"]`)?.focus();
+  announce(`${label} is now priority ${to + 1} of ${r.length}.`);
 }
 function bindDraftDrag() {
   let dragged = null;
@@ -1291,12 +1452,12 @@ function renderDraft() {
   set('head', `<h2>Draft priority</h2><p class="lead">Drag the handle to rank cards. You can also use the arrow buttons. Each house receives its highest-ranked available card in turn order.</p>
     <div class="draft-progress"><b>Priority 1 is your first choice</b><span>${n} cards in this Draft</span></div>`);
   if (!g.pool.length) { set('body', '<p class="note">No Draft cards this round.</p>'); engageFoot(); return { map: false }; }
-  set('body', `<div class="list" id="draftList">${ui.plan.rank.map((uid, i) => {
+  set('body', `<div class="list" id="draftList" role="list" aria-label="Draft preference order">${ui.plan.rank.map((uid, i) => {
     const c = g.pool.find(x => x.uid === uid); if (!c) return '';
     const d = C.DRAFT[c.key];
-    return `<div class="draft-row" data-rank="${i}" draggable="true"><span class="rankn" aria-label="Priority ${i + 1}">${i + 1}</span>
+    return `<div class="draft-row" role="listitem" data-rank="${i}" draggable="true"><span class="rankn" aria-label="Priority ${i + 1}">${i + 1}</span>
       <div class="draft-text"><b>${esc(d.name)}</b><small>${esc(d.text)} · ${esc(d.type)}</small></div>
-      <button class="rank-handle" aria-label="Drag ${esc(d.name)} to change priority" title="Drag to rank">⠿</button>
+      <button class="rank-handle" aria-label="Touch and drag ${esc(d.name)} to reorder; keyboard users can use the adjacent up and down buttons" title="Touch and drag to rank">⠿</button>
       <button data-up="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Raise ${esc(d.name)} priority">↑</button>
       <button data-dn="${i}" ${i === n - 1 ? 'disabled' : ''} aria-label="Lower ${esc(d.name)} priority">↓</button></div>`;
   }).join('')}</div>${g.pool.some(c => c.key === 'supply') ? `<section class="trade-section"><b>Supply Drop preference</b><p class="note">If you receive Supply Drop, gain two of your chosen resource. Without a selection, the game uses your scarcest resource.</p><div class="chips">${['ore','ice','crystal','plasma'].map(k => `<button class="chip res-${k}${ui.plan.supply === k ? ' on' : ''}" data-supply="${k}" aria-pressed="${ui.plan.supply === k}">${ricon(k)} ${RES_NAMES[k]}</button>`).join('')}</div></section>` : ''}<p class="note"><b>Instant</b> cards work immediately. <b>Held</b> cards can be played in a later Plan phase (maximum three). <b>Kept</b> cards score while their conditions are met.</p>`);
@@ -1394,7 +1555,7 @@ function selectSector(id) {
   render();
 }
 function renderPickAssist() {
-  const el = $('pickAssist'), P = ui.pick;
+  const P = ui.pick;
   if (!P || !priv || !G()) { set('pickAssist', ''); set('mapcap',''); return; }
   const ids = pickSectorIds();
   if (!ids.length || P.kind === 'lane' || P.kind === 'research') { set('pickAssist', ''); set('mapcap', '<span>Glowing = available</span><span>Striped = Solar Storm</span>'); return; }
@@ -1402,7 +1563,12 @@ function renderPickAssist() {
   const topic = P.kind === 'setup' ? 'Landing sites' : P.kind === 'strike' ? d.from ? 'Enemy targets' : 'Attacking Fleets' : P.kind === 'fleet' ? P.step ? d.from ? 'Move destination' : 'Move from' : 'Place new Fleets' : 'Available sectors';
   const selection = `<div class="pick-kicker"><span>${esc(topic)}</span><span>${ids.length} legal choice${ids.length === 1 ? '' : 's'}</span></div>`;
   set('pickAssist', selection + `<div class="pick-options">${ids.map(id => { const h = hex(id); return `<button class="pick-option${id === choice ? ' selected' : ''}" data-pick-sector="${esc(id)}" aria-pressed="${id === choice}"><strong>${esc(hexName(id))}</strong><small>${h ? `${esc(TYPE_NAMES[h.type])}${h.fleets ? ` · ${h.fleets} Fleets` : ''}` : ''}</small></button>`; }).join('')}</div><p class="pick-instructions">Tap an option here or a glowing sector on the map. Only legal targets are selectable.</p>`);
-  document.querySelectorAll('[data-pick-sector]').forEach(b => b.onclick = () => selectSector(b.dataset.pickSector));
+  document.querySelectorAll('[data-pick-sector]').forEach(b => b.onclick = () => {
+    const id=b.dataset.pickSector, title=hexName(id);
+    selectSector(id);
+    (document.querySelector(`[data-pick-sector="${id}"]`) || document.querySelector('[data-pick-sector]'))?.focus();
+    announce(`${title} selected. Continue choosing or confirm your order.`);
+  });
   set('mapcap','<span>Glowing = available</span><span>Striped = Solar Storm</span>');
 }
 $('cv').addEventListener('click', e => {
@@ -1413,14 +1579,49 @@ $('cv').addEventListener('click', e => {
   selectSector(map.hit(x, y));
 });
 
-// ───────── Modals ─────────
+// ───────── Accessible modals ─────────
+let dialogOpen = false, dialogReturnFocus = null;
+function synchroniseDialogFocus(){
+  const md=$('modal'), opened=md.classList.contains('show');
+  md.setAttribute('aria-hidden', String(!opened));
+  if(opened && !dialogOpen){
+    dialogReturnFocus=document.activeElement;
+    dialogOpen=true;
+    document.body.classList.add('dialog-open');
+    $('wrap').inert=true;
+    ($('ofNo')||$('closeM')||$('sheet')).focus();
+  } else if(opened && dialogOpen && !md.contains(document.activeElement)) {
+    ($('ofNo')||$('closeM')||$('sheet')).focus();
+  } else if(!opened && dialogOpen){
+    dialogOpen=false;
+    $('wrap').inert=false;
+    document.body.classList.remove('dialog-open');
+    const target=dialogReturnFocus?.isConnected ? dialogReturnFocus : $('hostBtn');
+    dialogReturnFocus=null;
+    if(target?.isConnected) target.focus();
+  }
+}
+document.addEventListener('keydown', e=>{
+  if(!dialogOpen) return;
+  if(e.key==='Escape'){
+    if(ui.modal==='host'){e.preventDefault(); ui.modal=null; render();}
+    // Incoming trade requires an explicit accept/decline decision.
+    return;
+  }
+  if(e.key!=='Tab') return;
+  const controls=Array.from($('sheet').querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),[tabindex="0"]'));
+  if(!controls.length){e.preventDefault(); $('sheet').focus(); return;}
+  const first=controls[0],last=controls[controls.length-1];
+  if(e.shiftKey && (document.activeElement===first || document.activeElement===$('sheet'))){e.preventDefault();last.focus();}
+  else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+});
 function renderModal() {
   const md = $('modal'), sh = $('sheet');
   if (ui.modal === 'offer' && priv && priv.offersIn && priv.offersIn.length) {
     const o = priv.offersIn[0], from = pub.players.find(p => p.id === o.from);
     const list = b => Object.entries(b).map(([k, v]) => `<span class="chip res-${k}">${v} ${ricon(k)}</span>`).join('');
     const ok = canPay(priv.res, o.get);
-    sh.innerHTML = `<div style="display:flex;gap:.7rem;align-items:center">${avatarHTML(AVof(from), { size: 48 })}<div><h2 style="margin:0">${esc(from.name)} offers a trade</h2><p class="note" style="margin:0" id="ofT"></p></div></div>
+    sh.innerHTML = `<div style="display:flex;gap:.7rem;align-items:center">${avatarHTML(AVof(from), { size: 48 })}<div><h2 id="modalTitle" style="margin:0">${esc(from.name)} offers a trade</h2><p class="note" style="margin:0" id="ofT"></p></div></div>
       <label class="f">You get</label><div class="chips">${list(o.give)}</div>
       <label class="f">You give</label><div class="chips">${list(o.get)}</div>
       ${ok ? '' : '<p class="note bad">You don’t have enough to accept.</p>'}
@@ -1434,7 +1635,7 @@ function renderModal() {
   }
   if (ui.modal === 'host' && priv && priv.isHost && pub) {
     const g = G();
-    let h = `<h2>Host menu</h2>`;
+    let h = `<h2 id="modalTitle">Host menu</h2>`;
     if (g) {
       h += `<p class="lead">A bot can play for anyone who has left or dropped out. Hand control back when they return.</p><div class="list">${pub.players.filter(p => p.id !== priv.pid).map(p => `<div class="row">${avatarHTML(AVof(p), { size: 34, off: !p.connected })}<div class="grow"><b>${esc(p.name)}</b><small>${p.isAI ? 'Bot playing' : p.connected ? 'Connected' : 'Disconnected'}</small></div>${p.bot ? '' : `<button class="btn small" data-ai="${p.id}">${p.isAI ? 'Return control' : 'Bot takes over'}</button>`}</div>`).join('')}</div>`;
       h += `<div style="display:flex;flex-direction:column;gap:.5rem;margin-top:1rem"><button class="btn danger" id="endG">${g.phase === 'over' ? 'Back to lobby' : 'End game now and score it'}</button><button class="btn" id="closeM">Close</button></div>`;

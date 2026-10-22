@@ -1,0 +1,13 @@
+Starfall Lanes Phase 9 — isolated Chromium interface validation
+Date: 22 October 2026
+Method: generated public/phone.html injected as an isolated HTML document; server-authoritative public state simulated from actual server internals.
+
+Width    Size   Full catalogue (sectors + routes)   Filter changes   Horizontal overflow   Page JS exceptions
+320px    37     48                             PASS             None                  None
+390px    37     48                             PASS             None                  None
+768px    37     48                             PASS             None                  None
+1280px   37     48                             PASS             None                  None
+390px    61     77                             PASS             None                  None
+1280px   61     77                             PASS             None                  None
+
+No network, physical devices or assistive-technology validation implied.

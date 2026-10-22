@@ -1,0 +1,11 @@
+phone.html 320×720: no overflow or JS errors
+phone.html 390×844: no overflow or JS errors
+Host dialog focus, Escape and inert restoration: passed
+Ascension portrait with status badge and master fallback: passed
+phone.html 1280×800: no overflow or JS errors
+tv.html 1280×720: no overflow or JS errors
+tv.html 1920×1080: no overflow or JS errors
+how-to-play.html 320×720: no overflow or JS errors
+Academy keyboard skip link: passed
+how-to-play.html 1440×900: no overflow or JS errors
+lore.html 390×844: no overflow or JS errors

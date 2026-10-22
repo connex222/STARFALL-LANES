@@ -287,6 +287,18 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
 @media(max-width:800px){#lobby{overflow-y:auto;align-items:start;grid-template-columns:1fr;gap:.6rem;padding:1rem}#lobby .lobby-logo{width:min(100%,30rem);max-height:230px}#lobby .join{margin-top:.65rem}#lobby .roster{grid-template-columns:repeat(2,minmax(0,1fr))}#lobby .slot{min-height:3.5rem}#lobby .lobby-intro{margin:.5rem 0}#lobby .sub{margin-top:.15rem}#lobby .brand-kicker{margin:0}#lobby .lore-pitch{margin:.15rem 0}}
 @media(max-height:800px) and (min-width:801px){#lobby{padding:1rem 2rem}#lobby .lobby-logo{max-height:35vh}#lobby .join{margin-top:.6rem}#lobby .lobby-intro{margin:.3rem 0 0}#lobby .lore-pitch{margin:.3rem 0}#lobby .slot{min-height:3.1rem}#lobby .slot .av{width:35px!important;height:35px!important}}
 @media(prefers-reduced-motion:reduce){#lobby:after{animation:none}}
+
+/* Phase 8: era identity and expression cues retain realistic master portraits.
+   Shape/text cues are deliberately used alongside the existing house colours. */
+.av.era-expansion{box-shadow:0 0 0 2px rgba(129,169,255,.9),0 0 17px rgba(129,169,255,.65)}
+.av.era-ascension{box-shadow:0 0 0 2px rgba(255,210,109,.95),0 0 20px rgba(255,207,106,.7)}
+.av.era-frontier{box-shadow:0 0 0 2px rgba(117,206,236,.55),0 0 10px rgba(117,206,236,.26)}
+.av.mood-furious{box-shadow:0 0 0 3px #ff897d,0 0 15px rgba(255,77,77,.6)}
+.av.mood-smug{box-shadow:0 0 0 3px #fff0af,0 0 15px rgba(255,203,66,.65)}
+.av-era,.av-state{position:absolute;z-index:3;display:grid;place-items:center;color:#fff;background:#09263c;border:1px solid #d4f6ff;border-radius:8px;font:900 calc(var(--s) * .16)/1 Inter,system-ui,sans-serif;text-shadow:0 1px 2px #000;min-width:25%;min-height:25%;padding:1px}
+.av-era{left:-10%;top:-10%}
+.av-state{left:-7%;bottom:-10%;border-color:#fff0af;background:#442819}
+
 </style>
 </head>
 <body>
@@ -2664,7 +2676,12 @@ function avatarHTML(av, o) {
   const wanted = `art/avatars/${av.id}_${era}_${mood}.png`;
   const src = artFailed.has(wanted) ? master : wanted;
   const img = artFailed.has(master) ? '' : `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${master}')">`;
-  return `<div class="av mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}"><span class="av-ini">${initials(av.name)}</span>${img}<span class="av-badge">${av.badge}</span></div>`;
+  // The eight master portraits remain canonical. Era rings and status glyphs are
+  // UI treatments only; no missing era/expression paintings are implied.
+  const state = mood === 'furious' ? 'under pressure' : mood === 'smug' ? 'celebrating' : 'ready';
+  const eraChip = s >= 68 ? `<span class="av-era" aria-hidden="true">${era === 'expansion' ? 'II' : era === 'ascension' ? 'III' : 'I'}</span>` : '';
+  const moodChip = mood === 'furious' ? '<span class="av-state" aria-hidden="true">!</span>' : mood === 'smug' ? '<span class="av-state" aria-hidden="true">★</span>' : '';
+  return `<div class="av era-${era} mood-${mood}${o.off ? ' off' : ''}" style="--c:${av.color};--s:${s}px;width:${s}px;height:${s}px" role="img" aria-label="${esc(av.name)}, ${era} era, ${state}"><span class="av-ini">${initials(av.name)}</span>${img}${eraChip}${moodChip}<span class="av-badge" aria-hidden="true">${av.badge}</span></div>`;
 }
 function costHTML(c) {
   const parts = Object.entries(c || {}).filter(([, v]) => v > 0).map(([k, v]) => `<span class="cost res-${k}">${v}${ricon(k)}</span>`);

@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('fs');const path=require('path');const vm=require('vm');const load=require('./load-server');
+const app=load(0x901288AC),I=app._internal;
+const room=I.makeRoom();room.mode='advanced';const n=process.argv.includes('--large')?8:4;room.players=Array.from({length:n},(_,i)=>({id:'b'+i,token:'t'+i,name:['Kaia','Vex','Oolu','Nim','Zib-Zob','Pyrrhus','Skrill','Bramble'][i],avatar:[0,3,2,5,1,4,6,7][i],isAI:true,bot:true,ws:null}));
+I.startGame(room);
+const source=fs.readFileSync(path.join(__dirname,'..','server.js'),'utf8');
+const start=source.indexOf('const RES ='); const end=source.indexOf('// ───────────────────────── Helpers');
+const constants=source.slice(start,end);
+const C=vm.runInNewContext(constants+'\n({ RES, AVATARS, MODES, UPGRADES, ERA_NAMES, DRAFT, EVENTS })');
+const pub=I.pubState(room);const priv=I.privState(room,room.players[0]);
+fs.writeFileSync(path.join(__dirname,'..','docs',n===8?'phase9-browser-fixture-8.json':'phase9-browser-fixture.json'),JSON.stringify({C,pub,priv}));
+room.game.alive=false;app.rooms.delete(room.code);app.cleanup();
+console.log('browser fixture',pub.game.hexes.length,'hexes',pub.game.lanes.length,'lanes', pub.game.phase);

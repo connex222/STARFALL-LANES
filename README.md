@@ -154,3 +154,14 @@ Run `npm run test:ui` to execute both Phase 3 and Phase 4 dependency-free static
 - `/how-to-play.html` gives an accessible quick-start, host instructions, phase-by-phase actions, resources, clash rules, modes and common questions, grounded in Design Doc v2.
 - `/lore.html` adds explicitly new Starfall Cluster fiction, retaining the established collapsed star, three eras, eight house leaders and Solar Storm.
 - Tested layouts include mobile 320/390 pixels, desktop and TV. Server authoritative rule handling and root TV route are unchanged.
+
+
+## Phase 8 — Accessibility & house identity
+
+The game retains all eight cinematic master portraits. Their **era and status UI treatments** now identify Frontier/Expansion/Ascension and mood visually and via accessible labels; no additional portrait PNGs are included yet. Phone modals manage keyboard focus, Draft/sector buttons have focus-preserving alternatives, and the How to Play/Lore pages offer skip links. See [`PHASE-8-RELEASE.md`](PHASE-8-RELEASE.md) and [`PHASE-8-AUDIT.md`](PHASE-8-AUDIT.md) for changes, evidence and unresolved risks. Run `npm run test:offline` for bundled regression checks.
+
+## Phase 9 — Galaxy Intel & audio options
+
+The phone now has **Galaxy Intel**: a fully written register of public sector/route information, available during all game phases. Use its filters to find owned, rival, unclaimed or storm-affected sectors. Phone effect volume is separately adjustable, stored locally, and audio remains off until explicitly enabled.
+
+Run `npm run test:offline` for static/rules/quality checks, `npm run test:phase9` for the 27-game seeded balance diagnostic, and `npm run audit:avatars` to inspect the outstanding 64 unillustrated portraits. See `PHASE-9-RELEASE.md` and `docs/PHASE-9-CHARACTER-PRODUCTION.md`.
