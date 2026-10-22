@@ -183,7 +183,7 @@ body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparen
 .phone-brand{text-align:center;position:relative;min-height:175px;margin:1.2rem 0 .8rem;padding:1.1rem .7rem 1rem;border-radius:21px;background:radial-gradient(ellipse at 50% 22%,rgba(38,195,245,.24),transparent 70%),linear-gradient(145deg,#05172c,#0d2842);border:1px solid rgba(82,181,232,.33);box-shadow:0 15px 40px rgba(0,11,25,.22)}
 .phone-brand-label{font-size:.63rem;color:#91cae9;font-weight:800;letter-spacing:.16em;margin-bottom:1rem}
 .phone-brand img{width:min(100%,380px);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 0 14px rgba(37,198,243,.24))}
-.phone-brand .lead{margin:.1rem 0 0;color:#bfd5e8;font-size:.82rem}
+.phone-brand .lead{margin:.55rem 0 0;color:#eefaff;font-size:.82rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.65)}
 .btn.primary{background:linear-gradient(125deg,#119bcc,#3ddaff);color:#031623;box-shadow:0 5px 20px rgba(3,170,228,.25);border:1px solid rgba(159,246,255,.68)}
 .btn.primary:disabled{box-shadow:none}
 .btn,.cmd,.card,.slot,.row,.seg button{box-shadow:inset 0 1px 0 rgba(145,210,244,.06)}
@@ -197,6 +197,37 @@ body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparen
 #resbar{box-shadow:0 5px 15px rgba(0,0,0,.08)}
 .tabs button.on{box-shadow:inset 0 3px 0 rgba(255,255,255,.35)}
 @media(max-width:340px){.grid2>.house{min-height:155px;padding:.45rem .25rem}.grid2{gap:.35rem}.grid2>.house .av{max-width:74px;max-height:74px}}
+
+/* Phase 3 — personal command console and small-screen accessibility. */
+#top{border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+#top .who b{font-size:.95rem;letter-spacing:.01em}
+#resbar{gap:.22rem}
+#resbar .r{padding:.25rem .1rem;border-radius:.55rem;background:color-mix(in srgb,var(--rc) 9%,transparent);border:1px solid color-mix(in srgb,var(--rc) 35%,transparent)}
+#resbar .r span{font-variant-numeric:tabular-nums}
+#tabs.tabs{overflow-x:auto;scrollbar-width:none;padding-bottom:.08rem}
+#tabs.tabs button{min-width:0;white-space:nowrap;font-size:clamp(.68rem,2.8vw,.82rem)}
+#head h2{letter-spacing:.025em}
+#head .lead{color:var(--muted)}
+#head .cmds{margin-top:.8rem}
+#head .cmd{border-radius:15px;border-color:color-mix(in srgb,var(--accent) 19%,var(--line));background:linear-gradient(155deg,var(--panel),var(--panel2));min-height:88px;padding:.65rem .68rem}
+#head .cmd:not(:disabled):active,#body button:not(:disabled):active{transform:scale(.985)}
+#head .cmd b{color:var(--text);font-weight:800}
+#head .cmd .costs{color:var(--muted)}
+#head .slot{border-radius:12px;min-height:68px}
+#head .slot.filled{border-left:4px solid var(--accent)}
+#head .slot .n{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:50%;background:var(--panel2);color:var(--accent);font-size:.86rem;border:1px solid var(--line)}
+#foot{background:linear-gradient(to bottom,transparent,var(--bg) 22%);padding-top:.9rem}
+#foot .btn.primary{font-size:1.05rem;font-weight:900;letter-spacing:.01em}
+.phase-status{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.5rem .65rem;margin-bottom:.65rem;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--text)}
+.phase-status .phase-label{display:block;font-size:.67rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);font-weight:800;margin-bottom:.1rem}
+.phase-status strong{font-size:.89rem}
+.phase-status .phase-count{font-size:.8rem;font-weight:800;color:var(--accent);white-space:nowrap}
+.phase-status .phase-count.complete{color:var(--good)}
+.phase-status .phase-count.waiting{color:var(--muted)}
+#foot .engage-hint{flex-basis:100%;width:100%;text-align:center;color:var(--muted);font-size:.7rem;padding-top:.1rem}
+#foot:has(.engage-hint){flex-wrap:wrap}
+@media(max-width:355px){#top .who small{font-size:.63rem}#top .inf{font-size:1rem}#resbar .r small{font-size:.52rem}#head .cmd{padding:.5rem}#head .cmd b{font-size:.85rem}}
+@media(prefers-reduced-motion:reduce){#head .cmd:not(:disabled):active,#body button:not(:disabled):active{transform:none}}
 </style>
 </head>
 <body>
@@ -906,14 +937,15 @@ function renderPlan() {
 }
 function engageFoot() {
   const n = ui.plan.cmds.filter(Boolean).length;
-  if (priv.engaged) set('foot', `<button class="btn good" id="eng">✔ Engaged — tap to change orders</button>`);
-  else set('foot', `<button class="btn primary" id="eng">Engage${n < 2 ? ` (${n} of 2 orders)` : ''}</button>`);
+  if (priv.engaged) set('foot', `<button class="btn good" id="eng">✔ Engaged — tap to change orders</button><div class="engage-hint">Your orders are locked until you tap to change them.</div>`);
+  else set('foot', `<button class="btn primary" id="eng">Engage${n < 2 ? ` (${n} of 2 orders)` : ''}</button><div class="engage-hint">${n ? `${n} of 2 orders selected` : 'Orders are optional — empty slots are skipped'}</div>`);
   $('eng').onclick = () => { pushPlan(!priv.engaged); };
 }
 function renderConsole() {
   const g = G(), L = priv.legal, K = priv.costs, res = priv.res;
-  let head = '';
-  if (priv.stormNext.length) head += `<div class="warn"><i></i><span>The storm reaches ${priv.stormNext.length} of your sectors next round. They won't produce.</span></div>`;
+  const phaseStatus = `<div class="phase-status" role="status"><span><span class="phase-label">Command phase · ${esc(C.ERA_NAMES[g.era])}</span><strong>${priv.engaged ? 'Orders submitted' : 'Prepare your orders'}</strong></span><span class="phase-count ${priv.engaged ? 'complete' : ''}">${ui.plan.cmds.filter(Boolean).length}/2 orders</span></div>`;
+  let head = phaseStatus;
+  if (priv.stormNext.length) head += `<div class="warn" role="status"><i></i><span>The storm reaches ${priv.stormNext.length} of your sectors next round. They won't produce.</span></div>`;
   const slots = [0, 1].map(i => {
     const c = ui.plan.cmds[i];
     if (!c) return `<button class="slot${ui.editSlot === i ? ' editing' : ''}" data-slot="${i}"><span class="n">${i + 1}</span><span class="grow"><b>Empty order</b><small>Choose a command below</small></span></button>`;

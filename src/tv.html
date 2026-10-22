@@ -119,6 +119,54 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
 #banner{background:rgba(7,26,47,.95);border-color:rgba(82,205,255,.49)}
 @media(max-width:1100px){#lobby{grid-template-columns:1fr 1fr;gap:1.2rem;padding:1.4rem}#lobby .join{gap:.75rem;padding:.75rem}#lobby .join canvas{width:8rem;height:8rem}#lobby .code{font-size:2.7rem}#lobby .slot{gap:.45rem;padding:.4rem}}
 @media(max-width:760px){#lobby{grid-template-columns:1fr;overflow:auto;align-items:start;gap:1rem}#lobby .lobby-logo{max-width:26rem}#lobby .roster{grid-template-columns:repeat(2,minmax(0,1fr))}#lobby .join{margin-top:1.1rem}}
+
+/* Phase 3 — TV command-bridge design. The map remains the primary focus. */
+#rail .rail-heading{display:flex;justify-content:space-between;align-items:center;padding:.1rem .3rem;color:#a6d9f3;font:800 .64rem Orbitron,Inter,sans-serif;letter-spacing:.11em}#rail .rail-heading small{font:700 .52rem Inter,sans-serif;letter-spacing:.04em;color:#86bacf}
+#app{grid-template-columns:clamp(200px,17vw,298px) minmax(0,1fr) clamp(240px,20vw,350px)}
+#top{min-height:62px;gap:clamp(.5rem,1vw,1.3rem);padding:.45rem 1rem;position:relative;z-index:3}
+#top::after{content:"";position:absolute;bottom:-1px;left:21%;right:21%;height:1px;background:linear-gradient(90deg,transparent,#4be2ff,transparent);opacity:.6}
+#top .era{font-size:clamp(.7rem,.95vw,1rem);white-space:nowrap}
+#top .round{font-size:.8rem;white-space:nowrap}
+#top .storm{font-size:.78rem;min-width:0}
+#top .storm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#top .phase{font-size:.85rem;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
+#top .timer{font-size:1.4rem;color:#8beaff}
+#map{background:radial-gradient(ellipse at 48% 44%,rgba(29,80,143,.17),transparent 62%);overflow:hidden}
+#rail{padding:.48rem;gap:.3rem;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(85,188,229,.36) transparent}
+#rail .house{grid-template-columns:auto minmax(0,1fr) auto;gap:.42rem;padding:.35rem .36rem;min-height:3.55rem;border-radius:.55rem}
+#rail .house .av{--s:42px!important;width:42px!important;height:42px!important}
+#rail .house .nm{font-size:clamp(.72rem,.88vw,.86rem)}
+#rail .house .inf{font-size:1.25rem}
+#rail .house .meta{font-size:.7rem;gap:.33rem}
+#rail .house .st{font-size:.68rem}
+#rail .house.first::before{display:none}#rail .house.first{border-top-color:#4be2ff;box-shadow:inset 0 2px 0 rgba(75,226,255,.32)}
+#side{padding:.5rem;gap:.36rem;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(85,188,229,.36) transparent}
+#side h3{font-family:Orbitron,Inter,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:#a8d5ec;margin:.15rem 0}
+#side .draft-head{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+#side .pool-count{font-size:.66rem;letter-spacing:.04em;color:#81dfff;font-weight:800}
+#side .pool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:.38rem}
+#side .pool-grid .card{min-width:0;min-height:4.05rem;padding:.45rem .43rem .36rem;border-left:2px solid #55cdea}
+#side .pool-grid .card b{font-size:clamp(.66rem,.79vw,.8rem);line-height:1.15;padding-right:0;overflow-wrap:anywhere}
+#side .pool-grid .card p{font-size:.64rem;line-height:1.25;margin-top:.35rem;overflow-wrap:anywhere}
+#side .pool-grid .card .tag{position:static;display:block;text-transform:uppercase;letter-spacing:.06em;font-size:.54rem;margin-bottom:.2rem}
+#side .trophy-stack{display:grid;gap:.35rem;margin-top:auto}
+#side .trophy-stack .card{padding:.4rem .48rem}
+#side .trophy-stack .trophy{font-size:.73rem}
+#side .trophy-stack small{font-size:.6rem}
+#side .trophy-stack .av{width:30px!important;height:30px!important}
+#tick{min-height:3.15rem;gap:1rem;padding:.45rem 1rem}
+#tick .prev{margin-right:6rem;max-width:38%}
+#mapLegend{position:absolute;left:1rem;bottom:.9rem;display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;max-width:calc(100% - 2rem);padding:.4rem .6rem;border:1px solid rgba(91,175,218,.33);border-radius:.6rem;background:rgba(2,13,31,.78);backdrop-filter:blur(8px);pointer-events:none;color:#d7eeff;font-size:clamp(.57rem,.72vw,.73rem);font-weight:700;box-shadow:0 10px 22px rgba(0,0,0,.22)}
+#mapLegend .dot{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:3px;flex:none}
+#mapLegend .dot.owned{border:2px solid #5ce4ff;transform:rotate(45deg)}
+#mapLegend .dot.lane{height:2px;background:#70dfff;box-shadow:0 0 6px #5ceaff}
+#mapLegend .dot.storm{background:repeating-linear-gradient(135deg,#ff8e53 0 3px,transparent 3px 6px);border:1px solid #ff8e53}
+#mapLegend .dot.next{border:2px dashed #ffaf7e}
+#banner{top:.7rem;pointer-events:none;font-size:.8rem;padding:.5rem .9rem;line-height:1.3}
+@media(max-height:850px){#rail{gap:.17rem}#rail .house{min-height:3.15rem;padding:.22rem .28rem}#rail .house .av{width:36px!important;height:36px!important}#side .pool-grid .card{min-height:3.4rem;padding:.3rem}#side .pool-grid .card p{font-size:.59rem}#mapLegend{bottom:.35rem}}
+@media(max-width:1050px){#app{grid-template-columns:190px minmax(0,1fr) 225px}#top{gap:.5rem}#top .storm{max-width:9rem}#tick .prev{display:none}#mapLegend{font-size:.61rem;gap:.3rem}}
+@media(max-width:740px){#app{grid-template-columns:145px minmax(0,1fr) 164px}#top .round{display:none}#top .storm{display:none}#rail .house .meta{display:none}#rail .house .inf{font-size:1rem}#rail .house .av{width:30px!important;height:30px!important}#side .pool-grid{grid-template-columns:1fr}#side .pool-grid .card p{display:none}#mapLegend{display:none}}
+@media(prefers-reduced-motion:reduce){#top::after{display:none}}
 </style>
 </head>
 <body>
@@ -156,6 +204,7 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
   <aside id="rail" aria-label="Houses"></aside>
   <main id="map">
     <canvas id="cv"></canvas>
+    <div id="mapLegend" aria-label="Map key"><span><i class="dot owned"></i>Controlled</span><span><i class="dot lane"></i>Hyperlane</span><span><i class="dot storm"></i>Solar Storm</span><span><i class="dot next"></i>Next storm position</span></div>
     <div id="banner"></div>
     <div id="popup"></div>
     <div class="big" id="big"><div class="inner" id="bigInner"></div></div>
@@ -295,7 +344,7 @@ setInterval(() => {
 }, 250);
 function renderRail(g) {
   const order = g.order.length ? g.order : pub.players.map(p => p.id);
-  $('rail').innerHTML = order.map((id, i) => {
+  $('rail').innerHTML = '<div class="rail-heading">HOUSES <small>TURN ORDER</small></div>' + order.map((id, i) => {
     const p = P(id); if (!p) return '';
     const av = AV(p);
     let st = '';
@@ -318,17 +367,23 @@ function renderRail(g) {
 function renderSide(g) {
   const parts = [];
   if (g.event) parts.push(`<div class="card event"><span class="tag">Cosmic Event</span><b>${esc(C.EVENTS[g.event].name)}</b><p>${esc(C.EVENTS[g.event].text)}</p></div>`);
-  if (g.phase === 'plan' || (g.phase === 'reveal' && g.pool.length)) {
-    parts.push(`<h3>Draft pool</h3>`);
-    if (!g.pool.length) parts.push('<div class="card"><p>No draft this round.</p></div>');
-    for (const c of g.pool) { const d = C.DRAFT[c.key]; parts.push(`<div class="card" data-uid="${c.uid}"><span class="tag">${d.type}</span><b>${esc(d.name)}</b><p>${esc(d.text)}</p></div>`); }
+  const showingPool = g.phase === 'plan' || (g.phase === 'reveal' && g.pool.length);
+  parts.push(`<div class="draft-head"><h3>Draft pool</h3><span class="pool-count">${showingPool ? g.pool.length + ' available' : 'Next round'}</span></div>`);
+  if (showingPool && g.pool.length) {
+    parts.push('<div class="pool-grid">');
+    for (const [i,c] of g.pool.entries()) {
+      const d = C.DRAFT[c.key];
+      parts.push(`<div class="card" data-uid="${c.uid}" title="${esc(d.name)} — ${esc(d.text)}"><span class="tag">${i + 1} · ${esc(d.type)}</span><b>${esc(d.name)}</b><p>${esc(d.text)}</p></div>`);
+    }
+    parts.push('</div>');
   } else {
-    parts.push(`<h3>Draft pool</h3><div class="card"><p>New cards appear when planning starts. Rank them on your phone; picks happen in turn order.</p></div>`);
+    parts.push(`<div class="card"><p>${showingPool ? 'No draft this round.' : 'New cards arrive when planning starts. Rank them on your phone; picks resolve in turn order.'}</p></div>`);
   }
   const tr = (k, label, rule) => { const h = g.trophies[k] && P(g.trophies[k]); return `<div class="card trophy"><span>🏆 ${label}<br><small style="color:var(--muted);font-weight:600">${rule}</small></span><span class="who">${h ? avatarHTML(AV(h), { size: 30 }) : '—'}</span></div>`; };
-  parts.push('<h3 style="margin-top:auto">Trophies (+2 each)</h3>');
-  parts.push(tr('network', 'Longest Network', 'Most lane segments joined, 5+'));
-  parts.push(tr('armada', 'Grand Armada', 'Most Fleets, 5+'));
+  parts.push('<div class="trophy-stack"><h3>Trophies (+2 each)</h3>');
+  parts.push(tr('network', 'Longest Network', 'Longest chain · 5+ segments'));
+  parts.push(tr('armada', 'Grand Armada', 'Largest fleet · 5+ ships'));
+  parts.push('</div>');
   $('side').innerHTML = parts.join('');
 }
 function renderTick(g) {

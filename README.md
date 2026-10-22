@@ -13,7 +13,8 @@ A space-colony strategy game for 2–8 players. The **TV shows the star map**. E
 | `src/` | Editable source for the two pages. Run `npm run build` after editing. |
 | `build.py` | Inlines fonts, shared code and the QR library into `public/`. |
 | `public/art/brand/` | Vector game logo, icon and preview PNG. |
-| `test-sim.js` | Plays 12 full games at high speed with bots to check the rules engine. |
+| `test-sim.js` | Plays 12 full games at high speed with bots to check the rules engine (requires `npm install`). |
+| `test-ui-static.js` | Checks branding, generated screens, eight portraits and key UI integration points (runs with Node only). |
 
 ## Play at home (same Wi-Fi)
 
@@ -66,9 +67,28 @@ Change files in `src/`, then run `npm install` (to fetch the fonts and QR librar
 
 ### Design assets
 
-- `public/art/brand/starfall-logo.png` — transparent primary wordmark.
+- `public/art/brand/starfall-logo.png` — selected cinematic galactic-emblem logo (background included; not a transparent wordmark).
 - `public/art/brand/starfall-mark.svg` — matching navigation insignia.
 - `public/art/brand/starfall-logo-preview.png` — convenient preview.
 - `public/art/avatars/{id}_frontier_neutral.png` — the eight 512 × 512 master portraits.
 
 To create an outfit or facial expression variant, save a 512×512 PNG using the existing `id_era_mood.png` format. It automatically takes priority over the neutral master portrait.
+
+## Phase 3 — adaptive TV and phone interface (current)
+
+- Rebuilt the TV Draft Pool into an adaptive two-column grid to support nine cards for eight players, with compact typography at 720p and detailed descriptions on larger displays.
+- Adjusted the eight-house rail sizing and scrolling and fixed the incorrect `1st` label: the first position is first to act, not the player leading on Influence.
+- Added an on-map legend for controlled hexes, hyperlanes, storm sectors, and the next projected storm position (the underlying gameplay map art and mechanics are unchanged).
+- Improved room HUD and map spacing, with reduced-motion and narrow-display fallbacks.
+- Added a phone phase-status panel and order-count guidance, more accessible storm messages and redesigned command buttons.
+- Kept game rules and WebSocket messages unchanged. No new era/expression character art has yet been produced.
+- Source and pre-generated public HTML have both been updated; standard `npm run build` remains supported.
+
+For a dependency-free interface smoke test, run `npm run test:ui`. Static checks do not replace browser or multiplayer acceptance testing.
+
+### Verification for this delivery
+
+- `npm run test:ui`: 6 static integration checks passed.
+- Isolated Chromium renders with representative mock game data: 1280×720 TV, 1920×1080 TV, 390×844 phone joining and planning screens. Nine Draft cards and all eight house slots rendered; no JavaScript page errors or horizontal scrolling were detected in the tested layouts.
+- `node --check` passed for server, tests and both embedded client scripts.
+- The Chromium previews are **not** a live multiplayer acceptance test. The normal npm dependency install timed out in the build environment, so the 12-game bot simulation and real WebSocket join/reconnection tests were not rerun in this delivery.
