@@ -127,7 +127,7 @@ Run `npm run test:ui` to execute both Phase 3 and Phase 4 dependency-free static
 - **Not yet verified:** live TV-plus-phones multiplayer, network recovery under packet loss, Safari audio decoding, speakers of different TV models, or the 12-game bot simulation. The npm dependency download timed out in the build environment. These remain release gates, not passed tests.
 - The previous Expansion/Ascension avatar outfit and expression artwork is still outstanding.
 
-## Phase 6 — gameplay accuracy and server resilience (current)
+## Phase 6 — gameplay accuracy and server resilience
 
 - **Era draft:** one house chooses at a time, lowest current Influence first; ties follow the current first-player ordering. Each turn lasts up to 10 seconds, after which a legal random choice is made. Every era upgrade remains available to every player during this draft. Only **unpicked** upgrades from the current or previous eras become purchasable with Research.
 - **Supply Drop:** the Draft screen now lets each player nominate Ore, Ice, Crystal or Plasma during Plan, with no extra command slot. When Supply Drop is received, the selected resource gets +2. Missing preferences use the prior deterministic low-stock fallback, preserving old clients and AI.
@@ -164,4 +164,21 @@ The game retains all eight cinematic master portraits. Their **era and status UI
 
 The phone now has **Galaxy Intel**: a fully written register of public sector/route information, available during all game phases. Use its filters to find owned, rival, unclaimed or storm-affected sectors. Phone effect volume is separately adjustable, stored locally, and audio remains off until explicitly enabled.
 
-Run `npm run test:offline` for static/rules/quality checks, `npm run test:phase9` for the 27-game seeded balance diagnostic, and `npm run audit:avatars` to inspect the outstanding 64 unillustrated portraits. See `PHASE-9-RELEASE.md` and `docs/PHASE-9-CHARACTER-PRODUCTION.md`.
+Run `npm run test:offline` for static/rules/quality checks, `npm run test:phase10:sim` for the current 27-game seeded balance diagnostic, and `npm run audit:avatars` to inspect the outstanding 64 unillustrated portraits. See `PHASE-9-RELEASE.md` and `docs/PHASE-9-CHARACTER-PRODUCTION.md`.
+
+
+## Phase 10 — purposeful computer opponents and score explanations
+
+House bots now select achievable Missions, choose era upgrades deliberately and favour moves that earn Influence while still obeying all existing rules. The TV and phone final results now explain each house's score. The historical Phase 9 and improved Phase 10 27-game cohorts are retained separately under `docs/`. **Do not interpret bot results as human balance proof**, particularly in Advanced mode. The 64 individual era and expression portraits are still outstanding.
+
+Run `npm run test:offline` and `npm run test:phase10:sim` for the two test groups. Full detail and release limitations are in [`PHASE-10-RELEASE.md`](PHASE-10-RELEASE.md).
+
+
+## Character integration update — Expansion and Ascension neutral
+
+- Installed eight individual Expansion-era neutral images and eight corresponding Ascension-era neutral composites, named `public/art/avatars/{id}_{era}_neutral.png` for the established IDs `kaia`, `zibzob`, `oolu`, `vex`, `pyrrhus`, `nim`, `skrill`, and `bramble`. All are 512×512 PNGs bundled locally.
+- **Artwork production distinction:** Expansion portraits are individually generated cinematic artwork. The Ascension images in this build are individually composited *era treatments* of those Expansion portraits (new colour/halo/house ornament overlays), not separately painted outfit redesigns. The original Frontier portraits remain unchanged.
+- Updated the avatar renderer in `src/common.js` and regenerated both public screens so its fallback order is **specific era + mood → neutral portrait of the same era → Frontier neutral master → house initials**. House identities, colours, badges and gameplay perks are unchanged.
+- `npm run audit:avatars`: 24/72 image variants present and valid (three era-neutral images for each leader), with 48 expression-specific images outstanding (Smug and Furious × three eras × eight leaders). The 8 Ascension-specific costume paintings, as distinct artwork rather than era composites, also remain desirable production upgrades.
+- `npm run test:portraits` verifies all 24 filenames and PNG dimensions, source renderer behaviour, and the TV/phone generated screens. Tests and audio from the existing game remain bundled.
+- No gameplay or network rules were changed by this artwork update. Real-device TV/phone acceptance testing is still required.

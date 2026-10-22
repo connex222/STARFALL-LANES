@@ -7,23 +7,24 @@ function initials(name) {
   const w = name.split(/[\s-]+/).filter(x => !/^(Commander|Matriarch|Archon|Dr\.|Captain)$/.test(x));
   return w.map(x => x[0]).join('').slice(0, 2).toUpperCase();
 }
-// Era and expression files take precedence; a missing variation falls back to the
-// real, neutral master portrait instead of reverting to initials. No external assets.
-function avatarArtFallback(el, master) {
+// Prefer the specific mood in the current era, then that era's neutral portrait,
+// then the original Frontier master. This keeps a character's era outfit even
+// when bespoke celebrating/under-pressure artwork has not yet been made.
+function avatarArtFallback(el, neutral, master) {
   const attempted = el.getAttribute('src');
   artFailed.add(attempted);
-  if (attempted !== master && !artFailed.has(master)) el.src = master;
+  const next = [neutral, master].find(file => file !== attempted && !artFailed.has(file));
+  if (next) el.src = next;
   else el.remove();
 }
 function avatarHTML(av, o) {
   o = o || {};
   const s = o.size || 48, mood = o.mood || 'neutral', era = ERA_IDS[o.era || 0] || 'frontier';
   const master = `art/avatars/${av.id}_frontier_neutral.png`;
+  const neutral = `art/avatars/${av.id}_${era}_neutral.png`;
   const wanted = `art/avatars/${av.id}_${era}_${mood}.png`;
-  const src = artFailed.has(wanted) ? master : wanted;
-  const img = artFailed.has(master) ? '' : `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${master}')">`;
-  // The eight master portraits remain canonical. Era rings and status glyphs are
-  // UI treatments only; no missing era/expression paintings are implied.
+  const src = [wanted, neutral, master].find(file => !artFailed.has(file));
+  const img = src ? `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${neutral}', '${master}')">` : '';
   const state = mood === 'furious' ? 'under pressure' : mood === 'smug' ? 'celebrating' : 'ready';
   const eraChip = s >= 68 ? `<span class="av-era" aria-hidden="true">${era === 'expansion' ? 'II' : era === 'ascension' ? 'III' : 'I'}</span>` : '';
   const moodChip = mood === 'furious' ? '<span class="av-state" aria-hidden="true">!</span>' : mood === 'smug' ? '<span class="av-state" aria-hidden="true">★</span>' : '';

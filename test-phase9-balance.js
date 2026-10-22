@@ -34,6 +34,6 @@ test('27 seeded in-process games document target-hit rates without changing rule
     console.log(`BALANCE ${mode}: ${hit}/${matches.length} reached Influence target; mean winning Influence ${mean}`);
   }
   const counts={games:data.length,results:data};
-  require('node:fs').writeFileSync('docs/phase9-balance-results.json',JSON.stringify(counts,null,2));
+  require('node:fs').writeFileSync('docs/phase9-balance-rerun.json',JSON.stringify(counts,null,2));
   assert.equal(data.length,27);
 },{timeout:140000});

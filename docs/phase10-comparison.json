@@ -1,0 +1,39 @@
+{
+  "sample_per_mode": 9,
+  "note": "Independent deterministic bot cohorts in the same game modes; AI strategy and RNG pathways differ. Not a controlled A/B human balance experiment.",
+  "modes": [
+    {
+      "mode": "quick",
+      "phase9": {
+        "hit": 2,
+        "mean": 7.89
+      },
+      "phase10": {
+        "hit": 6,
+        "mean": 9.89
+      }
+    },
+    {
+      "mode": "standard",
+      "phase9": {
+        "hit": 0,
+        "mean": 11
+      },
+      "phase10": {
+        "hit": 6,
+        "mean": 14.33
+      }
+    },
+    {
+      "mode": "advanced",
+      "phase9": {
+        "hit": 1,
+        "mean": 11.56
+      },
+      "phase10": {
+        "hit": 1,
+        "mean": 13
+      }
+    }
+  ]
+}

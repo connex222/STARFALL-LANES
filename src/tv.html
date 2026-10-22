@@ -556,6 +556,7 @@ function renderBig(g) {
     inner.innerHTML = `<div class="over"><div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1rem">${w.map(p => avatarHTML(AV(p), { size: 120, mood: 'smug', era: 2 })).join('')}</div>
       <h2>${w.length > 1 ? 'Shared victory!' : esc(w[0].name) + ' wins!'}</h2><p>${w.length > 1 ? 'Joint Wardens of the Cluster.' : 'Warden of the Starfall Cluster.'}</p>
       <table><tr><th></th><th>House</th><th>Influence</th><th></th><th>Credits</th></tr>${rows}</table>
+      <p style="margin-top:.65rem;font-size:.77rem;color:#bad5ef">${g.results.rows[0]?.breakdown ? `Winning Influence: ${g.results.rows[0].breakdown.stations} from stations, ${g.results.rows[0].breakdown.missions} from Missions, ${g.results.rows[0].breakdown.trophies} from trophies, ${g.results.rows[0].breakdown.bonuses + g.results.rows[0].breakdown.barons} from bonuses${g.results.rows[0].breakdown.penalty ? `, less ${g.results.rows[0].breakdown.penalty} for unfinished Missions` : ''}.` : ''}</p>
       <p style="margin-top:1rem;font-size:.85rem">The host can start a new game from their phone.</p></div>`;
   } else big.classList.remove('show');
 }

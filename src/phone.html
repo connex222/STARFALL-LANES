@@ -263,6 +263,14 @@ body.dialog-open{overflow:hidden}
 .intel-empty{padding:.75rem;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
 @media(max-width:400px){#infoNav{flex-wrap:wrap}#infoNav a,#infoNav button{font-size:.68rem} .intel-item{padding:.55rem}}
 
+
+.score-details{display:grid;gap:.45rem;margin:.65rem 0 1.2rem}
+.score-detail{border:1px solid rgba(76,181,228,.29);border-radius:12px;background:rgba(8,27,49,.42);overflow:hidden}
+.score-detail summary{min-height:46px;display:flex;align-items:center;cursor:pointer;padding:.65rem .85rem;font-weight:700;font-size:.86rem;line-height:1.4}
+.score-detail summary:focus-visible{outline:3px solid var(--cyan,#33d6ff);outline-offset:-3px}
+.score-detail dl{padding:.2rem .85rem .8rem;margin:0}
+.score-detail dl div{display:flex;justify-content:space-between;gap:1rem;font-size:.79rem;padding:.28rem 0;border-top:1px solid rgba(120,176,206,.17)}
+.score-detail dt{color:var(--muted,#a4b7c8)}.score-detail dd{font-variant-numeric:tabular-nums;font-weight:800;margin:0}
 </style>
 </head>
 <body>
@@ -640,7 +648,12 @@ function renderOver() {
   const g = G(), r = g.results;
   const w = r.winners.includes(priv.pid);
   set('head', `<h2>${w ? (r.winners.length > 1 ? 'Shared victory!' : 'You win!') : 'Game over'}</h2><p class="lead">${esc(g.log[g.log.length - 1] || '')}</p>`);
-  set('body', `<table class="res-tbl">${r.rows.map((x, i) => { const p = pub.players.find(y => y.id === x.pid); return `<tr class="${r.winners.includes(x.pid) ? 'win' : ''}"><td>${i + 1}</td><td>${avatarHTML(AVof(p), { size: 30 })}</td><td>${esc(p.name)}${x.penalty ? `<br><small style="color:var(--muted)">${x.inf} − ${x.penalty} unfinished</small>` : ''}</td><td class="n">${x.final}</td></tr>`; }).join('')}</table>`);
+  const label = x => { const b = x.breakdown; if (!b) return ''; const items = [
+    ['Trade Stations & Spires', b.stations], ['Completed Missions', b.missions],
+    ['Trophies', b.trophies], ['Cosmic Event bonuses', b.bonuses],
+    ['Baron cards', b.barons], ['Unfinished Mission penalty', -b.penalty]
+  ]; return `<details class="score-detail"><summary>How ${esc(pub.players.find(p=>p.id===x.pid)?.name || 'this house')} scored ${x.final} Influence</summary><dl>${items.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${v>0?'+':''}${v}</dd></div>`).join('')}</dl></details>`; };
+  set('body', `<table class="res-tbl">${r.rows.map((x, i) => { const p = pub.players.find(y => y.id === x.pid); return `<tr class="${r.winners.includes(x.pid) ? 'win' : ''}"><td>${i + 1}</td><td>${avatarHTML(AVof(p), { size: 30 })}</td><td>${esc(p.name)}${x.penalty ? `<br><small style="color:var(--muted)">${x.inf} − ${x.penalty} unfinished</small>` : ''}</td><td class="n">${x.final}</td></tr>`; }).join('')}</table><h3 style="margin-top:1.1rem">Where the Influence came from</h3><div class="score-details">${r.rows.map(label).join('')}</div>`);
   set('foot', priv.isHost ? `<button class="btn primary" id="again">Back to lobby</button>` : '');
   if ($('again')) $('again').onclick = () => send({ t: 'toLobby' });
   return { map: false };

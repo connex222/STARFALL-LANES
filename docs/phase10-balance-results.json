@@ -1,0 +1,221 @@
+{
+  "games": 27,
+  "results": [
+    {
+      "mode": "quick",
+      "players": 2,
+      "round": 6,
+      "top": 10,
+      "target": 10,
+      "met": true
+    },
+    {
+      "mode": "quick",
+      "players": 4,
+      "round": 8,
+      "top": 8,
+      "target": 10,
+      "met": false
+    },
+    {
+      "mode": "quick",
+      "players": 8,
+      "round": 8,
+      "top": 7,
+      "target": 10,
+      "met": false
+    },
+    {
+      "mode": "standard",
+      "players": 2,
+      "round": 9,
+      "top": 15,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "standard",
+      "players": 4,
+      "round": 12,
+      "top": 16,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "standard",
+      "players": 8,
+      "round": 12,
+      "top": 13,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 2,
+      "round": 12,
+      "top": 13,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 4,
+      "round": 12,
+      "top": 14,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 8,
+      "round": 12,
+      "top": 8,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "quick",
+      "players": 2,
+      "round": 7,
+      "top": 12,
+      "target": 10,
+      "met": true
+    },
+    {
+      "mode": "quick",
+      "players": 4,
+      "round": 7,
+      "top": 10,
+      "target": 10,
+      "met": true
+    },
+    {
+      "mode": "quick",
+      "players": 8,
+      "round": 7,
+      "top": 11,
+      "target": 10,
+      "met": true
+    },
+    {
+      "mode": "standard",
+      "players": 2,
+      "round": 9,
+      "top": 17,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "standard",
+      "players": 4,
+      "round": 11,
+      "top": 16,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "standard",
+      "players": 8,
+      "round": 12,
+      "top": 8,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 2,
+      "round": 8,
+      "top": 14,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 4,
+      "round": 12,
+      "top": 13,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 8,
+      "round": 12,
+      "top": 13,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "quick",
+      "players": 2,
+      "round": 7,
+      "top": 11,
+      "target": 10,
+      "met": true
+    },
+    {
+      "mode": "quick",
+      "players": 4,
+      "round": 7,
+      "top": 12,
+      "target": 10,
+      "met": true
+    },
+    {
+      "mode": "quick",
+      "players": 8,
+      "round": 8,
+      "top": 8,
+      "target": 10,
+      "met": false
+    },
+    {
+      "mode": "standard",
+      "players": 2,
+      "round": 12,
+      "top": 14,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "standard",
+      "players": 4,
+      "round": 9,
+      "top": 15,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "standard",
+      "players": 8,
+      "round": 11,
+      "top": 15,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "advanced",
+      "players": 2,
+      "round": 11,
+      "top": 16,
+      "target": 15,
+      "met": true
+    },
+    {
+      "mode": "advanced",
+      "players": 4,
+      "round": 10,
+      "top": 13,
+      "target": 15,
+      "met": false
+    },
+    {
+      "mode": "advanced",
+      "players": 8,
+      "round": 11,
+      "top": 13,
+      "target": 15,
+      "met": false
+    }
+  ]
+}

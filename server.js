@@ -448,7 +448,12 @@ const humansActive = room => room.players.filter(p => !p.isAI);
 async function runGame(room) {
   const g = room.game;
   // 1. Missions: keep at least 2 of 3
-  for (const p of room.players) { const ps = P(g, p.id); ps.missionOffer = g.missionDeck.splice(0, 3); if (p.isAI) ps.keepDone = true; }
+  for (const p of room.players) { const ps = P(g, p.id); ps.missionOffer = g.missionDeck.splice(0, 3); if (p.isAI) {
+    const keep = botKeepMissions(g, p.id, ps.missionOffer);
+    g.missionDeck.push(...ps.missionOffer.filter(m => !keep.includes(m)));
+    ps.missionOffer = keep;
+    ps.keepDone = true;
+  } }
   g.phase = 'missions';
   await waitFor(room, 30000, () => room.players.every(p => P(g, p.id).keepDone || p.isAI));
   if (!live(room, g)) return;
@@ -459,7 +464,7 @@ async function runGame(room) {
   for (const pid of snake) {
     g.setupTurn = pid; g.setupChoice = null;
     const p = room.players.find(x => x.id === pid);
-    if (p && p.isAI) { await sleep(700); g.setupChoice = pick(setupLegal(g, pid)); }
+    if (p && p.isAI) { await sleep(700); g.setupChoice = botSetupChoice(g, pid, setupLegal(g, pid)); }
     else await waitFor(room, 45000, () => !!g.setupChoice || !p || p.isAI);
     if (!live(room, g)) return;
     let h = g.hexes[g.setupChoice];
@@ -512,7 +517,7 @@ async function eraPhase(room, eraIdx) {
     if (!live(room, g)) return;
     g.eraTurn = pid;
     const player = room.players.find(p => p.id === pid);
-    if (player.isAI) g.eraPicks[pid] = pick(g.eraOffer);
+    if (player.isAI) g.eraPicks[pid] = botEraChoice(room, pid, g.eraOffer);
     else await waitFor(room, 10000, () => !!g.eraPicks[pid] || player.isAI);
     if (!live(room, g)) return;
     const k = g.eraOffer.includes(g.eraPicks[pid]) ? g.eraPicks[pid] : pick(g.eraOffer);
@@ -643,7 +648,10 @@ async function planPhase(room) {
   g.offers = [];
   for (const p of room.players) {
     const ps = P(g, p.id);
-    if (ps.surveyOffer) chooseSurvey(g, p.id, ps.surveyOffer[0].uid);
+    if (ps.surveyOffer) {
+      const ranked = ps.surveyOffer.slice().sort((a,b)=>botMissionPriority(g,p.id,b)-botMissionPriority(g,p.id,a));
+      chooseSurvey(g, p.id, p.isAI ? ranked[0].uid : ps.surveyOffer[0].uid);
+    }
   }
 }
 
@@ -900,7 +908,13 @@ function endGame(room) {
   const rows = room.players.map(p => {
     const inf = influence(g, p.id);
     const penalty = g.M.perks ? P(g, p.id).missions.filter(m => !m.done).length : 0;
-    return { pid: p.id, inf, penalty, final: inf - penalty, credits: P(g, p.id).res.credits, segs: laneSegs(g, p.id) };
+    const ps = P(g, p.id);
+    const station = owned(g, p.id).filter(h => h.type === 'station').reduce((total, h) => total + (h.build === 'mega' ? 4 : h.build === 'spire' ? 2 : 1), 0);
+    const missions = ps.missions.filter(m => m.done).reduce((total, m) => total + m.inf + (hasUp(g, p.id, 'archive') ? 1 : 0), 0);
+    const trophies = (g.trophies.network === p.id ? 2 : 0) + (g.trophies.armada === p.id ? 2 : 0);
+    const kept = ps.kept.reduce((total, c) => total + (c.key === 'icebaron' && owned(g, p.id).filter(h => h.type === 'ice').length >= 3 ? 1 : 0) + (c.key === 'crystalbaron' && owned(g, p.id).filter(h => h.type === 'crystal').length >= 3 ? 1 : 0), 0);
+    const breakdown = { stations: station, missions, trophies, bonuses: ps.bonusInf, barons: kept, penalty };
+    return { pid: p.id, inf, penalty, final: inf - penalty, credits: ps.res.credits, segs: laneSegs(g, p.id), breakdown };
   });
   rows.sort((a, b) => b.final - a.final || b.credits - a.credits || b.segs - a.segs);
   const t = rows[0];
@@ -927,6 +941,44 @@ function cleanBundle(b) {
 }
 
 // ───────────────────────── AI ─────────────────────────
+// The house bots are *opponents*, not evidence that the human victory
+// thresholds need changing. Prefer attainable objectives and predictable
+// starting resources; never give an AI extra resources or rule exemptions.
+function botMissionPriority(g, pid, m) {
+  if (m.type === 'hold') return 7 + owned(g, pid).filter(h => h.type === m.world).length * 2;
+  if (m.type === 'asteroid') return 6 + (owned(g, pid).some(h => h.type === 'asteroid') ? 3 : 0);
+  if (m.type === 'spires') return 6 + owned(g, pid).filter(h => h.type === 'station').length * 2;
+  if (m.type === 'lanes') return 6 + lanesOf(g, pid).length * 2;
+  if (m.type === 'beacon') return 4;
+  if (m.type === 'link') return 3 + (m.inf === 2 ? 2 : m.inf === 3 ? 1 : 0);
+  return 0;
+}
+function botKeepMissions(g, pid, offer) {
+  // Keeping exactly two satisfies the written rule and avoids gambling on a
+  // third usually-impossible Mission in Advanced mode.
+  const ranked = offer.slice().sort((a, b) => botMissionPriority(g, pid, b) - botMissionPriority(g, pid, a));
+  return ranked.slice(0, 2);
+}
+function botSetupChoice(g, pid, choices) {
+  const mine = owned(g, pid), resourceCounts = {};
+  for (const h of mine) resourceCounts[h.type] = (resourceCounts[h.type] || 0) + 1;
+  const rate = h => {
+    const stationNear = nbrs(g, h).filter(x => x.type === 'station' && !x.owner).length;
+    const newResource = resourceCounts[h.type] ? 0 : 5;
+    const needsOreIce = h.type === 'rock' || h.type === 'ice' ? 5 : 0;
+    const crystal = h.type === 'crystal' ? 2 : 0;
+    return stationNear * 6 + newResource + needsOreIce + crystal;
+  };
+  return choices.slice().sort((a, b) => rate(g.hexes[b]) - rate(g.hexes[a]) || a.localeCompare(b))[0];
+}
+function botEraChoice(room, pid, offer) {
+  const g = room.game, ps = P(g, pid), mine = owned(g, pid), nLanes = lanesOf(g, pid).length;
+  const scores = { militia: 13, autominers: nLanes ? 8 : 10, cryo: 4,
+    couriers: nLanes ? 17 : 4, lattice: mine.some(h => h.type === 'station') ? 12 : 7,
+    shieldgrid: 6, megaspire: mine.some(h => h.build === 'spire') ? 16 : 8,
+    archive: ps.missions.filter(m => m.done).length >= 2 ? 14 : 5, shielding: 6 };
+  return offer.slice().sort((a,b) => (scores[b] || 0) - (scores[a] || 0) || a.localeCompare(b))[0];
+}
 function aiPlan(room, pid) {
   const g = room.game, ps = P(g, pid), L = legal(g, room, pid), C = costs(g, room, pid);
   const cmds = [];
@@ -946,37 +998,70 @@ function aiPlan(room, pid) {
   };
   const take = (cmd, c) => { if (cmds.length >= 2) return; if (!tradeFor(c)) return; for (const [k, v] of Object.entries(c)) spend[k] = (spend[k] || 0) + v; cmds.push(cmd); };
   const scarce = () => { const r = avail(); return RAW.slice().sort((a, b) => r[a] - r[b]); };
-  // 1. Spire
-  if (L.spire.length) take({ type: 'spire', target: L.spire[0] }, C.spire);
-  // 2. Station outpost, then a sector producing what we lack
+  // Objectives are pursued using *existing* legal actions and standard costs.
+  const missions = ps.missions.filter(m => !m.done);
+  const holdTarget = missions.filter(m => m.type === 'hold').map(m => ({
+    world: m.world, have: owned(g, pid).filter(h => h.type === m.world).length
+  })).sort((a,b) => b.have - a.have)[0];
+  const asteroidMission = missions.some(m => m.type === 'asteroid');
+  const asteroidOwned = owned(g, pid).find(h => h.type === 'asteroid' && h.fleets < 3);
+  // First secure a near-complete objective; this can be worth 2–3 Influence.
+  if (holdTarget && holdTarget.have >= 1) {
+    const goal = L.found.find(id => g.hexes[id].type === holdTarget.world);
+    if (goal) take({ type: 'found', target: goal }, C.found);
+  }
+  if (asteroidMission && cmds.length < 2 && asteroidOwned) {
+    const count = Math.min(3-asteroidOwned.fleets, 3, Math.floor(avail().credits / C.fleetEach));
+    if (count > 0) take({ type: 'fleet', n: count, place: asteroidOwned.id }, { credits: count * C.fleetEach });
+  }
+  if (asteroidMission && cmds.length < 2 && !asteroidOwned) {
+    const goal = L.found.find(id => g.hexes[id].type === 'asteroid');
+    if (goal) take({ type: 'found', target: goal }, C.found);
+  }
+  // Claim stations (the most direct Influence source) and upgrade when possible.
+  if (L.spire.length && cmds.length < 2) take({ type: 'spire', target: L.spire[0] }, C.spire);
   const stations = L.found.filter(id => g.hexes[id].type === 'station');
-  if (stations.length) take({ type: 'found', target: pick(stations) }, C.found);
-  if (cmds.length < 2 && L.found.length && Math.random() < 0.8) {
-    const want = scarce();
-    const opts = L.found.filter(id => !cmds.some(c => c.target === id)).sort((a, b) => {
-      const ra = want.indexOf(PROD[g.hexes[a].type]), rb = want.indexOf(PROD[g.hexes[b].type]);
-      return (ra < 0 ? 9 : ra) - (rb < 0 ? 9 : rb);
-    });
-    if (opts.length) take({ type: 'found', target: opts[0] }, C.found);
+  if (stations.length && cmds.length < 2) {
+    const target = stations.slice().sort((a,b) =>
+      g.lanes.filter(l => l.a === b || l.b === b).length - g.lanes.filter(l => l.a === a || l.b === a).length)[0];
+    take({ type: 'found', target }, C.found);
   }
-  // 3. Hyperlane
-  if (cmds.length < 2 && L.lane.length) { const id = L.lane.slice().sort((a, b) => C.lanes[a].ore + C.lanes[a].plasma - C.lanes[b].ore - C.lanes[b].plasma)[0]; if (canPay(avail(), C.lanes[id])) take({ type: 'lane', lane: id }, C.lanes[id]); }
-  // 4. Favourable strike
-  if (cmds.length < 2) {
-    const s = L.strike.filter(([a, b]) => g.hexes[a].fleets >= g.hexes[b].fleets + 2).sort((x, y) => (g.hexes[y[1]].type === 'station') - (g.hexes[x[1]].type === 'station'));
-    if (s.length) take({ type: 'strike', from: s[0][0], to: s[0][1] }, {});
+  // Buying a short hyperlane builds future income and can satisfy Lane Missions.
+  if (cmds.length < 2 && L.lane.length) {
+    const id = L.lane.slice().sort((a,b) => (C.lanes[a].ore+C.lanes[a].plasma)-(C.lanes[b].ore+C.lanes[b].plasma))[0];
+    take({ type: 'lane', lane: id }, C.lanes[id]);
   }
-  // 5. Fleets on the most threatened sector
-  if (cmds.length < 2 && L.fleetPlace.length) {
-    const n = Math.min(3, Math.floor(avail().credits / C.fleetEach));
-    if (n > 0 && (fleetsOf(g, pid) < owned(g, pid).length + 2 || Math.random() < 0.4)) {
-      const threat = id => nbrs(g, g.hexes[id]).filter(x => x.owner && x.owner !== pid).reduce((t, x) => t + x.fleets, 0) + (g.hexes[id].type === 'station' ? 2 : 0);
-      const place = L.fleetPlace.slice().sort((a, b) => threat(b) - threat(a))[0];
-      take({ type: 'fleet', n, place }, { credits: n * C.fleetEach });
+  // Build toward a 5-Fleet Grand Armada trophy if no stronger purchase fits.
+  if (cmds.length < 2 && L.fleetPlace.length && fleetsOf(g, pid) < 5) {
+    const n = Math.min(3, 5-fleetsOf(g,pid), Math.floor(avail().credits/C.fleetEach));
+    if (n > 0) {
+      const place = L.fleetPlace.slice().sort((a,b) => Number(g.hexes[b].type === 'station')-Number(g.hexes[a].type === 'station'))[0];
+      take({ type: 'fleet', n, place }, { credits: n*C.fleetEach });
     }
   }
-  // 6. Research an upgrade
-  if (cmds.length < 2) { const ups = L.research.filter(k => k !== 'mission'); const ch = ups.length && Math.random() < 0.6 ? pick(ups) : (L.research.includes('mission') ? 'mission' : null); if (ch && canPay(avail(), C.research)) take({ type: 'research', choice: ch }, C.research); }
+  // Gather a missing resource and pursue held mission types when no scoring
+  // objective is available right now.
+  if (cmds.length < 2 && L.found.length) {
+    const want = scarce();
+    const goal = L.found.filter(id => !cmds.some(c => c.target === id)).sort((a,b) => {
+      const ha=g.hexes[a], hb=g.hexes[b];
+      const ma=holdTarget && ha.type === holdTarget.world ? -5 : 0;
+      const mb=holdTarget && hb.type === holdTarget.world ? -5 : 0;
+      const ra=want.indexOf(PROD[ha.type]), rb=want.indexOf(PROD[hb.type]);
+      return (ma+(ra<0?9:ra))-(mb+(rb<0?9:rb));
+    })[0];
+    if (goal) take({ type: 'found', target:goal }, C.found);
+  }
+  if (cmds.length < 2) {
+    const s = L.strike.filter(([a,b]) => g.hexes[a].fleets >= g.hexes[b].fleets+2)
+      .sort((x,y) => Number(g.hexes[y[1]].type==='station')-Number(g.hexes[x[1]].type==='station'));
+    if (s.length) take({ type:'strike',from:s[0][0],to:s[0][1]}, {});
+  }
+  if (cmds.length < 2 && L.research.length) {
+    const ups = L.research.filter(k=>k!=='mission');
+    const ch = ups.length ? botEraChoice(room,pid,ups) : (L.research.includes('mission')?'mission':null);
+    if (ch) take({type:'research',choice:ch},C.research);
+  }
   // rank: prefer resources/Credits early, Barons if close
   const pref = ['cache', 'supply', 'prospector', 'warp', 'overdrive', 'survey', 'icebaron', 'crystalbaron', 'shields', 'immunity', 'stormrider'];
   ps.plan = { cmds: [cmds[0] || null, cmds[1] || null], rank: g.pool.slice().sort((a, b) => pref.indexOf(a.key) - pref.indexOf(b.key)).map(c => c.uid), play: [] };
@@ -1272,5 +1357,6 @@ module.exports = { server, rooms, genMap, MAPS, _internal: {
   startGame, makeRoom, onMessage, pubState, privState, sync, P, costs, legal, influence, owned, inStorm, moveStorm,
   incomePhase, planPhase, revealPhase, eraPhase, eraPickOrder, receiveCard, resolveCmd, resolveStrike,
   resolveOffer, updateTrophies, networkSize, missionMet, genMissions, endGame, emptyPlan,
+  aiPlan, botEraChoice, botSetupChoice, botMissionPriority, botKeepMissions,
   applyUpgrade, cleanBundle, canPay, spawnStorm, bandHas, setOrder, doExchange
 } };
