@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#070A16">
+<title>Starfall Lanes</title>
+<style>
+/*CSS*/
+html{font-size:16px}
+body{min-height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);overscroll-behavior:none}
+#wrap{max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+#top{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding:.5rem .75rem;display:flex;align-items:center;gap:.6rem;backdrop-filter:blur(8px)}
+#top .who{min-width:0;flex:1}
+#top .who b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#top .who small{color:var(--muted);font-size:.78rem;font-weight:600}
+#top .inf{font-family:Inter;font-weight:800;font-size:1.35rem;text-align:right;line-height:1}
+#top .inf small{display:block;font-family:Inter;font-size:.62rem;color:var(--muted);font-weight:700}
+#top .tm{font-family:Inter;font-weight:800;font-size:1.05rem;min-width:3.6ch;text-align:right;font-variant-numeric:tabular-nums}
+#top .tm.low{color:var(--bad)}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;font-weight:900;background:var(--panel2);border:1px solid var(--line)}
+#resbar{display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem;padding:.45rem .75rem;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:61px;z-index:4}
+#resbar .r{display:flex;flex-direction:column;align-items:center;font-weight:900;font-size:1.15rem;line-height:1.1}
+#resbar .r small{font-size:.6rem;font-weight:700;color:var(--muted)}
+#head,#body{padding:.75rem}
+#head:empty,#body:empty{display:none}
+#mapBox{position:relative;margin:0 .75rem;border-radius:14px;overflow:hidden;border:1px solid var(--line);display:none;touch-action:manipulation}
+#mapBox.show{display:block}
+#mapBox canvas{width:100%;height:100%;display:block}
+#foot{position:sticky;bottom:0;padding:.6rem .75rem calc(.6rem + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%);z-index:5;display:flex;gap:.5rem;margin-top:auto}
+#foot:empty{display:none}
+h2{font-size:1.15rem;font-weight:900;margin-bottom:.35rem}
+p.lead{color:var(--muted);font-size:.92rem;line-height:1.4;margin-bottom:.7rem}
+.btn{min-height:52px;border-radius:14px;padding:.7rem 1rem;font-weight:800;font-size:1rem;background:var(--panel2);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;gap:.4rem;flex:1}
+.btn.primary{background:var(--accent);color:var(--accentText);border-color:transparent}
+.btn.good{background:var(--good);color:#fff;border-color:transparent}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{min-height:44px;font-size:.9rem;flex:none;padding:.5rem .8rem}
+input[type=text]{width:100%;min-height:52px;border-radius:14px;border:2px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:1.1rem;padding:.6rem .9rem}
+input.code{font-family:Orbitron;font-weight:900;letter-spacing:.3em;text-transform:uppercase;font-size:1.6rem;text-align:center}
+label.f{display:block;font-weight:800;font-size:.85rem;margin:.9rem 0 .35rem}
+.err{color:var(--bad);font-weight:700;margin-top:.7rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.house{display:flex;gap:.6rem;align-items:center;text-align:left;padding:.6rem;border-radius:14px;background:var(--panel);border:2px solid var(--line);min-height:68px}
+.house.mine{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.house:disabled{opacity:.5}
+.house b{display:block;font-size:.88rem;line-height:1.2}
+.house small{display:block;color:var(--muted);font-size:.72rem;margin-top:.1rem}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem}
+.seg button{min-height:56px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:.9rem;padding:.3rem}
+.seg button small{display:block;font-weight:600;font-size:.68rem;color:var(--muted)}
+.seg button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--panel))}
+.list{display:flex;flex-direction:column;gap:.45rem}
+.row{display:flex;align-items:center;gap:.6rem;padding:.55rem .6rem;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.row .grow{flex:1;min-width:0}
+.row b{display:block;font-size:.92rem}
+.row small{display:block;color:var(--muted);font-size:.75rem}
+.card{display:block;width:100%;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:.7rem .8rem;position:relative}
+.card b{display:block;font-size:.98rem}
+.card p{font-size:.84rem;color:var(--muted);margin-top:.2rem;line-height:1.35}
+.card.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+.card.off{opacity:.5;text-decoration:line-through}
+.card .tag{position:absolute;right:.6rem;top:.55rem;font-size:.7rem;font-weight:800;color:var(--accent)}
+.card.done{border-color:var(--good)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:.25rem;padding:.4rem .75rem 0}
+.tabs button{min-height:46px;border-radius:12px 12px 0 0;font-weight:800;font-size:.8rem;background:var(--panel2);border:1px solid var(--line);border-bottom:0;position:relative}
+.tabs button.on{background:var(--accent);color:var(--accentText)}
+.tabs .dot{position:absolute;top:4px;right:6px;min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font-size:.65rem;display:grid;place-items:center;padding:0 4px}
+.slot{display:flex;align-items:center;gap:.5rem;min-height:64px;border-radius:14px;border:2px dashed var(--line);padding:.55rem .7rem;width:100%;text-align:left;background:transparent}
+.slot.filled{border-style:solid;background:var(--panel)}
+.slot.editing{border-color:var(--accent)}
+.slot .n{font-family:Inter;font-weight:800;font-size:1.1rem;color:var(--muted);width:1.4rem}
+.slot .grow{flex:1;min-width:0}
+.slot b{display:block;font-size:.95rem}
+.slot small{display:block;color:var(--muted);font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmds{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-top:.7rem}
+.cmd{min-height:74px;border-radius:14px;background:var(--panel);border:2px solid var(--line);padding:.5rem .6rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between}
+.cmd b{font-size:.95rem}
+.cmd .costs{display:flex;gap:.35rem;flex-wrap:wrap;font-size:.82rem;font-weight:800}
+.cmd:disabled{opacity:.4}
+.cmd .why{font-size:.7rem;color:var(--muted);font-weight:600}
+.cost{display:inline-flex;align-items:center;gap:.15rem;font-weight:800}
+.warn{background:color-mix(in srgb,var(--storm) 16%,var(--panel));border:2px solid var(--storm);border-radius:12px;padding:.55rem .7rem;font-size:.85rem;font-weight:700;margin-bottom:.6rem;display:flex;gap:.5rem;align-items:center}
+.warn i{flex:none;width:1.1rem;height:1.1rem;border-radius:3px;background:repeating-linear-gradient(135deg,var(--storm) 0 3px,transparent 3px 6px);border:2px solid var(--storm)}
+.note{font-size:.82rem;color:var(--muted);margin-top:.5rem;line-height:1.35}
+.note.bad{color:var(--bad);font-weight:700}
+.stepper{display:flex;align-items:center;gap:.5rem}
+.stepper button{width:48px;height:48px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:1.4rem;font-weight:900}
+.stepper output{font-family:Inter;font-weight:800;font-size:1.4rem;min-width:2ch;text-align:center}
+.chips{display:flex;gap:.35rem;flex-wrap:wrap}
+.chip{min-height:48px;min-width:58px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;gap:.25rem;padding:0 .55rem}
+.chip.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--panel))}
+.modal{position:fixed;inset:0;background:rgba(7,10,22,.7);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:1rem .9rem calc(1rem + env(safe-area-inset-bottom,0px));max-height:88vh;overflow:auto;border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:6rem;transform:translateX(-50%);background:var(--text);color:var(--bg);font-weight:800;padding:.6rem 1rem;border-radius:12px;z-index:30;display:none;max-width:90%}
+.toast.show{display:block}
+.conn{position:fixed;top:0;left:0;right:0;background:var(--bad);color:#fff;font-weight:800;text-align:center;padding:.35rem;z-index:40;display:none}
+.conn.show{display:block}
+.log{font-size:.88rem;line-height:1.4}
+.log div{padding:.35rem 0;border-bottom:1px solid var(--line)}
+.log div:first-child{font-weight:800;font-size:.98rem}
+.ups{display:flex;flex-wrap:wrap;gap:.3rem}
+.ups span{font-size:.75rem;font-weight:800;padding:.25rem .5rem;border-radius:8px;background:var(--panel2);border:1px solid var(--line)}
+.rankn{font-family:Inter;font-weight:800;width:1.6rem;text-align:center;color:var(--accent)}
+.res-tbl{width:100%;border-collapse:collapse;margin-top:.5rem}
+.res-tbl td{padding:.45rem .3rem;border-bottom:1px solid var(--line);font-weight:700}
+.res-tbl td.n{text-align:right;font-family:Inter;font-weight:800}
+.res-tbl tr.win td{color:var(--gold)}
+.mapcap{position:absolute;left:.5rem;bottom:.5rem;right:.5rem;display:flex;gap:.4rem;flex-wrap:wrap;pointer-events:none}
+.mapcap span{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.2rem .45rem;font-size:.72rem;font-weight:800}
+</style>
+</head>
+<body>
+<div class="conn" id="conn" role="status">Reconnecting…</div>
+<div id="wrap">
+  <div id="top" hidden></div>
+  <div id="resbar" hidden></div>
+  <div id="tabs" class="tabs" hidden></div>
+  <div id="head"></div>
+  <div id="mapBox"><canvas id="cv"></canvas><div class="mapcap" id="mapcap"></div></div>
+  <div id="body"></div>
+  <div id="foot"></div>
+</div>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+/*COMMONJS*/
+/*MAPJS*/
+
+const $ = id => document.getElementById(id);
+let C = null, pub = null, priv = null, now = () => Date.now(), joined = false, joinErr = '', replaced = false;
+let ui = { tab: 'console', pick: null, editSlot: null, planRound: -1, plan: null, discard: null, setupSel: null, ex: { give: null, get: null }, offer: { to: null, give: {}, get: {} }, modal: null, lastSeenOffer: null };
+const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+const map = MapView($('cv'), { theme: dark() ? 'dark' : 'light', stars: false, quality: 0.9 });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { map.setTheme(dark() ? 'dark' : 'light'); });
+
+// ───────── Connection ─────────
+const params = new URLSearchParams(location.search);
+const urlRoom = (params.get('room') || '').toUpperCase();
+function saved() { try { return JSON.parse(localStorage.getItem('sf_phone') || 'null'); } catch (e) { return null; } }
+const conn = Conn(onMsg, send => {
+  const s = saved();
+  if (s && s.room && (!urlRoom || urlRoom === s.room)) send({ t: 'join', room: s.room, playerId: s.playerId, token: s.token });
+  else render();
+}, ok => $('conn').classList.toggle('show', !ok));
+const send = o => conn.send(o);
+function onMsg(m) {
+  if (m.t === 'welcome') {
+    C = m.consts; joined = true; joinErr = '';
+    try { localStorage.setItem('sf_phone', JSON.stringify({ room: m.room, playerId: m.playerId, token: m.token })); } catch (e) { }
+  }
+  if (m.t === 'error') {
+    joinErr = m.text; joined = false;
+    const s = saved(); if (s) { try { localStorage.removeItem('sf_phone'); } catch (e) { } }
+    render();
+  }
+  if (m.t === 'kicked') { joined = false; joinErr = 'The host removed you from the game.'; try { localStorage.removeItem('sf_phone'); } catch (e) { } pub = null; render(); }
+  if (m.t === 'toast') toast(m.text);
+  if (m.t === 'replaced') { conn.stop(); replaced = true; render(); return; }
+  if (m.t === 'state') { pub = m.pub; priv = m.priv; now = clockFrom(pub); onState(); }
+}
+let toastT = null;
+function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2600); }
+let wake = null;
+async function keepAwake() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) { } }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && pub && pub.phase === 'game') keepAwake(); });
+
+// ───────── Helpers ─────────
+const me = () => pub && priv && pub.players.find(p => p.id === priv.pid);
+const AVof = p => C.AVATARS[p.avatar];
+const G = () => pub && pub.game;
+const hex = id => G() && G().hexes.find(h => h.id === id);
+const lane = id => G() && G().lanes.find(l => l.id === id);
+const TYPE_NAMES = { rock: 'Rock World', ice: 'Ice World', crystal: 'Crystal World', gas: 'Gas Giant', station: 'Trade Station', asteroid: 'Asteroid Field', void: 'Void', beacon: 'The Beacon' };
+function hexName(id) { const h = hex(id); if (!h) return '?'; return h.name || TYPE_NAMES[h.type]; }
+function laneName(id) { const l = lane(id); return l ? `${hexName(l.a)} ↔ ${hexName(l.b)}` : '?'; }
+const sumCost = (a, b) => { const o = Object.assign({}, a); for (const [k, v] of Object.entries(b || {})) o[k] = (o[k] || 0) + v; return o; };
+const canPay = (res, c) => Object.entries(c).every(([k, v]) => (res[k] || 0) >= v);
+function cmdCost(c) {
+  if (!c || !priv) return {};
+  const K = priv.costs;
+  if (c.type === 'found') return K.found;
+  if (c.type === 'spire') return K.spire;
+  if (c.type === 'lane') { const lc = Object.assign({}, K.lanes[c.lane] || {}); if (ui.plan && ui.plan.play.some(p => heldKey(p.uid) === 'warp')) { const l = lane(c.lane); if (l) { lc.plasma = Math.max(0, lc.plasma - 1); lc.ore = Math.max(0, lc.ore - 1); } } return lc; }
+  if (c.type === 'fleet') return { credits: (c.n || 0) * K.fleetEach };
+  if (c.type === 'research') return K.research;
+  return {};
+}
+const heldKey = uid => { const c = priv.held.find(x => x.uid === uid); return c ? c.key : null; };
+function cmdTitle(c) {
+  return { found: 'Found Outpost', spire: 'Raise Spire', lane: 'Open Hyperlane', fleet: 'Build Fleet', research: 'Research', strike: 'Strike' }[c.type];
+}
+function cmdDetail(c) {
+  if (c.type === 'found' || c.type === 'spire') return hexName(c.target);
+  if (c.type === 'lane') return laneName(c.lane);
+  if (c.type === 'fleet') { let s = c.n ? `${c.n} at ${hexName(c.place)}` : 'No new Fleets'; if (c.move) s += ` · move ${c.move.n} to ${hexName(c.move.to)}`; return s; }
+  if (c.type === 'research') return c.choice === 'mission' ? 'Draw a new Mission' : C.UPGRADES[c.choice].name;
+  if (c.type === 'strike') return `${hexName(c.from)} → ${hexName(c.to)}`;
+  return '';
+}
+
+// ───────── Plan sync ─────────
+function ensurePlan() {
+  const g = G();
+  if (!g || g.phase !== 'plan') return;
+  if (ui.planRound !== g.round || !ui.plan) {
+    ui.planRound = g.round; ui.pick = null; ui.editSlot = null; ui.tab = 'console';
+    ui.plan = JSON.parse(JSON.stringify(priv.plan || { cmds: [null, null], rank: [], play: [] }));
+    if (!ui.plan.rank || !ui.plan.rank.length) ui.plan.rank = g.pool.map(c => c.uid);
+    ui.ex = { give: null, get: null }; ui.offer = { to: null, give: {}, get: {} };
+    if (navigator.vibrate) navigator.vibrate(60);
+  }
+  ui.plan.rank = ui.plan.rank.filter(u => g.pool.some(c => c.uid === u)).concat(g.pool.map(c => c.uid).filter(u => !ui.plan.rank.includes(u)));
+}
+function pushPlan(engage) {
+  const o = { t: 'plan', cmds: ui.plan.cmds, rank: ui.plan.rank, play: ui.plan.play };
+  if (engage !== undefined) o.engage = engage;
+  else if (priv.engaged) o.engage = false;
+  send(o);
+}
+
+// ───────── Render root ─────────
+function onState() {
+  if (!C) return;
+  if (pub.phase === 'game') keepAwake();
+  const g = G();
+  if (g && g.phase !== 'plan') { ui.pick = (g.phase === 'setup' && g.setupTurn === priv.pid) ? ui.pick : null; }
+  if (g && g.phase === 'setup' && g.setupTurn !== priv.pid) ui.setupSel = null;
+  if (g && g.phase === 'setup' && g.setupTurn === priv.pid && ui.lastBuzz !== 'setup' + g.hexes.filter(h => h.owner === priv.pid).length) { ui.lastBuzz = 'setup' + g.hexes.filter(h => h.owner === priv.pid).length; if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
+  ensurePlan();
+  // incoming offer → modal
+  if (priv && priv.offersIn && priv.offersIn.length) { const o = priv.offersIn[0]; if (ui.lastSeenOffer !== o.id) { ui.lastSeenOffer = o.id; ui.modal = 'offer'; if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } }
+  else if (ui.modal === 'offer') ui.modal = null;
+  render();
+}
+function render() {
+  if (replaced) {
+    ['top', 'resbar', 'tabs'].forEach(id => $(id).hidden = true); $('mapBox').classList.remove('show'); $('modal').classList.remove('show');
+    set('head', `<h2 style="margin-top:1.2rem">Playing on another device</h2><p class="lead">Your seat was opened on another phone or tab, so this one stepped aside.</p>`);
+    set('body', ''); set('foot', `<button class="btn primary" id="takeBack">Use this device instead</button>`);
+    $('takeBack').onclick = () => { replaced = false; conn.restart(); render(); };
+    return;
+  }
+  const showGame = joined && pub && pub.phase === 'game' && G();
+  $('top').hidden = !(joined && pub && priv);
+  $('resbar').hidden = !showGame;
+  $('tabs').hidden = true;
+  let mapOn = false, mapH = 0;
+  if (!joined || !pub) { renderJoin(); }
+  else if (pub.phase === 'lobby') { renderTop(); renderLobby(); }
+  else if (showGame) { renderTop(); renderRes(); const r = renderGame(); mapOn = r.map; mapH = r.h || 0; }
+  setMarks();
+  const box = $('mapBox');
+  box.classList.toggle('show', mapOn);
+  if (mapOn) {
+    const h = mapH || Math.round(Math.min(innerHeight * 0.5, innerWidth * 0.95));
+    if (box.style.height !== h + 'px') { box.style.height = h + 'px'; requestAnimationFrame(() => map.resize()); }
+    map.setState(pub, C.AVATARS);
+  }
+  renderModal();
+}
+function set(id, html) { const el = $(id); if (el.innerHTML !== html) el.innerHTML = html; }
+
+// ───────── Join ─────────
+function renderJoin() {
+  set('head', `<h2 class="orb" style="font-size:1.6rem;margin-top:1.2rem">Starfall Lanes</h2><p class="lead">Join the game showing on the TV.</p>`);
+  const s = saved();
+  set('body', `<label class="f" for="jc">Game code</label><input id="jc" class="code" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(urlRoom || (s && s.room) || '')}">
+    <label class="f" for="jn">Your name</label><input id="jn" type="text" maxlength="14" autocomplete="nickname" placeholder="Optional" value="${esc(localStorage.getItem('sf_name') || '')}">
+    ${joinErr ? `<div class="err" role="alert">${esc(joinErr)}</div>` : ''}`);
+  set('foot', `<button class="btn primary" id="jgo">Join game</button>`);
+  $('jgo').onclick = () => {
+    const room = $('jc').value.trim().toUpperCase(), name = $('jn').value.trim();
+    if (room.length !== 4) { joinErr = 'Enter the 4-letter code from the TV.'; return render(); }
+    try { localStorage.setItem('sf_name', name); } catch (e) { }
+    send({ t: 'join', room, name });
+  };
+}
+
+// ───────── Top bar ─────────
+function renderTop() {
+  const p = me(); if (!p) return;
+  const g = G(), av = AVof(p);
+  const left = g && g.phaseEnds ? g.phaseEnds - now() : 0;
+  const host = priv.isHost ? `<button class="icon-btn" id="hostBtn" aria-label="Host menu">⋯</button>` : '';
+  let sub = `Code ${pub.room}`;
+  if (g) sub = g.round ? `${C.ERA_NAMES[g.era]} · Round ${g.round}/${g.maxRounds}` : 'Setting up';
+  set('top', `${avatarHTML(av, { size: 44, mood: p.mood, era: g ? g.era : 0 })}
+    <div class="who"><b>${esc(p.name)}</b><small>${esc(sub)}</small></div>
+    ${g ? `<span class="tm${left < 10500 ? ' low' : ''}" id="tm">${g.phaseEnds ? fmtTime(left) : ''}</span><div class="inf">${p.inf}<small>of ${g.target}</small></div>` : ''}${host}`);
+  if ($('hostBtn')) $('hostBtn').onclick = () => { ui.modal = 'host'; render(); };
+}
+setInterval(() => {
+  const g = G(); const el = $('tm'); if (!g || !el) return;
+  const left = g.phaseEnds ? g.phaseEnds - now() : 0;
+  el.textContent = g.phaseEnds ? fmtTime(left) : '';
+  el.classList.toggle('low', !!g.phaseEnds && left < 10500);
+}, 300);
+function renderRes() {
+  const r = priv.res;
+  set('resbar', C.RES.map(k => `<div class="r res-${k}" aria-label="${RES_NAMES[k]} ${r[k]}">${ricon(k)}<span>${r[k]}</span><small>${RES_NAMES[k]}</small></div>`).join(''));
+}
+
+// ───────── Lobby ─────────
+function renderLobby() {
+  const p = me(); if (!p) return;
+  const taken = {}; for (const x of pub.players) taken[x.avatar] = x;
+  set('head', `<h2>Choose your house</h2><p class="lead">Your colour and badge mark everything you own on the TV.</p>`);
+  let body = `<div class="grid2">` + C.AVATARS.map((a, i) => {
+    const t = taken[i], mine = t && t.id === p.id;
+    return `<button class="house${mine ? ' mine' : ''}" data-av="${i}" ${t && !mine ? 'disabled' : ''} aria-pressed="${mine}">${avatarHTML(a, { size: 46 })}<span><b>${esc(a.name)}</b><small>${t && !mine ? esc(t.name) : esc(a.title)}</small></span></button>`;
+  }).join('') + `</div>`;
+  body += `<label class="f" for="nm">Your name</label><div style="display:flex;gap:.5rem"><input id="nm" type="text" maxlength="14" value="${esc(p.name)}"><button class="btn small" id="nmSave">Save</button></div>`;
+  if (pub.mode === 'advanced') body += `<p class="note"><b>House perk:</b> ${esc(AVof(p).perk)}</p>`;
+  if (priv.isHost) {
+    const M = C.MODES;
+    body += `<label class="f">Game mode</label><div class="seg">${Object.entries(M).map(([k, m]) => `<button data-mode="${k}" class="${pub.mode === k ? 'on' : ''}">${m.name}<small>${m.rounds} rounds · ${m.target} to win</small></button>`).join('')}</div>`;
+    body += `<p class="note">${pub.mode === 'advanced' ? 'Adds Cosmic Events, house perks, and −1 per unfinished Mission at the end.' : pub.mode === 'quick' ? 'Shorter game with a 60-second planning timer.' : 'The full game with a 90-second planning timer.'}</p>`;
+    body += `<label class="f">Players (${pub.players.length}/8)</label><div class="list">${pub.players.map(x => `<div class="row">${avatarHTML(AVof(x), { size: 36, off: !x.connected })}<div class="grow"><b>${esc(x.name)}${x.id === pub.hostId ? ' ★' : ''}</b><small>${x.bot ? 'Bot' : x.connected ? 'Connected' : 'Disconnected'}</small></div>${x.id !== p.id ? `<button class="btn small danger" data-kick="${x.id}">Remove</button>` : ''}</div>`).join('')}</div>`;
+    body += `<div style="margin-top:.6rem"><button class="btn" id="addBot" ${pub.players.length >= 8 ? 'disabled' : ''}>Add a bot</button></div>`;
+    set('foot', `<button class="btn primary" id="startBtn" ${pub.players.length < 2 ? 'disabled' : ''}>${pub.players.length < 2 ? 'Need 2+ players' : `Start game (${pub.players.length} players)`}</button>`);
+  } else {
+    body += `<p class="note" style="margin-top:1rem">Waiting for the host to start the game. Mode: <b>${C.MODES[pub.mode].name}</b>.</p>`;
+    set('foot', '');
+  }
+  set('body', body);
+  document.querySelectorAll('[data-av]').forEach(b => b.onclick = () => send({ t: 'avatar', id: +b.dataset.av }));
+  document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => send({ t: 'mode', mode: b.dataset.mode }));
+  document.querySelectorAll('[data-kick]').forEach(b => b.onclick = () => send({ t: 'kick', pid: b.dataset.kick }));
+  if ($('nmSave')) $('nmSave').onclick = () => { send({ t: 'name', name: $('nm').value }); toast('Name saved'); };
+  if ($('addBot')) $('addBot').onclick = () => send({ t: 'addBot' });
+  if ($('startBtn')) $('startBtn').onclick = () => send({ t: 'start' });
+}
+
+// ───────── Game ─────────
+function renderGame() {
+  const g = G();
+  if (g.phase === 'missions') return renderMissions();
+  if (g.phase === 'setup') return renderSetup();
+  if (g.phase === 'era') return renderEra();
+  if (g.phase === 'plan') return renderPlan();
+  if (g.phase === 'over') return renderOver();
+  return renderWatch();
+}
+function missionCard(m, extra) {
+  return `<div class="card${m.done ? ' done' : ''}${extra || ''}"><span class="tag">${m.done ? '✔ Done' : m.met ? 'Scores at Reveal' : '+' + m.inf}</span><b>${esc(m.text)}</b><p>${m.done ? `Scored ${m.inf} Influence` : `Worth ${m.inf} Influence`}</p></div>`;
+}
+function renderMissions() {
+  if (priv.keepDone) {
+    set('head', `<h2>Missions chosen</h2><p class="lead">Waiting for the other houses.</p>`);
+    set('body', `<div class="list">${priv.missionOffer.map(m => missionCard(m)).join('')}</div>`); set('foot', '');
+    return { map: true };
+  }
+  set('head', `<h2>Your secret Missions</h2><p class="lead">Keep at least 2. Tap one to discard it, or keep all 3.</p>`);
+  set('body', `<div class="list">${priv.missionOffer.map(m => `<button class="card${ui.discard === m.uid ? ' off' : ''}" data-m="${m.uid}"><span class="tag">+${m.inf}</span><b>${esc(m.text)}</b><p>${ui.discard === m.uid ? 'Will be discarded — tap to keep' : 'Tap to discard'}</p></button>`).join('')}</div>`);
+  set('foot', `<button class="btn primary" id="keep">${ui.discard ? 'Keep 2 Missions' : 'Keep all 3 Missions'}</button>`);
+  document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { ui.discard = ui.discard === b.dataset.m ? null : b.dataset.m; render(); });
+  $('keep').onclick = () => send({ t: 'keepMissions', discard: ui.discard });
+  return { map: true };
+}
+function renderSetup() {
+  const g = G();
+  const mine = g.hexes.filter(h => h.owner === priv.pid).length;
+  if (g.setupTurn === priv.pid && priv.setupLegal) {
+    ui.pick = { kind: 'setup' };
+    set('head', `<h2>Choose a landing site</h2><p class="lead">Outpost ${mine + 1} of 2, with 1 Fleet. Pick a Rock, Ice, Crystal or Gas world. Glowing outlines show where you can land.</p>`);
+    set('body', ui.setupSel ? `<div class="row"><div class="grow"><b>${esc(hexName(ui.setupSel))}</b><small>Produces ${RES_NAMES[{ rock: 'ore', ice: 'ice', crystal: 'crystal', gas: 'plasma' }[hex(ui.setupSel).type]]} each round</small></div></div>` : '');
+    set('foot', `<button class="btn primary" id="land" ${ui.setupSel ? '' : 'disabled'}>${ui.setupSel ? 'Land here' : 'Tap a world on the map'}</button>`);
+    if ($('land')) $('land').onclick = () => { send({ t: 'place', hex: ui.setupSel }); ui.setupSel = null; ui.pick = null; };
+    return { map: true, h: mapHeight() };
+  }
+  const p = pub.players.find(x => x.id === g.setupTurn);
+  set('head', `<h2>Landing</h2><p class="lead">${p ? esc(p.name) + ' is choosing a landing site.' : 'Houses are landing.'} Each house lands 2 Outposts.</p>`);
+  set('body', ''); set('foot', '');
+  return { map: true, h: mapHeight() };
+}
+function renderEra() {
+  const g = G();
+  set('head', `<h2>The ${C.ERA_NAMES[g.era]} era</h2><p class="lead">Pick one upgrade. It lasts the rest of the game.</p>`);
+  set('body', `<div class="list">${g.eraOffer.map(k => `<button class="card${priv.eraPick === k ? ' on' : ''}" data-up="${k}">${priv.upgrades.includes(k) ? '<span class="tag">Owned</span>' : priv.eraPick === k ? '<span class="tag">✔ Picked</span>' : ''}<b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></button>`).join('')}</div>`);
+  set('foot', '');
+  document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => send({ t: 'eraPick', id: b.dataset.up }));
+  return { map: false };
+}
+function renderWatch() {
+  const g = G();
+  let head = '';
+  if (g.phase === 'income') {
+    const gi = g.income && g.income[priv.pid];
+    head = `<h2>Income</h2>`;
+    if (g.event) head += `<div class="card" style="border-color:var(--gold);margin-bottom:.5rem"><span class="tag">Cosmic Event</span><b>${esc(C.EVENTS[g.event].name)}</b><p>${esc(C.EVENTS[g.event].text)}</p></div>`;
+    if (gi) { const parts = C.RES.filter(k => gi[k]).map(k => `<span class="chip res-${k}">${gi[k] > 0 ? '+' : ''}${gi[k]} ${ricon(k)}</span>`); head += parts.length ? `<div class="chips">${parts.join('')}</div>` : `<p class="lead">No income this round — the storm or an event blocked it.</p>`; }
+  } else if (g.phase === 'reveal') head = `<h2>Reveal</h2><p class="lead">Watch the TV — commands play out in turn order.</p>`;
+  set('head', head);
+  set('body', `<div class="log">${g.log.slice().reverse().slice(0, 6).map(l => `<div>${esc(l)}</div>`).join('')}</div>`);
+  set('foot', '');
+  return { map: true };
+}
+function renderOver() {
+  const g = G(), r = g.results;
+  const w = r.winners.includes(priv.pid);
+  set('head', `<h2>${w ? (r.winners.length > 1 ? 'Shared victory!' : 'You win!') : 'Game over'}</h2><p class="lead">${esc(g.log[g.log.length - 1] || '')}</p>`);
+  set('body', `<table class="res-tbl">${r.rows.map((x, i) => { const p = pub.players.find(y => y.id === x.pid); return `<tr class="${r.winners.includes(x.pid) ? 'win' : ''}"><td>${i + 1}</td><td>${avatarHTML(AVof(p), { size: 30 })}</td><td>${esc(p.name)}${x.penalty ? `<br><small style="color:var(--muted)">${x.inf} − ${x.penalty} unfinished</small>` : ''}</td><td class="n">${x.final}</td></tr>`; }).join('')}</table>`);
+  set('foot', priv.isHost ? `<button class="btn primary" id="again">Back to lobby</button>` : '');
+  if ($('again')) $('again').onclick = () => send({ t: 'toLobby' });
+  return { map: false };
+}
+const mapHeight = () => Math.round(Math.min(innerHeight * 0.58, innerWidth * 1.0));
+
+// ───────── Plan ─────────
+function renderPlan() {
+  const g = G();
+  const dots = { cards: priv.held.length, missions: priv.surveyOffer ? 1 : 0, trade: priv.offersIn.length };
+  const tabs = [['console', 'Orders'], ['draft', 'Draft'], ['trade', 'Trade'], ['missions', 'Missions'], ['cards', 'Cards']];
+  $('tabs').hidden = !!ui.pick;
+  set('tabs', tabs.map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-tab="${k}">${l}${dots[k] ? `<span class="dot">${dots[k]}</span>` : ''}</button>`).join(''));
+  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { ui.tab = b.dataset.tab; render(); });
+  if (ui.pick) return renderPicker();
+  if (ui.tab === 'draft') return renderDraft();
+  if (ui.tab === 'trade') return renderTrade();
+  if (ui.tab === 'missions') return renderMyMissions();
+  if (ui.tab === 'cards') return renderCards();
+  return renderConsole();
+}
+function engageFoot() {
+  const n = ui.plan.cmds.filter(Boolean).length;
+  if (priv.engaged) set('foot', `<button class="btn good" id="eng">✔ Engaged — tap to change orders</button>`);
+  else set('foot', `<button class="btn primary" id="eng">Engage${n < 2 ? ` (${n} of 2 orders)` : ''}</button>`);
+  $('eng').onclick = () => { pushPlan(!priv.engaged); };
+}
+function renderConsole() {
+  const g = G(), L = priv.legal, K = priv.costs, res = priv.res;
+  let head = '';
+  if (priv.stormNext.length) head += `<div class="warn"><i></i><span>The storm reaches ${priv.stormNext.length} of your sectors next round. They won't produce.</span></div>`;
+  const slots = [0, 1].map(i => {
+    const c = ui.plan.cmds[i];
+    if (!c) return `<button class="slot${ui.editSlot === i ? ' editing' : ''}" data-slot="${i}"><span class="n">${i + 1}</span><span class="grow"><b>Empty order</b><small>Choose a command below</small></span></button>`;
+    return `<div class="slot filled"><span class="n">${i + 1}</span><span class="grow"><b>${cmdTitle(c)}</b><small>${esc(cmdDetail(c))}</small></span><span class="costs" style="display:flex;gap:.3rem;font-size:.82rem">${costHTML(cmdCost(c))}</span><button class="icon-btn" data-clear="${i}" aria-label="Remove order ${i + 1}">×</button></div>`;
+  }).join('<div style="height:.45rem"></div>');
+  const total = sumCost(cmdCost(ui.plan.cmds[0]), cmdCost(ui.plan.cmds[1]));
+  const short = Object.entries(total).filter(([k, v]) => v > (res[k] || 0)).map(([k]) => RES_NAMES[k]);
+  const full = ui.plan.cmds.every(Boolean);
+  const rsch = ui.plan.cmds.some(c => c && c.type === 'research');
+  const defs = [
+    ['found', 'Found Outpost', K.found, L.found.length, 'No free sector next to yours'],
+    ['spire', 'Raise Spire', K.spire, L.spire.length, 'Needs an Outpost on a Trade Station'],
+    ['lane', 'Open Hyperlane', null, L.lane.length, 'Needs a Trade Station at one end'],
+    ['fleet', 'Build Fleet', { credits: K.fleetEach }, L.fleetPlace.length, 'No sectors'],
+    ['research', 'Research', K.research, L.research.length && !rsch, rsch ? 'Once per round' : 'Nothing to research'],
+    ['strike', 'Strike', {}, L.strike.length, pub.game.event === 'ceasefire' ? 'Cease-fire this round' : 'No enemy next to your Fleets']
+  ];
+  const btns = defs.map(([k, name, cost, ok, why]) => `<button class="cmd" data-cmd="${k}" ${ok && !full ? '' : 'disabled'}><b>${name}</b><span class="costs">${k === 'lane' ? '<span class="cost">1' + ricon('ore') + '+1' + ricon('plasma') + ' per segment</span>' : k === 'fleet' ? `<span class="cost">${K.fleetEach}${ricon('credits')} each</span>` : costHTML(cost)}</span>${!ok ? `<span class="why">${why}</span>` : ''}</button>`).join('');
+  set('head', head + slots + (short.length ? `<p class="note bad">Not enough ${short.join(', ')} for both orders. A command that can't be paid fails and refunds 1 Credit.</p>` : '') + (full ? '' : `<div class="cmds">${btns}</div>`) + `<p class="note">Trade on the Trade tab before you Engage. Orders resolve in turn order; Strikes happen last.</p>`);
+  set('body', '');
+  engageFoot();
+  document.querySelectorAll('[data-clear]').forEach(b => b.onclick = () => { ui.plan.cmds[+b.dataset.clear] = null; pushPlan(); render(); });
+  document.querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { ui.editSlot = +b.dataset.slot; render(); });
+  document.querySelectorAll('[data-cmd]').forEach(b => b.onclick = () => startPick(b.dataset.cmd));
+  return { map: false };
+}
+function startPick(kind) {
+  const slot = ui.editSlot != null && !ui.plan.cmds[ui.editSlot] ? ui.editSlot : ui.plan.cmds[0] ? 1 : 0;
+  ui.pick = { kind, slot, step: 0, d: { n: Math.min(3, Math.max(1, Math.floor(priv.res.credits / priv.costs.fleetEach)) || 1) } };
+  ui.editSlot = null;
+  render();
+}
+function finishPick(cmd) {
+  ui.plan.cmds[ui.pick.slot] = cmd; ui.pick = null; pushPlan(); render();
+}
+function setMarks() {
+  const g = G();
+  const m = { legal: new Set(), sel: new Set(), laneLegal: new Set(), laneSel: null, arrow: null };
+  if (g && ui.pick && priv) {
+    const L = priv.legal || {}, d = ui.pick.d || {};
+    const k = ui.pick.kind;
+    if (k === 'setup') { (priv.setupLegal || []).forEach(x => m.legal.add(x)); if (ui.setupSel) m.sel.add(ui.setupSel); }
+    if (k === 'found' || k === 'spire') { L[k].forEach(x => m.legal.add(x)); if (d.target) m.sel.add(d.target); }
+    if (k === 'lane') { L.lane.forEach(x => m.laneLegal.add(x)); m.laneSel = d.lane || null; }
+    if (k === 'fleet') {
+      if (ui.pick.step === 0) { L.fleetPlace.forEach(x => m.legal.add(x)); if (d.place) m.sel.add(d.place); }
+      if (ui.pick.step === 1) { if (!d.from) new Set(L.move.map(x => x[0])).forEach(x => m.legal.add(x)); else { m.sel.add(d.from); L.move.filter(x => x[0] === d.from).forEach(x => m.legal.add(x[1])); if (d.to) { m.sel.add(d.to); m.arrow = [d.from, d.to]; } } }
+    }
+    if (k === 'strike') { if (!d.from) new Set(L.strike.map(x => x[0])).forEach(x => m.legal.add(x)); else { m.sel.add(d.from); L.strike.filter(x => x[0] === d.from).forEach(x => m.legal.add(x[1])); if (d.to) { m.sel.add(d.to); m.arrow = [d.from, d.to]; } } }
+    if (k === 'shields') { L.shields.forEach(x => m.legal.add(x)); if (d.target) m.sel.add(d.target); }
+  }
+  map.setMarks(m);
+}
+function renderPicker() {
+  const P = ui.pick, d = P.d, L = priv.legal, K = priv.costs;
+  const cancel = `<button class="btn" id="pCancel">Cancel</button>`;
+  let head = '', body = '', foot = '', mapOn = true;
+  const bindCommon = () => { $('pCancel').onclick = () => { ui.pick = null; render(); }; };
+  if (P.kind === 'found' || P.kind === 'spire') {
+    head = `<h2>${P.kind === 'found' ? 'Found Outpost' : 'Raise Spire'}</h2><p class="lead">${P.kind === 'found' ? 'Tap a glowing sector next to your territory or your hyperlanes.' : 'Tap one of your Trade Stations.'} Cost: ${costHTML(P.kind === 'found' ? K.found : K.spire)}</p>`;
+    body = d.target ? `<div class="row"><div class="grow"><b>${esc(hexName(d.target))}</b><small>${P.kind === 'spire' ? 'Spire: 2 Influence, 2 Credits a round' : hex(d.target).type === 'station' ? 'Trade Station: 1 Influence, 1 Credit a round' : 'Produces every round outside the storm'}</small></div></div>` : '';
+    foot = cancel + `<button class="btn primary" id="pOk" ${d.target ? '' : 'disabled'}>Confirm</button>`;
+    set('head', head); set('body', body); set('foot', foot); bindCommon();
+    $('pOk').onclick = () => finishPick({ type: P.kind, target: d.target });
+  } else if (P.kind === 'lane') {
+    head = `<h2>Open Hyperlane</h2><p class="lead">Tap a glowing dotted lane, or pick from the list. You pay per segment (the number on the lane).</p>`;
+    body = `<div class="list">${L.lane.map(id => { const c = K.lanes[id]; const ok = canPay(priv.res, c); return `<button class="card${d.lane === id ? ' on' : ''}" data-lane="${id}"><span class="tag">${lane(id).len} segments</span><b>${esc(laneName(id))}</b><p style="display:flex;gap:.4rem;align-items:center">${costHTML(c)}${ok ? '' : ' · can’t afford yet'}</p></button>`; }).join('')}</div>`;
+    foot = cancel + `<button class="btn primary" id="pOk" ${d.lane ? '' : 'disabled'}>Confirm</button>`;
+    set('head', head); set('body', body); set('foot', foot); bindCommon();
+    document.querySelectorAll('[data-lane]').forEach(b => b.onclick = () => { d.lane = b.dataset.lane; render(); });
+    $('pOk').onclick = () => finishPick({ type: 'lane', lane: d.lane });
+  } else if (P.kind === 'fleet') {
+    if (P.step === 0) {
+      head = `<h2>Build Fleet</h2><p class="lead">${K.fleetEach} Credits each, up to 3. Choose how many, then tap one of your sectors to place them.</p>
+        <div class="stepper"><button id="fm" aria-label="Fewer">−</button><output id="fn">${d.n}</output><button id="fp" aria-label="More">+</button><span class="cost" style="margin-left:.5rem">${d.n * K.fleetEach}${ricon('credits')}</span></div>`;
+      body = `${d.place ? `<div class="row"><div class="grow"><b>Place at ${esc(hexName(d.place))}</b></div></div>` : ''}<p class="note">Next you can also move Fleets between two of your neighbouring sectors (optional).</p>`;
+      foot = cancel + `<button class="btn primary" id="pOk" ${d.place || d.n === 0 ? '' : 'disabled'}>Next</button>`;
+      set('head', head); set('body', body); set('foot', foot); bindCommon();
+      $('fm').onclick = () => { d.n = Math.max(0, d.n - 1); render(); };
+      $('fp').onclick = () => { d.n = Math.min(3, d.n + 1); render(); };
+      $('pOk').onclick = () => { if (!L.move.length) { if (!d.n) return; return finishPick({ type: 'fleet', n: d.n, place: d.place }); } P.step = 1; render(); };
+    } else {
+      head = `<h2>Move Fleets (optional)</h2><p class="lead">${!d.from ? 'Tap one of your sectors with Fleets to move from.' : !d.to ? 'Now tap the neighbouring sector to move to.' : 'Choose how many to move.'}</p>`;
+      const avail = d.from ? hex(d.from).fleets + (d.place === d.from ? d.n : 0) : 0;
+      if (d.to) { d.mn = Math.max(1, Math.min(avail || 1, d.mn || avail || 1)); head += `<div class="stepper"><button id="mm">−</button><output>${d.mn}</output><button id="mp">+</button><span class="note" style="margin:0 0 0 .5rem">of ${avail}</span></div>`; }
+      foot = `<button class="btn" id="pSkip">${d.n ? 'Skip moving' : 'Back'}</button><button class="btn primary" id="pOk" ${d.to ? '' : 'disabled'}>Confirm</button>`;
+      set('head', head); set('body', d.from ? `<button class="btn small" id="pReset">Start move again</button>` : ''); set('foot', foot);
+      if ($('pReset')) $('pReset').onclick = () => { d.from = d.to = null; render(); };
+      if ($('mm')) { $('mm').onclick = () => { d.mn = Math.max(1, d.mn - 1); render(); }; $('mp').onclick = () => { d.mn = Math.min(avail, d.mn + 1); render(); }; }
+      $('pSkip').onclick = () => { if (!d.n) { P.step = 0; return render(); } finishPick({ type: 'fleet', n: d.n, place: d.place }); };
+      $('pOk').onclick = () => finishPick({ type: 'fleet', n: d.n, place: d.place, move: { from: d.from, to: d.to, n: d.mn } });
+    }
+  } else if (P.kind === 'research') {
+    mapOn = false;
+    head = `<h2>Research</h2><p class="lead">Cost: ${costHTML(K.research)}. Once per round.</p>`;
+    body = `<div class="list">${L.research.map(k => k === 'mission' ? `<button class="card${d.choice === k ? ' on' : ''}" data-r="mission"><b>Draw a new Mission</b><p>A new secret goal worth 2–4 Influence.</p></button>` : `<button class="card${d.choice === k ? ' on' : ''}" data-r="${k}"><span class="tag">${C.ERA_NAMES[C.UPGRADES[k].era]}</span><b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></button>`).join('')}</div>`;
+    foot = cancel + `<button class="btn primary" id="pOk" ${d.choice ? '' : 'disabled'}>Confirm</button>`;
+    set('head', head); set('body', body); set('foot', foot); bindCommon();
+    document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { d.choice = b.dataset.r; render(); });
+    $('pOk').onclick = () => finishPick({ type: 'research', choice: d.choice });
+  } else if (P.kind === 'strike') {
+    head = `<h2>Strike</h2><p class="lead">${!d.from ? 'Tap your sector to attack from. All its Fleets attack.' : !d.to ? 'Now tap the enemy sector to attack.' : 'Strikes resolve at the end of Reveal.'}</p>`;
+    if (d.from && d.to) { const a = hex(d.from), b = hex(d.to); body = `<div class="row"><div class="grow"><b>${a.fleets} Fleets vs ${b.fleets}${b.type === 'asteroid' ? ' +1 asteroid' : ''}${b.build === 'spire' || b.build === 'mega' ? ' +1 spire' : ''}</b><small>Each side adds a die (1–6). Ties go to the defender. Win to capture the sector.</small></div></div>`; }
+    if (d.from) body += `<button class="btn small" id="pReset" style="margin-top:.5rem">Choose a different source</button>`;
+    foot = cancel + `<button class="btn primary" id="pOk" ${d.to ? '' : 'disabled'}>Confirm</button>`;
+    set('head', head); set('body', body); set('foot', foot); bindCommon();
+    if ($('pReset')) $('pReset').onclick = () => { d.from = d.to = null; render(); };
+    $('pOk').onclick = () => finishPick({ type: 'strike', from: d.from, to: d.to });
+  } else if (P.kind === 'shields') {
+    head = `<h2>Emergency Shields</h2><p class="lead">Tap one of your sectors to give it +2 defence this round.</p>`;
+    foot = cancel + `<button class="btn primary" id="pOk" ${d.target ? '' : 'disabled'}>Confirm</button>`;
+    set('head', head); set('body', d.target ? `<div class="row"><b>${esc(hexName(d.target))}</b></div>` : ''); set('foot', foot); bindCommon();
+    $('pOk').onclick = () => { ui.plan.play = ui.plan.play.filter(x => x.uid !== d.uid).concat({ uid: d.uid, target: d.target }); ui.pick = null; ui.tab = 'cards'; pushPlan(); render(); };
+  }
+  return { map: mapOn, h: mapHeight() };
+}
+function renderDraft() {
+  const g = G();
+  set('head', `<h2>Draft pool</h2><p class="lead">Put the card you want most at the top. At Reveal, in turn order, each house gets its highest-ranked card that's still left.</p>`);
+  if (!g.pool.length) { set('body', `<p class="note">No draft this round.</p>`); engageFoot(); return { map: false }; }
+  set('body', `<div class="list">${ui.plan.rank.map((uid, i) => { const c = g.pool.find(x => x.uid === uid); if (!c) return ''; const d = C.DRAFT[c.key]; return `<div class="row"><span class="rankn">${i + 1}</span><div class="grow"><b>${esc(d.name)}</b><small>${esc(d.text)} · ${d.type}</small></div><button class="icon-btn" data-up="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">▲</button><button class="icon-btn" data-dn="${i}" ${i === ui.plan.rank.length - 1 ? 'disabled' : ''} aria-label="Move down">▼</button></div>`; }).join('')}</div>
+    <p class="note"><b>Instant</b> cards work as soon as you get them. <b>Held</b> cards stay on your phone to play in a later round (max 3). <b>Kept</b> cards score while their condition is true.</p>`);
+  const sw = (i, j) => { const r = ui.plan.rank; [r[i], r[j]] = [r[j], r[i]]; pushPlan(); render(); };
+  document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => sw(+b.dataset.up, +b.dataset.up - 1));
+  document.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => sw(+b.dataset.dn, +b.dataset.dn + 1));
+  engageFoot();
+  return { map: false };
+}
+function renderTrade() {
+  const g = G(), res = priv.res, rt = priv.rates, ex = ui.ex, of = ui.offer;
+  let h = `<h2>Exchange with the bank</h2><p class="lead">Instant. Usually 3 for 1.</p>
+    <label class="f">Give</label><div class="chips">${C.RES.map(k => `<button class="chip res-${k}${ex.give === k ? ' on' : ''}" data-give="${k}" ${res[k] < rt[k] ? 'disabled' : ''}>${rt[k]} ${ricon(k)}</button>`).join('')}</div>
+    <label class="f">Get</label><div class="chips">${C.RES.map(k => `<button class="chip res-${k}${ex.get === k ? ' on' : ''}" data-get="${k}" ${k === ex.give ? 'disabled' : ''}>1 ${ricon(k)}</button>`).join('')}</div>
+    <div style="margin-top:.6rem"><button class="btn primary" id="doEx" ${ex.give && ex.get && res[ex.give] >= rt[ex.give] ? '' : 'disabled'} style="width:100%">${ex.give && ex.get ? `Exchange ${rt[ex.give]} ${RES_NAMES[ex.give]} for 1 ${RES_NAMES[ex.get]}` : 'Choose what to give and get'}</button></div>`;
+  const others = pub.players.filter(p => p.id !== priv.pid);
+  const left = g.phaseEnds - now();
+  const canOffer = priv.offersSent < 2 && left > 20500;
+  h += `<h2 style="margin-top:1.4rem">Offer a trade to a player</h2><p class="lead">They get 20 seconds to accept. ${2 - priv.offersSent} offer${priv.offersSent === 1 ? '' : 's'} left this round.${left <= 20500 ? ' Too late to send one now.' : ''}</p>`;
+  h += `<div class="chips">${others.map(p => `<button class="chip${of.to === p.id ? ' on' : ''}" data-to="${p.id}">${avatarHTML(AVof(p), { size: 26 })}${esc(p.name)}</button>`).join('')}</div>`;
+  const stepRow = (side) => C.RES.map(k => `<div class="row" style="padding:.35rem .5rem"><span class="res-${k}" style="display:flex;align-items:center;gap:.35rem;flex:1;font-weight:800">${ricon(k)} ${RES_NAMES[k]}</span><div class="stepper"><button data-s="${side}" data-k="${k}" data-d="-1">−</button><output>${of[side][k] || 0}</output><button data-s="${side}" data-k="${k}" data-d="1">+</button></div></div>`).join('');
+  if (of.to) h += `<label class="f">You give</label><div class="list">${stepRow('give')}</div><label class="f">You get</label><div class="list">${stepRow('get')}</div>`;
+  const ok = of.to && canOffer && Object.values(of.give).some(v => v > 0) && Object.values(of.get).some(v => v > 0) && canPay(res, of.give);
+  if (of.to) h += `<div style="margin-top:.6rem"><button class="btn primary" id="sendOf" ${ok ? '' : 'disabled'} style="width:100%">Send offer</button></div>`;
+  if (priv.offersOut.length) h += `<label class="f">Your offers</label><div class="list">${priv.offersOut.map(o => `<div class="row"><div class="grow"><b>To ${esc(pub.players.find(p => p.id === o.to).name)}</b><small>${o.status ? o.status : 'Waiting…'}</small></div></div>`).join('')}</div>`;
+  set('head', h); set('body', '');
+  engageFoot();
+  document.querySelectorAll('[data-give]').forEach(b => b.onclick = () => { ex.give = b.dataset.give; if (ex.get === ex.give) ex.get = null; render(); });
+  document.querySelectorAll('[data-get]').forEach(b => b.onclick = () => { ex.get = b.dataset.get; render(); });
+  if ($('doEx')) $('doEx').onclick = () => { send({ t: 'exchange', give: ex.give, get: ex.get }); };
+  document.querySelectorAll('[data-to]').forEach(b => b.onclick = () => { of.to = b.dataset.to; render(); });
+  document.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { const s = b.dataset.s, k = b.dataset.k; of[s][k] = Math.max(0, Math.min(9, (of[s][k] || 0) + +b.dataset.d)); render(); });
+  if ($('sendOf')) $('sendOf').onclick = () => { send({ t: 'offer', to: of.to, give: of.give, get: of.get }); ui.offer = { to: null, give: {}, get: {} }; toast('Offer sent'); render(); };
+  return { map: false };
+}
+function renderMyMissions() {
+  let h = '';
+  if (priv.surveyOffer) h += `<h2>Survey Drone</h2><p class="lead">Keep one of these Missions.</p><div class="list">${priv.surveyOffer.map(m => `<button class="card" data-sv="${m.uid}"><span class="tag">+${m.inf}</span><b>${esc(m.text)}</b><p>Tap to keep</p></button>`).join('')}</div>`;
+  h += `<h2 style="margin-top:${priv.surveyOffer ? '1.2rem' : 0}">Your Missions</h2><p class="lead">Secret goals. They score the moment they're true at the end of a Reveal.${priv.perks ? ' Unfinished Missions cost 1 Influence each at the end.' : ''}</p>`;
+  h += `<div class="list">${priv.missions.map(m => missionCard(m)).join('')}</div>`;
+  set('head', h); set('body', '');
+  document.querySelectorAll('[data-sv]').forEach(b => b.onclick = () => send({ t: 'survey', uid: b.dataset.sv }));
+  engageFoot();
+  return { map: false };
+}
+function renderCards() {
+  let h = `<h2>Held cards</h2><p class="lead">Play one now and it works during this round's Reveal. You can hold 3.</p>`;
+  if (!priv.held.length) h += `<p class="note">No held cards. Draft them from the pool.</p>`;
+  h += `<div class="list">${priv.held.map(c => { const d = C.DRAFT[c.key], pl = ui.plan.play.find(x => x.uid === c.uid); return `<button class="card${pl ? ' on' : ''}" data-play="${c.uid}"><span class="tag">${pl ? '✔ Playing' : 'Tap to play'}</span><b>${esc(d.name)}</b><p>${esc(d.text)}${pl && pl.target ? ` — ${esc(hexName(pl.target))}` : ''}</p></button>`; }).join('')}</div>`;
+  if (priv.kept.length) h += `<h2 style="margin-top:1.2rem">Kept cards</h2><div class="list">${priv.kept.map(c => `<div class="card"><b>${esc(C.DRAFT[c.key].name)}</b><p>${esc(C.DRAFT[c.key].text)}</p></div>`).join('')}</div>`;
+  if (priv.upgrades.length) h += `<h2 style="margin-top:1.2rem">Upgrades</h2><div class="list">${priv.upgrades.map(k => `<div class="card"><b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></div>`).join('')}</div>`;
+  if (priv.perks) h += `<h2 style="margin-top:1.2rem">House perk</h2><div class="card"><p>${esc(AVof(me()).perk)}</p></div>`;
+  set('head', h); set('body', '');
+  document.querySelectorAll('[data-play]').forEach(b => b.onclick = () => {
+    const uid = b.dataset.play, on = ui.plan.play.some(x => x.uid === uid);
+    if (on) { ui.plan.play = ui.plan.play.filter(x => x.uid !== uid); pushPlan(); return render(); }
+    if (heldKey(uid) === 'shields') { ui.pick = { kind: 'shields', d: { uid } }; return render(); }
+    ui.plan.play.push({ uid }); pushPlan(); render();
+  });
+  engageFoot();
+  return { map: false };
+}
+
+// ───────── Map taps ─────────
+$('cv').addEventListener('click', e => {
+  if (!ui.pick || !G()) return;
+  const r = $('cv').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const P = ui.pick, d = P.d || {}, L = priv.legal || {};
+  if (P.kind === 'lane') { const id = map.hitLane(x, y); if (id && L.lane.includes(id)) { d.lane = id; render(); } return; }
+  const id = map.hit(x, y); if (!id) return;
+  if (P.kind === 'setup') { if ((priv.setupLegal || []).includes(id)) { ui.setupSel = id; render(); } return; }
+  if ((P.kind === 'found' || P.kind === 'spire') && L[P.kind].includes(id)) { d.target = id; render(); }
+  if (P.kind === 'shields' && L.shields.includes(id)) { d.target = id; render(); }
+  if (P.kind === 'fleet' && P.step === 0 && L.fleetPlace.includes(id)) { d.place = id; render(); }
+  if (P.kind === 'fleet' && P.step === 1) {
+    if (!d.from || (d.from && !L.move.some(m => m[0] === d.from && m[1] === id) && L.move.some(m => m[0] === id))) { if (L.move.some(m => m[0] === id)) { d.from = id; d.to = null; d.mn = null; render(); } }
+    else if (L.move.some(m => m[0] === d.from && m[1] === id)) { d.to = id; d.mn = null; render(); }
+  }
+  if (P.kind === 'strike') {
+    if (d.from && L.strike.some(s => s[0] === d.from && s[1] === id)) { d.to = id; render(); }
+    else if (L.strike.some(s => s[0] === id)) { d.from = id; d.to = null; render(); }
+  }
+});
+
+// ───────── Modals ─────────
+function renderModal() {
+  const md = $('modal'), sh = $('sheet');
+  if (ui.modal === 'offer' && priv && priv.offersIn && priv.offersIn.length) {
+    const o = priv.offersIn[0], from = pub.players.find(p => p.id === o.from);
+    const list = b => Object.entries(b).map(([k, v]) => `<span class="chip res-${k}">${v} ${ricon(k)}</span>`).join('');
+    const ok = canPay(priv.res, o.get);
+    sh.innerHTML = `<div style="display:flex;gap:.7rem;align-items:center">${avatarHTML(AVof(from), { size: 48 })}<div><h2 style="margin:0">${esc(from.name)} offers a trade</h2><p class="note" style="margin:0" id="ofT"></p></div></div>
+      <label class="f">You get</label><div class="chips">${list(o.give)}</div>
+      <label class="f">You give</label><div class="chips">${list(o.get)}</div>
+      ${ok ? '' : '<p class="note bad">You don’t have enough to accept.</p>'}
+      <div style="display:flex;gap:.5rem;margin-top:1rem"><button class="btn" id="ofNo">Decline</button><button class="btn primary" id="ofYes" ${ok ? '' : 'disabled'}>Accept</button></div>`;
+    md.classList.add('show');
+    $('ofNo').onclick = () => { send({ t: 'offerReply', id: o.id, accept: false }); ui.modal = null; render(); };
+    $('ofYes').onclick = () => { send({ t: 'offerReply', id: o.id, accept: true }); ui.modal = null; render(); };
+    const tick = () => { const el = $('ofT'); if (!el) return; el.textContent = `${Math.max(0, Math.ceil((o.expires - now()) / 1000))} seconds to decide`; };
+    tick(); clearInterval(renderModal.iv); renderModal.iv = setInterval(tick, 500);
+    return;
+  }
+  if (ui.modal === 'host' && priv && priv.isHost && pub) {
+    const g = G();
+    let h = `<h2>Host menu</h2>`;
+    if (g) {
+      h += `<p class="lead">A bot can play for anyone who has left or dropped out. Hand control back when they return.</p><div class="list">${pub.players.filter(p => p.id !== priv.pid).map(p => `<div class="row">${avatarHTML(AVof(p), { size: 34, off: !p.connected })}<div class="grow"><b>${esc(p.name)}</b><small>${p.isAI ? 'Bot playing' : p.connected ? 'Connected' : 'Disconnected'}</small></div>${p.bot ? '' : `<button class="btn small" data-ai="${p.id}">${p.isAI ? 'Return control' : 'Bot takes over'}</button>`}</div>`).join('')}</div>`;
+      h += `<div style="display:flex;flex-direction:column;gap:.5rem;margin-top:1rem"><button class="btn danger" id="endG">${g.phase === 'over' ? 'Back to lobby' : 'End game now and score it'}</button><button class="btn" id="closeM">Close</button></div>`;
+    } else h += `<button class="btn" id="closeM">Close</button>`;
+    sh.innerHTML = h; md.classList.add('show');
+    document.querySelectorAll('[data-ai]').forEach(b => b.onclick = () => send({ t: 'toAI', pid: b.dataset.ai }));
+    if ($('endG')) $('endG').onclick = () => { send({ t: 'endGame' }); ui.modal = null; render(); };
+    $('closeM').onclick = () => { ui.modal = null; render(); };
+    return;
+  }
+  md.classList.remove('show'); clearInterval(renderModal.iv);
+}
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal' && ui.modal === 'host') { ui.modal = null; render(); } });
+
+// ───────── Loop ─────────
+function frame(t) { if ($('mapBox').classList.contains('show')) map.draw(t); requestAnimationFrame(frame); }
+addEventListener('resize', () => { map.resize(); render(); });
+requestAnimationFrame(frame);
+render();
+</script>
+</body>
+</html>

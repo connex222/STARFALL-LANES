@@ -1,0 +1,46 @@
+@font-face{font-family:Orbitron;font-weight:700;font-display:swap;src:url(data:font/woff2;base64,__ORB700__) format('woff2')}
+@font-face{font-family:Orbitron;font-weight:900;font-display:swap;src:url(data:font/woff2;base64,__ORB900__) format('woff2')}
+@font-face{font-family:Inter;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,__INT400__) format('woff2')}
+@font-face{font-family:Inter;font-weight:600;font-display:swap;src:url(data:font/woff2;base64,__INT600__) format('woff2')}
+@font-face{font-family:Inter;font-weight:800;font-display:swap;src:url(data:font/woff2;base64,__INT800__) format('woff2')}
+:root{
+  --bg:#E9EEF7;--panel:rgba(255,255,255,.92);--panel2:#F6F8FC;--line:rgba(14,20,36,.16);
+  --accent:#0E8FB5;--accentText:#FFFFFF;--text:#0E1424;--muted:#4B5670;--good:#1F8A4C;--bad:#C0362C;--storm:#E8622A;
+  --gold:#A87A00;--shadow:0 6px 24px rgba(14,20,36,.12);--outline:#0E1424;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#070A16;--panel:rgba(20,26,46,.92);--panel2:#1B2340;--line:rgba(154,167,199,.22);
+  --accent:#33D6FF;--accentText:#04111A;--text:#EAF1FF;--muted:#9AA7C7;--good:#4DDB86;--bad:#FF6B6B;--storm:#FF7A3D;
+  --gold:#FFD45A;--shadow:0 6px 28px rgba(0,0,0,.45);--outline:#FFFFFF;color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#070A16;--panel:rgba(20,26,46,.92);--panel2:#1B2340;--line:rgba(154,167,199,.22);
+  --accent:#33D6FF;--accentText:#04111A;--text:#EAF1FF;--muted:#9AA7C7;--good:#4DDB86;--bad:#FF6B6B;--storm:#FF7A3D;
+  --gold:#FFD45A;--shadow:0 6px 28px rgba(0,0,0,.45);--outline:#FFFFFF;color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,.orb{font-family:Orbitron,Inter,system-ui,sans-serif;letter-spacing:.02em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.av{position:relative;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 55%,#fff),var(--c) 60%,color-mix(in srgb,var(--c) 60%,#000));border:3px solid var(--outline);display:grid;place-items:center;overflow:visible}
+.av img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.av-ini{font-family:Orbitron,sans-serif;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);font-size:calc(var(--s) * .34)}
+.av-badge{position:absolute;right:-6%;bottom:-6%;width:44%;height:44%;border-radius:50%;background:var(--outline);color:var(--bg);display:grid;place-items:center;font-weight:800;font-size:calc(var(--s) * .24);line-height:1;border:2px solid var(--c)}
+.av.mood-smug{box-shadow:0 0 0 4px var(--gold),0 0 22px var(--gold)}
+.av.mood-furious{box-shadow:0 0 0 4px var(--bad),0 0 22px var(--bad);animation:shake .45s 2}
+.av.off{filter:grayscale(1) brightness(.7)}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.res-ore{--rc:#C0533F}.res-ice{--rc:#3FA9D9}.res-crystal{--rc:#8A4FD8}.res-plasma{--rc:#E8861A}.res-credits{--rc:#D9A400}
+.ricon{display:inline-block;width:1em;height:1em;vertical-align:-.15em;background:var(--rc);border:2px solid var(--outline)}
+.res-ore .ricon,.ricon.res-ore{clip-path:polygon(30% 0,75% 8%,100% 45%,85% 90%,40% 100%,5% 75%,0 30%);border:0}
+.res-ice .ricon,.ricon.res-ice{border-radius:2px}
+.res-crystal .ricon,.ricon.res-crystal{clip-path:polygon(50% 0,100% 40%,75% 100%,25% 100%,0 40%);border:0}
+.res-plasma .ricon,.ricon.res-plasma{border-radius:50%;box-shadow:inset 0 0 0 .18em rgba(255,255,255,.55)}
+.res-credits .ricon,.ricon.res-credits{clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);border:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.num{font-family:Inter,system-ui,sans-serif!important;font-weight:800;font-variant-numeric:tabular-nums}

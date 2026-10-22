@@ -1,0 +1,16 @@
+{
+  "name": "starfall-lanes",
+  "version": "1.0.0",
+  "description": "Starfall Lanes — a space-colony strategy game for the TV with phones as controllers.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "python3 build.py",
+    "test": "node test-sim.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": { "ws": "^8.18.0" },
+  "devDependencies": { "@fontsource/inter": "^5.0.0", "@fontsource/orbitron": "^5.0.0", "qrcode-generator": "^2.0.4" },
+  "license": "UNLICENSED",
+  "private": true
+}

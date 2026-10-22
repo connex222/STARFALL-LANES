@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starfall Lanes — TV</title>
+<style>
+/*CSS*/
+html{font-size:clamp(14px,1.15vw,26px)}
+body{overflow:hidden;background:#070A16}
+#app{position:fixed;inset:0;display:grid;grid-template-columns:15.5rem 1fr 15rem;grid-template-rows:auto 1fr auto;grid-template-areas:"top top top" "rail map side" "tick tick tick"}
+#top{grid-area:top;display:flex;align-items:center;gap:1.4rem;padding:.6rem 1.2rem;background:var(--panel);border-bottom:1px solid var(--line)}
+#top .era{font-family:Orbitron;font-weight:900;font-size:1.05rem}
+#top .round{color:var(--muted);font-weight:600}
+#top .phase{margin-left:auto;font-weight:800;font-size:1.1rem;display:flex;gap:.6rem;align-items:center}
+#top .timer{font-family:Inter;font-weight:800;font-size:1.3rem;min-width:4.2ch;text-align:right;font-variant-numeric:tabular-nums}
+#top .timer.low{color:var(--bad)}
+#top .storm{display:flex;align-items:center;gap:.4rem;font-weight:800;color:var(--storm)}
+#top .storm i{display:inline-block;width:1.2rem;height:1.2rem;border-radius:3px;background:repeating-linear-gradient(135deg,var(--storm) 0 4px,transparent 4px 8px);border:2px solid var(--storm)}
+#rail{grid-area:rail;overflow:hidden;padding:.6rem;display:flex;flex-direction:column;gap:.45rem;background:linear-gradient(90deg,rgba(20,26,46,.85),rgba(20,26,46,.4))}
+.house{display:grid;grid-template-columns:auto 1fr auto;gap:.6rem;align-items:center;padding:.45rem .55rem;border-radius:.7rem;background:var(--panel);border:2px solid transparent;position:relative}
+.house.first::before{content:"1st";position:absolute;left:-.25rem;top:-.35rem;font-size:.6rem;font-weight:800;background:var(--accent);color:var(--accentText);padding:0 .3rem;border-radius:.4rem}
+.house.turn{border-color:var(--accent);box-shadow:0 0 0 3px rgba(51,214,255,.25)}
+.house .nm{font-weight:800;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.house .meta{font-size:.72rem;color:var(--muted);display:flex;gap:.55rem;margin-top:.1rem}
+.house .inf{font-family:Inter;font-weight:800;font-size:1.5rem;text-align:right;line-height:1}
+.house .inf small{display:block;font-family:Inter;font-weight:600;font-size:.55rem;color:var(--muted);letter-spacing:.03em}
+.house .st{font-size:.72rem;font-weight:800;margin-top:.15rem}
+.house .st.ok{color:var(--good)}.house .st.wait{color:var(--muted)}.house .st.off{color:var(--bad)}
+.gain{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.2rem;font-size:.75rem;font-weight:800;animation:pop .5s}
+.gain span{display:inline-flex;align-items:center;gap:.15rem}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+#map{grid-area:map;position:relative;min-height:0}
+#map canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#side{grid-area:side;padding:.6rem;display:flex;flex-direction:column;gap:.6rem;overflow:hidden;background:linear-gradient(270deg,rgba(20,26,46,.85),rgba(20,26,46,.4))}
+#side h3{font-size:.8rem;color:var(--muted);font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:.6rem;padding:.5rem .6rem;position:relative}
+.card b{display:block;font-size:.88rem}
+.card p{font-size:.72rem;color:var(--muted);margin-top:.15rem;line-height:1.3}
+.card .tag{position:absolute;right:.45rem;top:.4rem;font-size:.6rem;font-weight:800;color:var(--accent)}
+.card.flash{animation:flash 1s}
+@keyframes flash{30%{background:var(--accent);color:var(--accentText)}}
+.event{border:2px solid var(--gold)}
+.trophy{display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:700}
+.trophy .who{margin-left:auto;font-weight:800}
+#tick{grid-area:tick;display:flex;align-items:center;gap:1rem;padding:.55rem 1.2rem;background:var(--panel);border-top:1px solid var(--line);min-height:3.2rem}
+#tick .now{font-weight:800;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+#tick .prev{font-size:.78rem;color:var(--muted);max-width:32%;margin-right:15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#banner{position:absolute;left:50%;top:1rem;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:.6rem 1.2rem;font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:.8rem;box-shadow:var(--shadow);max-width:90%;text-align:center}
+#banner:empty{display:none}
+#popup{position:absolute;left:50%;bottom:1.2rem;transform:translateX(-50%);display:none}
+#popup.show{display:block;animation:pop .35s}
+.clash{background:var(--panel);border-radius:1rem;padding:.8rem 1.2rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:1.2rem;border:2px solid var(--line)}
+.clash .side{text-align:center;min-width:8rem}
+.clash .sum{font-family:Inter;font-weight:800;font-size:2.2rem}
+.clash .bd{font-size:.72rem;color:var(--muted)}
+.clash .vs{font-family:Orbitron;font-weight:900;color:var(--muted)}
+.clash .win .sum{color:var(--good)}
+.die{display:inline-grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:.35rem;background:rgba(51,214,255,.18);border:2px solid var(--accent);font-weight:900;margin:0 .15rem}
+.big{position:absolute;inset:0;display:none;place-items:center;background:rgba(7,10,22,.72);backdrop-filter:blur(3px)}
+.big.show{display:grid}
+.big .inner{text-align:center;max-width:80%;animation:pop .5s}
+.big h2{font-size:3rem;font-weight:900;margin-bottom:.5rem}
+.big p{font-size:1.1rem;color:var(--muted)}
+.ups{display:flex;gap:1rem;justify-content:center;margin-top:1.2rem}
+.ups .card{width:14rem;text-align:left}
+#lobby{position:fixed;inset:0;display:none;grid-template-columns:1.15fr 1fr;gap:3rem;padding:3rem 4rem;align-items:center}
+#lobby.show{display:grid}
+#lobby canvas.bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1}
+#lobby h1{font-size:4.2rem;font-weight:900;line-height:1;background:linear-gradient(180deg,#fff,#9ff0ff 60%,#33D6FF);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(51,214,255,.4))}
+#lobby .sub{font-size:1.15rem;color:var(--muted);margin-top:.6rem}
+.join{display:flex;gap:2rem;align-items:center;margin-top:2.4rem;background:var(--panel);padding:1.4rem;border-radius:1.2rem;border:1px solid var(--line);width:max-content;max-width:100%}
+.join canvas{width:11rem;height:11rem;border-radius:.6rem;background:#fff}
+.code{font-family:Orbitron;font-weight:900;font-size:4.2rem;letter-spacing:.18em;color:var(--accent)}
+.join .url{font-size:.95rem;color:var(--muted);margin-top:.4rem;word-break:break-all}
+.join .lbl{font-size:.9rem;font-weight:700}
+.roster{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.slot{display:flex;align-items:center;gap:.8rem;background:var(--panel);border:1px solid var(--line);border-radius:.9rem;padding:.7rem;min-height:4.6rem}
+.slot.empty{border-style:dashed;color:var(--muted);justify-content:center;font-size:.9rem;background:transparent}
+.slot b{display:block}.slot small{color:var(--muted);font-size:.75rem}
+.lobbyMode{margin-top:1.2rem;font-weight:800;font-size:1.1rem}
+.lobbyMode span{color:var(--accent)}
+#sound{position:fixed;right:.8rem;bottom:.55rem;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:2rem;padding:.4rem .9rem;font-weight:700;font-size:.8rem}
+#conn{position:fixed;left:50%;top:.5rem;transform:translateX(-50%);z-index:30;background:var(--bad);color:#fff;font-weight:800;padding:.4rem 1rem;border-radius:1rem;display:none}
+#conn.show{display:block}
+.over table{margin:1.2rem auto 0;border-collapse:collapse;font-size:1rem}
+.over td,.over th{padding:.35rem .9rem;text-align:left}
+.over th{color:var(--muted);font-size:.75rem;font-weight:700}
+.over td.n{font-family:Inter;font-weight:800;text-align:right}
+.over tr.win td{color:var(--gold)}
+</style>
+</head>
+<body>
+<div id="conn" role="status">Reconnecting to the game server…</div>
+<section id="lobby" aria-label="Lobby">
+  <canvas class="bg" id="lobbyBg"></canvas>
+  <div>
+    <h1>Starfall<br>Lanes</h1>
+    <p class="sub">Claim worlds, open hyperlanes, outrun the Solar Storm. First to Influence <span id="lTarget">15</span> becomes Warden of the Cluster.</p>
+    <div class="join">
+      <canvas id="qr" width="264" height="264" aria-label="QR code to join"></canvas>
+      <div>
+        <div class="lbl">Scan to join, or open</div>
+        <div class="url" id="url"></div>
+        <div class="lbl" style="margin-top:.8rem">and enter code</div>
+        <div class="code" id="code">····</div>
+      </div>
+    </div>
+    <div class="lobbyMode" id="lMode"></div>
+  </div>
+  <div>
+    <div class="roster" id="roster"></div>
+    <p class="sub" id="lHint" style="margin-top:1rem"></p>
+  </div>
+</section>
+<div id="app" hidden>
+  <header id="top">
+    <span class="era" id="tEra"></span><span class="round" id="tRound"></span>
+    <span class="storm" id="tStorm"><i></i><span></span></span>
+    <span class="phase"><span id="tPhase"></span><span class="timer" id="tTimer"></span></span>
+  </header>
+  <aside id="rail" aria-label="Houses"></aside>
+  <main id="map">
+    <canvas id="cv"></canvas>
+    <div id="banner"></div>
+    <div id="popup"></div>
+    <div class="big" id="big"><div class="inner" id="bigInner"></div></div>
+  </main>
+  <aside id="side" aria-label="Draft pool and trophies"></aside>
+  <footer id="tick"><span class="now" id="tNow"></span><span class="prev" id="tPrev"></span></footer>
+</div>
+<button id="sound" type="button">Sound off — click to turn on</button>
+<script>
+/*QRJS*/
+</script>
+<script>
+/*COMMONJS*/
+/*MAPJS*/
+
+// ───────── Sound (synthesised, no files) ─────────
+const Snd = {
+  ctx: null, on: false, hum: null,
+  enable() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.ctx.resume(); this.on = true; this.startHum(); updSound();
+  },
+  toggle() { if (!this.ctx || !this.on) this.enable(); else { this.on = false; this.stopHum(); updSound(); } },
+  env(g, t, a, d, v) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); },
+  tone(f, d, type, v, f2, delay) {
+    if (!this.on) return; const c = this.ctx, t = c.currentTime + (delay || 0);
+    const o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+    this.env(g, t, 0.01, d, v || 0.15); o.connect(g).connect(c.destination); o.start(t); o.stop(t + d + 0.05);
+  },
+  noise(d, from, to, v) {
+    if (!this.on) return; const c = this.ctx, t = c.currentTime;
+    const b = c.createBuffer(1, c.sampleRate * d, c.sampleRate), ch = b.getChannelData(0);
+    for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+    const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2;
+    f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + d);
+    const g = c.createGain(); this.env(g, t, 0.05, d, v || 0.25); s.connect(f).connect(g).connect(c.destination); s.start(t);
+  },
+  chime() { this.tone(880, .35, 'sine', .12); this.tone(1320, .4, 'sine', .08, null, .08); },
+  whoosh() { this.noise(.7, 300, 3000, .3); },
+  beam() { this.tone(300, .6, 'triangle', .12, 900); },
+  zap() { for (let i = 0; i < 4; i++) this.tone(1400 - i * 150, .12, 'sawtooth', .06, 300, i * .12); this.noise(.4, 2000, 200, .2); },
+  fanfare() { [523, 659, 784, 1046].forEach((f, i) => this.tone(f, .35, 'triangle', .12, null, i * .13)); },
+  tick() { this.tone(1000, .05, 'square', .04); },
+  low() { this.tone(160, .5, 'sawtooth', .08, 80); },
+  startHum() {
+    if (this.hum || !this.on) return; const c = this.ctx, g = c.createGain(); g.gain.value = 0.025;
+    const a = c.createOscillator(), b = c.createOscillator(); a.frequency.value = 55; b.frequency.value = 82.6; a.type = b.type = 'sine';
+    a.connect(g); b.connect(g); g.connect(c.destination); a.start(); b.start(); this.hum = { a, b, g };
+  },
+  stopHum() { if (!this.hum) return; this.hum.a.stop(); this.hum.b.stop(); this.hum = null; }
+};
+const soundBtn = document.getElementById('sound');
+function updSound() { soundBtn.textContent = Snd.on ? 'Sound on — press M to mute' : 'Sound off — click to turn on'; }
+soundBtn.onclick = () => Snd.toggle();
+addEventListener('keydown', e => { if (e.key === 'm' || e.key === 'M') Snd.toggle(); });
+
+// ───────── State ─────────
+let C = null, pub = null, now = () => Date.now(), lastFx = 0, roomCode = null, lastLogLen = '';
+const $ = id => document.getElementById(id);
+const map = MapView($('cv'), { theme: 'dark', padTop: 64, padBottom: 12 });
+const lobbyMap = MapView($('lobbyBg'), { theme: 'dark' });
+const conn = Conn(onMsg, send => {
+  let saved = null; try { saved = JSON.parse(localStorage.getItem('sf_tv') || 'null'); } catch (e) { }
+  if (saved && saved.room) send({ t: 'tvJoin', room: saved.room }); else send({ t: 'tvCreate' });
+}, ok => $('conn').classList.toggle('show', !ok));
+
+function onMsg(m) {
+  if (m.t === 'welcome') {
+    C = m.consts; roomCode = m.room;
+    try { localStorage.setItem('sf_tv', JSON.stringify({ room: m.room, tvToken: m.tvToken })); } catch (e) { }
+    setJoinInfo(m.room);
+  }
+  if (m.t === 'state') { pub = m.pub; now = clockFrom(pub); render(); }
+}
+async function setJoinInfo(code) {
+  $('code').textContent = code;
+  let origin = location.origin;
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+    try { const r = await fetch('/info'); const j = await r.json(); if (j.ips && j.ips[0]) origin = `${location.protocol}//${j.ips[0]}:${location.port || j.port}`; } catch (e) { }
+  }
+  const url = `${origin}/phone.html?room=${code}`;
+  $('url').textContent = origin.replace(/^https?:\/\//, '') + '/phone.html';
+  drawQR(url);
+}
+function drawQR(text) {
+  const cv = $('qr'), ctx = cv.getContext('2d');
+  const qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), m = 2, cell = Math.floor(cv.width / (n + m * 2)), off = Math.floor((cv.width - cell * n) / 2);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.fillStyle = '#000';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) ctx.fillRect(off + c * cell, off + r * cell, cell, cell);
+}
+
+// ───────── Render ─────────
+const AV = p => C.AVATARS[p.avatar];
+const P = id => pub.players.find(p => p.id === id);
+function render() {
+  if (!C || !pub) return;
+  const inGame = pub.phase === 'game' && pub.game;
+  $('lobby').classList.toggle('show', !inGame);
+  $('app').hidden = !inGame;
+  if (!inGame) return renderLobby();
+  const g = pub.game;
+  map.setState(pub, C.AVATARS);
+  if (g.fx && g.fx.seq !== lastFx) { const first = lastFx === 0; lastFx = g.fx.seq; if (!first) onFx(g.fx); }
+  renderTop(g); renderRail(g); renderSide(g); renderTick(g); renderBanner(g); renderBig(g);
+}
+function renderLobby() {
+  lobbyMap.setState({ players: [], game: null });
+  const mode = C.MODES[pub.mode];
+  $('lTarget').textContent = mode.target;
+  $('lMode').innerHTML = `Mode: <span>${mode.name}</span> — ${mode.rounds} rounds, first to ${mode.target} Influence${mode.events ? ', Cosmic Events and house perks on' : ''}`;
+  const slots = [];
+  for (let i = 0; i < 8; i++) {
+    const p = pub.players[i];
+    if (!p) { slots.push(`<div class="slot empty">Open seat</div>`); continue; }
+    const av = AV(p);
+    slots.push(`<div class="slot">${avatarHTML(av, { size: 56, off: !p.connected })}<div><b>${esc(p.name)}${p.id === pub.hostId ? ' ★' : ''}</b><small>${esc(av.name)}${p.bot ? ' · bot' : ''}</small></div></div>`);
+  }
+  $('roster').innerHTML = slots.join('');
+  $('lHint').textContent = pub.players.length < 2 ? 'Waiting for at least 2 players.' : 'The host (★) starts the game from their phone.';
+}
+function renderTop(g) {
+  $('tEra').textContent = `Era: ${C.ERA_NAMES[g.era]}`;
+  $('tRound').textContent = g.round ? `Round ${g.round} of ${g.maxRounds}` : 'Setting up';
+  $('tStorm').querySelector('span').textContent = `Storm heading ${g.stormDir}`;
+  const names = { missions: 'Choose Missions', setup: 'Landing', era: 'New era', income: 'Storm & income', plan: 'Plan your moves', reveal: 'Reveal', over: 'Game over' };
+  $('tPhase').textContent = names[g.phase] || '';
+}
+setInterval(() => {
+  if (!pub || !pub.game) return;
+  const g = pub.game, left = g.phaseEnds ? g.phaseEnds - now() : 0;
+  const el = $('tTimer');
+  el.textContent = g.phaseEnds ? fmtTime(left) : '';
+  el.classList.toggle('low', g.phaseEnds && left < 10500);
+  if (g.phase === 'plan' && g.phaseEnds && left < 10500 && left > 0 && Math.ceil(left / 1000) !== renderTick.last) { renderTick.last = Math.ceil(left / 1000); Snd.tick(); }
+}, 250);
+function renderRail(g) {
+  const order = g.order.length ? g.order : pub.players.map(p => p.id);
+  $('rail').innerHTML = order.map((id, i) => {
+    const p = P(id); if (!p) return '';
+    const av = AV(p);
+    let st = '';
+    if (!p.connected) st = '<div class="st off">Disconnected</div>';
+    else if (g.phase === 'plan') st = p.engaged || p.isAI ? '<div class="st ok">✔ Ready</div>' : '<div class="st wait">Planning…</div>';
+    else if (g.phase === 'missions') st = p.keepDone ? '<div class="st ok">✔ Ready</div>' : '<div class="st wait">Choosing…</div>';
+    else if (g.phase === 'era') st = p.eraPicked || p.isAI ? '<div class="st ok">✔ Picked</div>' : '<div class="st wait">Choosing…</div>';
+    let gainH = '';
+    if (g.phase === 'income' && g.income && g.income[id]) {
+      const gi = g.income[id];
+      gainH = '<div class="gain">' + C.RES.filter(k => gi[k]).map(k => `<span class="res-${k}">${gi[k] > 0 ? '+' : ''}${gi[k]}${ricon(k)}</span>`).join('') + '</div>';
+    }
+    return `<div class="house${i === 0 && g.round ? ' first' : ''}${g.setupTurn === id ? ' turn' : ''}">
+      ${avatarHTML(av, { size: 46, mood: p.mood, era: g.era, off: !p.connected })}
+      <div style="min-width:0"><div class="nm">${esc(p.name)}</div>
+        <div class="meta"><span title="Sectors">⬡ ${p.sectors}</span><span title="Fleets">➤ ${p.fleets}</span><span title="Hyperlanes">⇄ ${p.lanes}</span></div>${st}${gainH}</div>
+      <div class="inf">${p.inf}<small>of ${g.target}</small></div></div>`;
+  }).join('');
+}
+function renderSide(g) {
+  const parts = [];
+  if (g.event) parts.push(`<div class="card event"><span class="tag">Cosmic Event</span><b>${esc(C.EVENTS[g.event].name)}</b><p>${esc(C.EVENTS[g.event].text)}</p></div>`);
+  if (g.phase === 'plan' || (g.phase === 'reveal' && g.pool.length)) {
+    parts.push(`<h3>Draft pool</h3>`);
+    if (!g.pool.length) parts.push('<div class="card"><p>No draft this round.</p></div>');
+    for (const c of g.pool) { const d = C.DRAFT[c.key]; parts.push(`<div class="card" data-uid="${c.uid}"><span class="tag">${d.type}</span><b>${esc(d.name)}</b><p>${esc(d.text)}</p></div>`); }
+  } else {
+    parts.push(`<h3>Draft pool</h3><div class="card"><p>New cards appear when planning starts. Rank them on your phone; picks happen in turn order.</p></div>`);
+  }
+  const tr = (k, label, rule) => { const h = g.trophies[k] && P(g.trophies[k]); return `<div class="card trophy"><span>🏆 ${label}<br><small style="color:var(--muted);font-weight:600">${rule}</small></span><span class="who">${h ? avatarHTML(AV(h), { size: 30 }) : '—'}</span></div>`; };
+  parts.push('<h3 style="margin-top:auto">Trophies (+2 each)</h3>');
+  parts.push(tr('network', 'Longest Network', 'Most lane segments joined, 5+'));
+  parts.push(tr('armada', 'Grand Armada', 'Most Fleets, 5+'));
+  $('side').innerHTML = parts.join('');
+}
+function renderTick(g) {
+  const L = g.log;
+  $('tNow').textContent = L[L.length - 1] || 'Welcome to the Starfall Cluster.';
+  $('tPrev').textContent = L.length > 1 ? L[L.length - 2] : '';
+}
+function renderBanner(g) {
+  let h = '';
+  if (g.phase === 'missions') h = 'Everyone: choose your secret Missions on your phone';
+  if (g.phase === 'setup' && g.setupTurn) { const p = P(g.setupTurn); h = `${avatarHTML(AV(p), { size: 34 })}<span>${esc(p.name)} is choosing a landing site</span>`; }
+  if (g.phase === 'plan') h = 'Plan in secret on your phones, then tap Engage';
+  if (g.phase === 'reveal') h = 'Reveal';
+  if (g.phase === 'income') h = g.event ? `Cosmic Event: ${esc(C.EVENTS[g.event].name)}` : 'The storm moves. Income arrives.';
+  $('banner').innerHTML = h;
+}
+function renderBig(g) {
+  const big = $('big'), inner = $('bigInner');
+  if (g.phase === 'era' && g.eraOffer.length) {
+    big.classList.add('show');
+    inner.innerHTML = `<h2>The ${C.ERA_NAMES[g.era]} era</h2><p>Each house picks one upgrade on their phone.</p><div class="ups">${g.eraOffer.map(k => `<div class="card"><b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></div>`).join('')}</div>`;
+  } else if (g.phase === 'over' && g.results) {
+    big.classList.add('show');
+    const w = g.results.winners.map(P);
+    const rows = g.results.rows.map(r => { const p = P(r.pid); return `<tr class="${g.results.winners.includes(r.pid) ? 'win' : ''}"><td>${avatarHTML(AV(p), { size: 34, mood: p.mood, era: g.era })}</td><td>${esc(p.name)}</td><td class="n">${r.final}</td><td>${r.penalty ? `${r.inf} − ${r.penalty} unfinished` : ''}</td><td>${r.credits}${ricon('credits')}</td></tr>`; }).join('');
+    inner.innerHTML = `<div class="over"><div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1rem">${w.map(p => avatarHTML(AV(p), { size: 120, mood: 'smug', era: 2 })).join('')}</div>
+      <h2>${w.length > 1 ? 'Shared victory!' : esc(w[0].name) + ' wins!'}</h2><p>${w.length > 1 ? 'Joint Wardens of the Cluster.' : 'Warden of the Starfall Cluster.'}</p>
+      <table><tr><th></th><th>House</th><th>Influence</th><th></th><th>Credits</th></tr>${rows}</table>
+      <p style="margin-top:1rem;font-size:.85rem">The host can start a new game from their phone.</p></div>`;
+  } else big.classList.remove('show');
+}
+
+// ───────── Effects ─────────
+let popTimer = null;
+function popup(html, dur) { const el = $('popup'); el.innerHTML = html; el.classList.add('show'); clearTimeout(popTimer); popTimer = setTimeout(() => el.classList.remove('show'), dur || 2200); }
+function onFx(f) {
+  map.addFx(f);
+  const g = pub.game;
+  if (f.k === 'found') Snd.beam();
+  if (f.k === 'spire') { Snd.beam(); Snd.chime(); }
+  if (f.k === 'lane') Snd.whoosh();
+  if (f.k === 'fleet' || f.k === 'move') Snd.tone(500, .2, 'triangle', .08, 900);
+  if (f.k === 'income') Snd.chime();
+  if (f.k === 'storm') Snd.low();
+  if (f.k === 'fail') Snd.low();
+  if (f.k === 'era') Snd.fanfare();
+  if (f.k === 'over') Snd.fanfare();
+  if (f.k === 'draft') {
+    Snd.tone(700, .15, 'sine', .1, 1000);
+    const p = P(f.pid), d = C.DRAFT[f.key];
+    popup(`<div class="clash">${avatarHTML(AV(p), { size: 44, era: g.era })}<div><b>${esc(p.name)}</b> drafts <b>${esc(d.name)}</b><div class="bd">${esc(d.text)}</div></div></div>`, 1000);
+  }
+  if (f.k === 'mission' || f.k === 'trophy') {
+    Snd.fanfare();
+    const p = P(f.pid);
+    const txt = f.k === 'mission' ? `Mission complete: ${esc(f.text)} (+${f.inf})` : `Takes ${f.key === 'network' ? 'Longest Network' : 'Grand Armada'} (+2)`;
+    popup(`<div class="clash">${avatarHTML(AV(p), { size: 56, mood: 'smug', era: g.era })}<div><b>${esc(p.name)}</b><div>${txt}</div></div></div>`, 1500);
+  }
+  if (f.k === 'clash') {
+    Snd.zap();
+    const a = P(f.pid), d = P(f.did);
+    const side = (p, fleets, bonus, die, sum, win) => `<div class="side${win ? ' win' : ''}">${avatarHTML(AV(p), { size: 48, era: g.era })}<div style="font-weight:800;margin-top:.3rem">${esc(p.name)}</div><div class="sum">${sum}</div><div class="bd">${fleets} Fleets${bonus ? ` + ${bonus} bonus` : ''} + <span class="die">${die}</span></div></div>`;
+    popup(`<div class="clash">${side(a, f.atkF, f.atkB, f.ad, f.A, f.win)}<div class="vs">VS</div>${side(d, f.defF, f.defB, f.dd, f.D, !f.win)}</div>`, 2100);
+  }
+}
+
+// ───────── Loop ─────────
+function frame(t) {
+  if (pub && pub.phase === 'game') map.draw(t); else lobbyMap.draw(t);
+  requestAnimationFrame(frame);
+}
+addEventListener('resize', () => { map.resize(); lobbyMap.resize(); });
+requestAnimationFrame(() => { map.resize(); lobbyMap.resize(); requestAnimationFrame(frame); });
+new ResizeObserver(() => map.resize()).observe($('map'));
+</script>
+</body>
+</html>
