@@ -9,6 +9,10 @@ A space-colony strategy game for 2–8 players. The **TV shows the star map**. E
 | `server.js` | The game server. It holds the real game state and enforces every rule. |
 | `public/tv.html` | The redesigned TV screen (self-contained: fonts, code and QR generator inlined). |
 | `public/phone.html` | The redesigned phone controller (self-contained). |
+| `public/how-to-play.html` | Beginner-friendly game guide, quick-start and rules FAQ. |
+| `public/lore.html` | History, lore and the eight house leader profiles. |
+| `public/info.css` | Responsive styles shared by the guide and lore pages. |
+| `test-phase7-onboarding.js` | Tests information access, optional phone sound, assets and responsive behaviour. |
 | `public/art/avatars/` | Eight installed cinematic leader portraits; missing Era/Mood variations use the master portrait. |
 | `src/` | Editable source for the two pages. Run `npm run build` after editing. |
 | `build.py` | Inlines fonts, shared code and the QR library into `public/`. |
@@ -21,7 +25,7 @@ A space-colony strategy game for 2–8 players. The **TV shows the star map**. E
 1. Install **Node.js** (version 18 or newer) from nodejs.org.
 2. Open a terminal in this folder and run `npm install --omit=dev`, then `npm start`.
 3. The terminal prints a line like `TV: http://192.168.1.20:3000/tv.html`. Open that address on the laptop or PC connected to the TV, or cast that browser tab to the TV.
-4. Click **Sound off** once to turn sound on (browsers block sound until you click).
+4. Click **Sound off** once to turn TV sound on (browsers block sound until you click). Phone sound is a separate optional toggle. For a short introduction, choose **How to Play** from the TV lobby or phone.
 5. Players scan the QR code on the TV with their phones. The **first phone to join is the host (★)**. The host picks the mode, can add bots, and taps **Start game**.
 
 Phones must be on the **same Wi-Fi** as the computer running the server.
@@ -141,3 +145,12 @@ Run `npm run test:ui` to execute both Phase 3 and Phase 4 dependency-free static
 - The 64 additional era/expression portraits remain to be commissioned and bundled.
 
 **Test commands:** `npm run test:ui` for the Phase 3–5 UI and audio suite; `npm run test:rules` for Phase 6 rule and resilience checks; `npm run test:phase6` for those checks plus AI simulations; `npm run test:offline` for the complete offline regression suite.
+
+
+## Phase 7 — cinematic onboarding, responsive layouts, guide and lore
+
+- TV lobby now includes an enhanced space backdrop, prominent **How to Play**, **Discover the Lore**, and Sound Lab links. Both learning links are also available during play without interrupting the room.
+- Phone welcome and controller provide persistent help and lore links and a separate **opt-in phone sound effects** control. The TV retains opt-in ambient/game sound and adjustable volume.
+- `/how-to-play.html` gives an accessible quick-start, host instructions, phase-by-phase actions, resources, clash rules, modes and common questions, grounded in Design Doc v2.
+- `/lore.html` adds explicitly new Starfall Cluster fiction, retaining the established collapsed star, three eras, eight house leaders and Solar Storm.
+- Tested layouts include mobile 320/390 pixels, desktop and TV. Server authoritative rule handling and root TV route are unchanged.

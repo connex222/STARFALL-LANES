@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070A16">
 <title>Starfall Lanes</title>
 <link rel="icon" type="image/svg+xml" href="art/brand/starfall-mark.svg">
@@ -203,6 +203,26 @@ body{background:radial-gradient(ellipse at 54% 0%,rgba(9,112,174,.12),transparen
 button:focus-visible,[draggable]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:355px){.draft-row{grid-template-columns:22px minmax(0,1fr) 40px 40px 40px;gap:.12rem}.draft-row button{width:40px;height:40px}.draft-row .rankn{width:22px}.trade-item .stepper button{width:34px;height:36px;min-height:36px}}
 @media(prefers-reduced-motion:reduce){.draft-row,.pick-option{transition:none}}
+/* Phase 7: accessible guide links, phone audio and responsive console */
+#infoNav{display:flex;align-items:center;gap:.4rem;justify-content:center;flex-wrap:wrap;padding:.45rem .65rem;background:var(--panel);border-bottom:1px solid var(--line);position:relative;z-index:3}
+#infoNav a,#phoneSound{font:800 .74rem Inter,sans-serif;color:var(--text);text-decoration:none;min-height:43px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;padding:.4rem .7rem;border:1px solid var(--line);background:var(--panel2)}
+#infoNav a:first-child{color:var(--accent)}
+#infoNav a:hover,#phoneSound:hover{border-color:var(--accent)}
+#phoneSound[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}
+.phone-brand{margin:.7rem 0 .45rem!important;min-height:0!important;padding:.75rem .65rem!important;isolation:isolate;overflow:hidden;border-color:rgba(108,204,255,.52);box-shadow:0 25px 64px rgba(0,0,0,.34),inset 0 0 50px rgba(30,144,205,.09)}
+.phone-brand:before{content:"";position:absolute;z-index:-1;inset:-45% 5% auto;aspect-ratio:1;border-radius:50%;border:1px solid rgba(95,209,255,.19);box-shadow:0 0 0 38px rgba(74,164,251,.028),0 0 70px rgba(67,213,255,.16);pointer-events:none}
+.phone-brand img{width:min(100%,360px);max-height:182px;object-fit:contain;filter:drop-shadow(0 0 22px rgba(69,215,255,.25))}
+#head .phone-brand .lead{font-size:.86rem;color:#f3fbff!important;text-shadow:0 1px 3px #001c34;max-width:29rem;margin:.3rem auto .5rem}
+.phone-brand .tagline{color:#9de7ff;letter-spacing:.16em;font-weight:900;font-size:.64rem}
+.phone-welcome{padding:.8rem;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-top:.7rem}
+.phone-welcome strong{display:block;margin-bottom:.3rem}
+.phone-welcome p{font-size:.83rem;line-height:1.5;color:var(--muted)}
+#wrap{width:100%;max-width:600px}
+#wrap,#head,#body,.trade-section{min-width:0}
+input,button{max-width:100%}
+@media(min-width:920px){#wrap{max-width:760px}#body{padding:1.15rem}#head{padding:1rem 1.15rem}#resbar{top:61px}#top{padding:.65rem 1rem}.phone-brand img{max-height:260px}.phone-brand{min-height:250px}.grid2{gap:.75rem}}
+@media(max-width:360px){#infoNav{gap:.2rem;padding:.35rem .3rem}#infoNav a,#phoneSound{font-size:.68rem;padding:.3rem .4rem;min-height:42px}#head,#body{padding:.55rem}.phone-brand{padding:.65rem .4rem;min-height:145px}.phone-brand-label{letter-spacing:.08em;font-size:.59rem}.phone-brand img{max-height:160px}}
+@media(prefers-reduced-motion:reduce){.phone-brand:before{box-shadow:none}}
 </style>
 </head>
 <body>
@@ -211,6 +231,7 @@ button:focus-visible,[draggable]:focus-visible{outline:3px solid var(--accent);o
   <div id="top" hidden></div>
   <div id="resbar" hidden></div>
   <div id="tabs" class="tabs" hidden></div>
+  <nav id="infoNav" aria-label="Help and sound"><a href="/how-to-play.html" target="_blank" rel="noopener">? How to Play</a><a href="/lore.html" target="_blank" rel="noopener">✦ Lore</a><button type="button" id="phoneSound" aria-pressed="false" aria-label="Enable phone sound effects">♫ Sound off</button></nav>
   <div id="head"></div>
   <div id="mapBox"><canvas id="cv"></canvas><div class="mapcap" id="mapcap"></div></div>
   <div id="pickAssist" aria-live="polite"></div>
@@ -224,6 +245,18 @@ button:focus-visible,[draggable]:focus-visible{outline:3px solid var(--accent);o
 /*MAPJS*/
 
 const $ = id => document.getElementById(id);
+// Phone sound is always opt-in. The TV supplies ambient audio; the phone plays only quiet local cues.
+const PhoneAudio = {
+  on:false, volume:.32, lastKey:null,
+  sounds:{join:'credits',ready:'credits',trade:'credits',turn:'era-transition',storm:'solar-storm',battle:'fleet-clash',victory:'victory',alert:'solar-storm'},
+  play(type){
+    if(!this.on)return;
+    const name=this.sounds[type];if(!name)return;
+    try {const a=new Audio('audio/'+name+'.mp3');a.volume=this.volume;a.play().catch(()=>{});}catch(_){}
+  },
+  toggle(){this.on=!this.on;const b=$('phoneSound');b.textContent=this.on?'♫ Sound on':'♫ Sound off';b.setAttribute('aria-pressed',String(this.on));b.setAttribute('aria-label',this.on?'Disable phone sound effects':'Enable phone sound effects');if(this.on)this.play('join');}
+};
+$('phoneSound').addEventListener('click',()=>PhoneAudio.toggle());
 let C = null, pub = null, priv = null, now = () => Date.now(), joined = false, joinErr = '', replaced = false;
 let ui = { tab: 'console', pick: null, editSlot: null, planRound: -1, plan: null, discard: null, setupSel: null, ex: { give: null, get: null }, offer: { to: null, give: {}, get: {} }, modal: null, lastSeenOffer: null, prevOffersSent: null, offerPending: false };
 const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
@@ -239,7 +272,11 @@ const conn = Conn(onMsg, send => {
   if (s && s.room && (!urlRoom || urlRoom === s.room)) send({ t: 'join', room: s.room, playerId: s.playerId, token: s.token });
   else render();
 }, ok => { $('conn').classList.toggle('show', !ok); if (!ok) ui.offerPending = false; });
-const send = o => conn.send(o);
+const send = o => {
+  if(o && ['join','start','offer','exchange','offerReply'].includes(o.t)) PhoneAudio.play(o.t==='offer'||o.t==='exchange'||o.t==='offerReply'?'trade':'ready');
+  if(o && o.t==='plan' && o.engage===true) PhoneAudio.play('ready');
+  conn.send(o);
+};
 function onMsg(m) {
   if (m.t === 'welcome') {
     C = m.consts; joined = true; joinErr = '';
@@ -251,7 +288,7 @@ function onMsg(m) {
     render();
   }
   if (m.t === 'kicked') { joined = false; joinErr = 'The host removed you from the game.'; try { localStorage.removeItem('sf_phone'); } catch (e) { } pub = null; render(); }
-  if (m.t === 'toast') { if (/offer|trade/i.test(m.text)) ui.offerPending = false; toast(m.text); }
+  if (m.t === 'toast') { if (/offer|trade/i.test(m.text)) ui.offerPending = false; PhoneAudio.play(/fail|error|reject/i.test(m.text)?'alert':'trade'); toast(m.text); }
   if (m.t === 'replaced') { conn.stop(); replaced = true; render(); return; }
   if (m.t === 'state') { pub = m.pub; priv = m.priv; now = clockFrom(pub); onState(); }
 }
@@ -324,12 +361,21 @@ function onState() {
   if (g && g.phase === 'setup' && g.setupTurn !== priv.pid) ui.setupSel = null;
   if (g && g.phase === 'setup' && g.setupTurn === priv.pid && ui.lastBuzz !== 'setup' + g.hexes.filter(h => h.owner === priv.pid).length) { ui.lastBuzz = 'setup' + g.hexes.filter(h => h.owner === priv.pid).length; if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
   ensurePlan();
+  if(g){
+    const phaseKey=String(g.round)+':'+g.phase;
+    if(PhoneAudio.lastKey && PhoneAudio.lastKey !== phaseKey){
+      if(g.phase==='era') PhoneAudio.play('turn');
+      else if(g.phase==='income') PhoneAudio.play('storm');
+      else if(g.phase==='over') PhoneAudio.play('victory');
+    }
+    PhoneAudio.lastKey=phaseKey;
+  } else PhoneAudio.lastKey=null;
   if (g && g.phase === 'plan' && priv && ui.prevOffersSent !== null && priv.offersSent > ui.prevOffersSent) {
     ui.offer = { to: null, give: {}, get: {} }; ui.offerPending = false; toast('Offer sent — awaiting their decision');
   }
   if (priv) ui.prevOffersSent = priv.offersSent;
   // incoming offer → modal
-  if (priv && priv.offersIn && priv.offersIn.length) { const o = priv.offersIn[0]; if (ui.lastSeenOffer !== o.id) { ui.lastSeenOffer = o.id; ui.modal = 'offer'; if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } }
+  if (priv && priv.offersIn && priv.offersIn.length) { const o = priv.offersIn[0]; if (ui.lastSeenOffer !== o.id) { ui.lastSeenOffer = o.id; ui.modal = 'offer'; if (navigator.vibrate) navigator.vibrate([60, 40, 60]); PhoneAudio.play('alert'); } }
   else if (ui.modal === 'offer') ui.modal = null;
   render();
 }
@@ -364,11 +410,12 @@ function set(id, html) { const el = $(id); if (el.innerHTML !== html) el.innerHT
 
 // ───────── Join ─────────
 function renderJoin() {
-  set('head', `<div class="phone-brand"><div class="phone-brand-label">INTERSTELLAR COMMAND NETWORK</div><img src="art/brand/starfall-logo.png" alt="Starfall Lanes"><p class="lead">Join the game showing on the TV.</p></div>`);
+  set('head', `<div class="phone-brand"><div class="phone-brand-label">INTERSTELLAR COMMAND NETWORK</div><picture><source media="(max-width: 750px)" srcset="art/brand/starfall-logo-mobile.png"><img src="art/brand/starfall-logo.png" alt="Starfall Lanes"></picture><div class="tagline">EIGHT HOUSES · ONE CLUSTER</div><p class="lead">Your phone is your starship command console. Scan the TV, choose a house, and shape the galaxy.</p></div>`);
   const s = saved();
   set('body', `<label class="f" for="jc">Game code</label><input id="jc" class="code" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(urlRoom || (s && s.room) || '')}">
     <label class="f" for="jn">Your name</label><input id="jn" type="text" maxlength="14" autocomplete="nickname" placeholder="Optional" value="${esc(localStorage.getItem('sf_name') || '')}">
-    ${joinErr ? `<div class="err" role="alert">${esc(joinErr)}</div>` : ''}`);
+    ${joinErr ? `<div class="err" role="alert">${esc(joinErr)}</div>` : ''}
+    <div class="phone-welcome"><strong>New commander?</strong><p>Start with <a href="/how-to-play.html" target="_blank" rel="noopener">How to Play</a> for a simple 2-minute explanation, or explore <a href="/lore.html" target="_blank" rel="noopener">the story of the Starfall Cluster</a>. Return here to join.</p></div>`);
   set('foot', `<button class="btn primary" id="jgo">Join game</button>`);
   $('jgo').onclick = () => {
     const room = $('jc').value.trim().toUpperCase(), name = $('jn').value.trim();

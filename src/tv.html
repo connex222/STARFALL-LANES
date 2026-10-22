@@ -186,6 +186,43 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
 @keyframes battleFlash{0%{opacity:.9}60%{opacity:.17}100%{opacity:0}}
 @media (max-width:950px){#cinematic{width:min(95%,32rem);padding:.4rem .8rem}#soundRack{bottom:.24rem;right:.4rem}#volume{width:3.5rem}}
 @media (prefers-reduced-motion:reduce){#cinematic.show{animation:none}#map.phase5-battle:after{display:none}}
+/* Phase 7: cinematic front door / every-screen learning access */
+#lobby{background:radial-gradient(ellipse at 14% 53%,rgba(32,141,214,.34),transparent 43%),radial-gradient(ellipse at 78% 33%,rgba(115,67,197,.19),transparent 43%),linear-gradient(116deg,#030914e0,#051225de 54%,#030816ef)}
+#lobby:after{content:"";position:fixed;width:clamp(330px,49vw,960px);aspect-ratio:1;left:3.7%;top:0;transform:translateY(-34%);border-radius:50%;border:1px solid rgba(120,222,255,.26);box-shadow:0 0 0 25px rgba(67,161,241,.035),0 0 0 88px rgba(99,127,239,.025),0 0 150px rgba(32,181,253,.13);pointer-events:none;z-index:-1;animation:haloPulse 12s ease-in-out infinite alternate}
+@keyframes haloPulse{to{transform:translateY(-33%) scale(1.08);opacity:.72}}
+#lobby .lobby-logo{width:min(100%,43rem);max-height:min(36vh,400px);object-fit:contain;object-position:center;filter:drop-shadow(0 0 40px rgba(32,206,251,.25))}
+#lobby .sub{font-size:clamp(.88rem,1.04vw,1.15rem);line-height:1.5;max-width:44rem}
+#lobby .brand-kicker{font-size:clamp(.62rem,.8vw,.85rem);letter-spacing:.22em;margin-bottom:.6rem}
+#lobby .join{margin-top:clamp(.8rem,2vh,1.7rem);padding:clamp(.8rem,1.3vw,1.4rem);gap:clamp(.7rem,1.5vw,2rem)}
+#lobby .join canvas{width:clamp(96px,10vw,180px);height:clamp(96px,10vw,180px)}
+#lobby .code{font-size:clamp(2rem,3.5vw,4rem)}
+#lobby .lore-kicker{display:flex;align-items:center;gap:.5rem;color:#8beaff;text-transform:uppercase;letter-spacing:.19em;font-weight:800;font-size:clamp(.6rem,.75vw,.75rem);margin-top:.7rem}
+#lobby .lore-pitch{color:#e0effc;font-weight:600;font-size:clamp(.82rem,.94vw,1rem);margin:.45rem 0 .6rem;max-width:44rem}
+#lobby .lobby-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:.65rem 0 .25rem}
+.sf-action{display:inline-flex;align-items:center;justify-content:center;min-height:45px;padding:.57rem .9rem;border:1px solid #64c8ef69;border-radius:10px;background:linear-gradient(130deg,#17446ce6,#10304ce6);color:#eaffff!important;font:800 .76rem Inter,sans-serif;letter-spacing:.035em;text-decoration:none;box-shadow:inset 0 1px rgba(255,255,255,.12);white-space:nowrap}
+.sf-action:hover,.sf-action:focus-visible{border-color:#85eaff;background:#245580}
+.sf-action.primary{background:linear-gradient(115deg,#37dcff,#7ee8ff);color:#062034!important;border-color:#8beaff}
+#lobby .lobby-intro{display:flex;flex-wrap:wrap;gap:.55rem;margin:1rem 0 0}
+#lobby .muster-heading{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.5rem .3rem;margin-bottom:.4rem;border-bottom:1px solid rgba(96,215,248,.25);letter-spacing:.14em;font-weight:900;font-size:.76rem;color:#8cddff}
+#lobby .muster-heading small{font:800 .62rem Inter,sans-serif;white-space:nowrap;letter-spacing:.04em;color:#b6d8e9}
+#lobby .slot-sigil{flex:none;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;color:#70c8ee;background:#123c66;border:1px solid rgba(100,194,233,.4);font-size:.95rem}
+#lobby .slot.empty{justify-content:flex-start}
+#lobby .slot.empty b{font-size:.71rem;letter-spacing:.1em;color:#cce8f6}
+#lobby .slot.empty small{display:block;margin-top:.1rem}
+#lobby .lobby-intro span{border:1px solid rgba(90,198,238,.27);border-radius:30px;padding:.3rem .65rem;background:rgba(7,29,51,.75);font-size:clamp(.65rem,.76vw,.8rem);font-weight:700;color:#bddcf0}
+#lobby .roster{gap:clamp(.3rem,.7vw,.8rem)}
+#lobby .slot{min-height:clamp(3.4rem,7vh,5.2rem);padding:.5rem}
+#lobby .slot .av{max-height:52px;max-width:52px}
+#lobby .lobbyMode{font-size:clamp(.78rem,.88vw,1rem);margin-top:.7rem}
+#bridgeLinks{display:flex;align-items:center;gap:.4rem;position:fixed;bottom:3.75rem;left:.65rem;max-width:clamp(140px,17vw,298px);flex-wrap:wrap;z-index:12}
+#bridgeLinks a{font-size:.66rem;flex:1;background:rgba(11,34,56,.95);color:#d7f6ff;border:1px solid rgba(115,211,245,.43);border-radius:9px;padding:.34rem .5rem;text-decoration:none;font-weight:800}
+#bridgeLinks a:focus-visible,#bridgeLinks a:hover{border-color:#fff}
+#bridgeLinks[hidden]{display:none}
+@media(min-width:1300px){#lobby{grid-template-columns:minmax(0,1.16fr) minmax(400px,.84fr);gap:clamp(1.8rem,4vw,5rem)}}
+@media(max-width:1050px){#lobby{gap:1.2rem;padding:1rem 1.4rem;grid-template-columns:1fr 1fr}#lobby .roster{gap:.25rem}#lobby .slot{padding:.35rem;min-height:3.7rem}#lobby .slot small{font-size:.65rem}#lobby .lobby-logo{max-height:37vh}}
+@media(max-width:800px){#lobby{overflow-y:auto;align-items:start;grid-template-columns:1fr;gap:.6rem;padding:1rem}#lobby .lobby-logo{width:min(100%,30rem);max-height:230px}#lobby .join{margin-top:.65rem}#lobby .roster{grid-template-columns:repeat(2,minmax(0,1fr))}#lobby .slot{min-height:3.5rem}#lobby .lobby-intro{margin:.5rem 0}#lobby .sub{margin-top:.15rem}#lobby .brand-kicker{margin:0}#lobby .lore-pitch{margin:.15rem 0}}
+@media(max-height:800px) and (min-width:801px){#lobby{padding:1rem 2rem}#lobby .lobby-logo{max-height:35vh}#lobby .join{margin-top:.6rem}#lobby .lobby-intro{margin:.3rem 0 0}#lobby .lore-pitch{margin:.3rem 0}#lobby .slot{min-height:3.1rem}#lobby .slot .av{width:35px!important;height:35px!important}}
+@media(prefers-reduced-motion:reduce){#lobby:after{animation:none}}
 </style>
 </head>
 <body>
@@ -194,9 +231,12 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
   <canvas class="bg" id="lobbyBg"></canvas>
   <div>
     <div class="brand-kicker"><span class="signal"></span> A GALAXY OF RIVAL HOUSES</div>
-    <img class="lobby-logo" src="art/brand/starfall-logo.png" alt="STARFALL LANES">
+    <picture><source media="(max-width: 900px)" srcset="art/brand/starfall-logo-mobile.png"><img class="lobby-logo" src="art/brand/starfall-logo.png" alt="STARFALL LANES"></picture>
     <h1 class="visually-hidden">Starfall Lanes</h1>
-    <p class="sub">Claim worlds, open hyperlanes, outrun the Solar Storm. First to Influence <span id="lTarget">15</span> becomes Warden of the Cluster.</p>
+    <p class="sub">The star has fallen. Eight rival houses rise from its ashes. Command a living galaxy, build your empire, and outrun the Solar Storm.</p>
+    <div class="lore-kicker">✦ THE WARDEN IS YET TO BE CROWNED</div>
+    <p class="lore-pitch">Trade, expand, and outmanoeuvre your rivals. Reach <strong><span id="lTarget">15</span> Influence</strong> to claim the Starfall Cluster.</p>
+    <nav class="lobby-actions" aria-label="Learn Starfall Lanes"><a class="sf-action primary" href="/how-to-play.html" target="_blank" rel="noopener">▶ HOW TO PLAY</a><a class="sf-action" href="/lore.html" target="_blank" rel="noopener">✦ DISCOVER THE LORE</a><a class="sf-action" href="/sound-lab.html" target="_blank" rel="noopener">♫ SOUND LAB</a></nav>
     <div class="join">
       <canvas id="qr" width="264" height="264" aria-label="QR code to join"></canvas>
       <div>
@@ -207,8 +247,10 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
       </div>
     </div>
     <div class="lobbyMode" id="lMode"></div>
+    <div class="lobby-intro" aria-label="Game details"><span>2–8 commanders</span><span>30–60 minute expeditions</span><span>Phone-controlled strategy</span></div>
   </div>
-  <div>
+  <div class="lobby-muster">
+    <div class="muster-heading"><span>COMMANDER MUSTER</span><small id="musterCount">0 / 8 JOINED</small></div>
     <div class="roster" id="roster"></div>
     <p class="sub" id="lHint" style="margin-top:1rem"></p>
   </div>
@@ -232,6 +274,7 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
   <aside id="side" aria-label="Draft pool and trophies"></aside>
   <footer id="tick"><span class="now" id="tNow"></span><span class="prev" id="tPrev"></span></footer>
 </div>
+<nav id="bridgeLinks" aria-label="Game information" hidden><a href="/how-to-play.html" target="_blank" rel="noopener">? HOW TO PLAY</a><a href="/lore.html" target="_blank" rel="noopener">LORE</a></nav>
 <div id="soundRack"><button id="sound" type="button" aria-pressed="false">Sound off</button><label for="volume">Volume</label><input id="volume" type="range" min="0" max="100" step="5" value="40" aria-label="Game sound volume"></div>
 <script>
 /*QRJS*/
@@ -404,6 +447,7 @@ function render() {
   const inGame = pub.phase === 'game' && pub.game;
   $('lobby').classList.toggle('show', !inGame);
   $('app').hidden = !inGame;
+  $('bridgeLinks').hidden = !inGame;
   if (!inGame) { lastRoundPhase=null;lastWinScene=false;$('cinematic').classList.remove('show');return renderLobby(); }
   const g = pub.game;
   map.setState(pub, C.AVATARS);
@@ -419,11 +463,12 @@ function renderLobby() {
   const slots = [];
   for (let i = 0; i < 8; i++) {
     const p = pub.players[i];
-    if (!p) { slots.push(`<div class="slot empty">Open seat</div>`); continue; }
+    if (!p) { slots.push(`<div class="slot empty"><span class="slot-sigil" aria-hidden="true">✦</span><span><b>OPEN SEAT</b><small>Choose any free house</small></span></div>`); continue; }
     const av = AV(p);
     slots.push(`<div class="slot">${avatarHTML(av, { size: 56, off: !p.connected })}<div><b>${esc(p.name)}${p.id === pub.hostId ? ' ★' : ''}</b><small>${esc(av.name)}${p.bot ? ' · bot' : ''}</small></div></div>`);
   }
   $('roster').innerHTML = slots.join('');
+  $('musterCount').textContent = pub.players.length + ' / 8 JOINED';
   $('lHint').textContent = pub.players.length < 2 ? 'Waiting for at least 2 players.' : 'The host (★) starts the game from their phone.';
 }
 function renderTop(g) {
