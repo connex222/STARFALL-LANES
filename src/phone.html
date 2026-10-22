@@ -288,7 +288,7 @@ function set(id, html) { const el = $(id); if (el.innerHTML !== html) el.innerHT
 
 // ───────── Join ─────────
 function renderJoin() {
-  set('head', `<div class="phone-brand"><div class="phone-brand-label">INTERSTELLAR COMMAND NETWORK</div><img src="art/brand/starfall-logo.svg" alt="Starfall Lanes"><p class="lead">Join the game showing on the TV.</p></div>`);
+  set('head', `<div class="phone-brand"><div class="phone-brand-label">INTERSTELLAR COMMAND NETWORK</div><img src="art/brand/starfall-logo.png" alt="Starfall Lanes"><p class="lead">Join the game showing on the TV.</p></div>`);
   const s = saved();
   set('body', `<label class="f" for="jc">Game code</label><input id="jc" class="code" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(urlRoom || (s && s.room) || '')}">
     <label class="f" for="jn">Your name</label><input id="jn" type="text" maxlength="14" autocomplete="nickname" placeholder="Optional" value="${esc(localStorage.getItem('sf_name') || '')}">

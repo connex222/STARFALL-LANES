@@ -66,7 +66,7 @@ Change files in `src/`, then run `npm install` (to fetch the fonts and QR librar
 
 ### Design assets
 
-- `public/art/brand/starfall-logo.svg` — transparent primary wordmark.
+- `public/art/brand/starfall-logo.png` — transparent primary wordmark.
 - `public/art/brand/starfall-mark.svg` — matching navigation insignia.
 - `public/art/brand/starfall-logo-preview.png` — convenient preview.
 - `public/art/avatars/{id}_frontier_neutral.png` — the eight 512 × 512 master portraits.
