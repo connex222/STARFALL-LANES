@@ -1,0 +1,25 @@
+name: Phase 16 release QA
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install
+        run: npm install --no-audit --no-fund --no-package-lock
+      - name: Offline gameplay and interface checks
+        run: npm run test:offline
+      - name: Premium audio and all 72 portraits
+        run: node test-phase15-release.js --require-premium
+      - name: HTTP route/media/security checks
+        run: node test-phase16-http.js
