@@ -1,0 +1,16 @@
+{
+  "phase": 10,
+  "source": "local",
+  "checks": {
+    "portraits": 72,
+    "audioFiles": 10,
+    "controllers": 2,
+    "publicBytes": 8359263,
+    "serverAuthority": "game rules remain in server.js"
+  },
+  "limits": {
+    "realWebSockets": "not tested by static audit",
+    "physicalDevices": "not tested",
+    "realPlayers": "not tested"
+  }
+}

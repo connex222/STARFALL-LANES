@@ -243,7 +243,7 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
     <h1 class="visually-hidden">Starfall Lanes</h1>
     <p class="sub">The star has fallen. Eight rival houses rise from its ashes. Command a living galaxy, build your empire, and outrun the Solar Storm.</p>
     <div class="lore-kicker">✦ THE WARDEN IS YET TO BE CROWNED</div>
-    <p class="lore-pitch">Trade, expand, and outmanoeuvre your rivals. Reach <strong><span id="lTarget">15</span> Influence</strong> to claim the Starfall Cluster.</p>
+    <p class="lore-pitch">Trade, expand, and outmanoeuvre your rivals. Reach <strong><span id="lTarget">16</span> Influence</strong> to claim the Starfall Cluster.</p>
     <nav class="lobby-actions" aria-label="Learn Starfall Lanes"><a class="sf-action primary" href="/how-to-play.html" target="_blank" rel="noopener">▶ HOW TO PLAY</a><a class="sf-action" href="/lore.html" target="_blank" rel="noopener">✦ DISCOVER THE LORE</a><a class="sf-action" href="/sound-lab.html" target="_blank" rel="noopener">♫ SOUND LAB</a></nav>
     <div class="join">
       <canvas id="qr" width="264" height="264" aria-label="QR code to join"></canvas>
@@ -289,6 +289,7 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
 </script>
 <script>
 /*COMMONJS*/
+/*CONNJS*/
 /*MAPJS*/
 
 // ───────── Phase 5: locally bundled cinematic audio ─────────
@@ -470,7 +471,7 @@ function sceneForPhase(g){
   lastRoundPhase=key;
   if(g.phase==='era'){
     const era=C.ERA_NAMES[g.era];
-    scene('CHAPTER '+(g.era+1),era.toUpperCase()+' ERA','New technologies are available · choose your upgrade',false,3200);
+    scene('CHAPTER '+(g.era+1),era.toUpperCase()+' ERA',g.mode === 'advanced' ? 'New technologies are available · choose your upgrade' : 'New chapter · keep building your network',false,3200);
     Snd.fanfare();
   } else if(g.phase==='income'&&g.round>0){
     scene('GALACTIC WEATHER','SOLAR STORM ADVANCES','Watch the marked sectors and next-round forecast',true,2200);
@@ -658,7 +659,8 @@ function onFx(f) {
     setTimeout(()=>$('map').classList.remove('phase5-battle'),1400);
     const a = P(f.pid), d = P(f.did);
     const side = (p, fleets, bonus, die, sum, win) => `<div class="side${win ? ' win' : ''}">${avatarHTML(AV(p), { size: 48, era: g.era })}<div style="font-weight:800;margin-top:.3rem">${esc(p.name)}</div><div class="sum">${sum}</div><div class="bd">${fleets} Fleets${bonus ? ` + ${bonus} bonus` : ''} + <span class="die">${die}</span></div></div>`;
-    popup(`<div class="clash">${side(a, f.atkF, f.atkB, f.ad, f.A, f.win)}<div class="vs">VS</div>${side(d, f.defF, f.defB, f.dd, f.D, !f.win)}</div>`, 2100);
+    const outcome = f.win ? `CAPTURE · ${f.moved} Fleet${f.moved === 1 ? '' : 's'} move in · ${f.reserve} defend source · defender loses ${f.defenderLost}` : `DEFENDED · attacker loses ${f.attackerLost} Fleet`;
+    popup(`<div><div class="clash">${side(a, f.atkF, f.atkB, f.ad, f.A, f.win)}<div class="vs">VS</div>${side(d, f.defF, f.defB, f.dd, f.D, !f.win)}</div><div role="status" style="text-align:center;font-size:.8rem;font-weight:800;margin-top:.4rem;background:#132439;padding:.45rem;border-radius:.4rem">${outcome}</div></div>`, 2400);
   }
 }
 

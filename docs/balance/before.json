@@ -1,0 +1,1095 @@
+{
+  "schema": "starfall.balance.v1",
+  "generatedAt": "2026-10-23T12:23:01.390Z",
+  "seed": 61803,
+  "profile": "baseline",
+  "tuningOverrides": {},
+  "gamesPerConfig": 300,
+  "totalGames": 6300,
+  "groups": [
+    {
+      "mode": "quick",
+      "players": 2,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 72.67,
+      "meanRounds": 7.4333,
+      "medianRounds": 8,
+      "meanWinningInfluence": 10.12,
+      "firstPlayerWinPct": 51.33,
+      "winRatesBySeat": [
+        0.4967,
+        0.5033
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.56,
+        "zibzob": 0.4605,
+        "oolu": 0.3947,
+        "vex": 0.5921,
+        "pyrrhus": 0.5333,
+        "nim": 0.4324,
+        "skrill": 0.5541,
+        "bramble": 0.473
+      },
+      "houseAppearances": {
+        "kaia": 75,
+        "zibzob": 76,
+        "oolu": 76,
+        "vex": 76,
+        "pyrrhus": 75,
+        "nim": 74,
+        "skrill": 74,
+        "bramble": 74
+      },
+      "failedCommandPct": 2,
+      "meanTollCreditsPaid": 0.0967,
+      "meanInfluenceBySource": {
+        "stations": 4.4,
+        "lanes": 0.155,
+        "tradeRoutes": 0.3417,
+        "missions": 2.265,
+        "trophies": 1.03,
+        "bonuses": 0,
+        "barons": 0.0717,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "quick",
+      "players": 3,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 61.67,
+      "meanRounds": 7.6133,
+      "medianRounds": 8,
+      "meanWinningInfluence": 9.8533,
+      "firstPlayerWinPct": 30,
+      "winRatesBySeat": [
+        0.29,
+        0.35,
+        0.36
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.4018,
+        "zibzob": 0.3097,
+        "oolu": 0.3289,
+        "vex": 0.3202,
+        "pyrrhus": 0.3186,
+        "nim": 0.4063,
+        "skrill": 0.2838,
+        "bramble": 0.2973
+      },
+      "houseAppearances": {
+        "kaia": 112,
+        "zibzob": 113,
+        "oolu": 114,
+        "vex": 114,
+        "pyrrhus": 113,
+        "nim": 112,
+        "skrill": 111,
+        "bramble": 111
+      },
+      "failedCommandPct": 3.83,
+      "meanTollCreditsPaid": 0.4233,
+      "meanInfluenceBySource": {
+        "stations": 3.5533,
+        "lanes": 0.2722,
+        "tradeRoutes": 0.2633,
+        "missions": 2.11,
+        "trophies": 0.7467,
+        "bonuses": 0,
+        "barons": 0.0833,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "quick",
+      "players": 4,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 56.67,
+      "meanRounds": 7.63,
+      "medianRounds": 8,
+      "meanWinningInfluence": 9.7433,
+      "firstPlayerWinPct": 23.67,
+      "winRatesBySeat": [
+        0.23,
+        0.28,
+        0.22,
+        0.27
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.302,
+        "zibzob": 0.2533,
+        "oolu": 0.2517,
+        "vex": 0.2039,
+        "pyrrhus": 0.2384,
+        "nim": 0.3,
+        "skrill": 0.2148,
+        "bramble": 0.2365
+      },
+      "houseAppearances": {
+        "kaia": 149,
+        "zibzob": 150,
+        "oolu": 151,
+        "vex": 152,
+        "pyrrhus": 151,
+        "nim": 150,
+        "skrill": 149,
+        "bramble": 148
+      },
+      "failedCommandPct": 6.59,
+      "meanTollCreditsPaid": 1.02,
+      "meanInfluenceBySource": {
+        "stations": 2.8258,
+        "lanes": 0.3692,
+        "tradeRoutes": 0.2017,
+        "missions": 2.035,
+        "trophies": 0.6117,
+        "bonuses": 0,
+        "barons": 0.0492,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 56.67%, below 60%"
+      ]
+    },
+    {
+      "mode": "quick",
+      "players": 5,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 53.67,
+      "meanRounds": 7.6133,
+      "medianRounds": 8,
+      "meanWinningInfluence": 9.5633,
+      "firstPlayerWinPct": 23.83,
+      "winRatesBySeat": [
+        0.2183,
+        0.1617,
+        0.2167,
+        0.225,
+        0.1783
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.2419,
+        "zibzob": 0.1845,
+        "oolu": 0.2128,
+        "vex": 0.1349,
+        "pyrrhus": 0.1878,
+        "nim": 0.2606,
+        "skrill": 0.2273,
+        "bramble": 0.1505
+      },
+      "houseAppearances": {
+        "kaia": 186,
+        "zibzob": 187,
+        "oolu": 188,
+        "vex": 189,
+        "pyrrhus": 189,
+        "nim": 188,
+        "skrill": 187,
+        "bramble": 186
+      },
+      "failedCommandPct": 6.32,
+      "meanTollCreditsPaid": 1.14,
+      "meanInfluenceBySource": {
+        "stations": 2.6353,
+        "lanes": 0.3553,
+        "tradeRoutes": 0.1453,
+        "missions": 1.8633,
+        "trophies": 0.48,
+        "bonuses": 0,
+        "barons": 0.1227,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 53.67%, below 60%"
+      ]
+    },
+    {
+      "mode": "quick",
+      "players": 6,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 51.67,
+      "meanRounds": 7.6567,
+      "medianRounds": 8,
+      "meanWinningInfluence": 9.57,
+      "firstPlayerWinPct": 16.67,
+      "winRatesBySeat": [
+        0.19,
+        0.1117,
+        0.1583,
+        0.1583,
+        0.1767,
+        0.205
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.183,
+        "zibzob": 0.1518,
+        "oolu": 0.18,
+        "vex": 0.1991,
+        "pyrrhus": 0.1195,
+        "nim": 0.1858,
+        "skrill": 0.1289,
+        "bramble": 0.1853
+      },
+      "houseAppearances": {
+        "kaia": 224,
+        "zibzob": 224,
+        "oolu": 225,
+        "vex": 226,
+        "pyrrhus": 226,
+        "nim": 226,
+        "skrill": 225,
+        "bramble": 224
+      },
+      "failedCommandPct": 7.79,
+      "meanTollCreditsPaid": 1.86,
+      "meanInfluenceBySource": {
+        "stations": 2.5589,
+        "lanes": 0.3722,
+        "tradeRoutes": 0.1611,
+        "missions": 1.7039,
+        "trophies": 0.45,
+        "bonuses": 0,
+        "barons": 0.0789,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 51.67%, below 60%"
+      ]
+    },
+    {
+      "mode": "quick",
+      "players": 7,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 53.67,
+      "meanRounds": 7.66,
+      "medianRounds": 8,
+      "meanWinningInfluence": 9.6633,
+      "firstPlayerWinPct": 16.83,
+      "winRatesBySeat": [
+        0.105,
+        0.1167,
+        0.1217,
+        0.1567,
+        0.1667,
+        0.1667,
+        0.1667
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1298,
+        "zibzob": 0.1527,
+        "oolu": 0.1565,
+        "vex": 0.1236,
+        "pyrrhus": 0.1369,
+        "nim": 0.1616,
+        "skrill": 0.1407,
+        "bramble": 0.1412
+      },
+      "houseAppearances": {
+        "kaia": 262,
+        "zibzob": 262,
+        "oolu": 262,
+        "vex": 263,
+        "pyrrhus": 263,
+        "nim": 263,
+        "skrill": 263,
+        "bramble": 262
+      },
+      "failedCommandPct": 9.62,
+      "meanTollCreditsPaid": 3.0467,
+      "meanInfluenceBySource": {
+        "stations": 2.45,
+        "lanes": 0.3876,
+        "tradeRoutes": 0.1481,
+        "missions": 1.7205,
+        "trophies": 0.4371,
+        "bonuses": 0,
+        "barons": 0.0381,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 53.67%, below 60%"
+      ]
+    },
+    {
+      "mode": "quick",
+      "players": 8,
+      "games": 300,
+      "target": 10,
+      "targetReachedPct": 61,
+      "meanRounds": 7.65,
+      "medianRounds": 8,
+      "meanWinningInfluence": 9.8567,
+      "firstPlayerWinPct": 11.33,
+      "winRatesBySeat": [
+        0.1633,
+        0.1233,
+        0.1083,
+        0.1167,
+        0.1217,
+        0.1367,
+        0.1283,
+        0.1017
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1533,
+        "zibzob": 0.115,
+        "oolu": 0.09,
+        "vex": 0.1133,
+        "pyrrhus": 0.1333,
+        "nim": 0.1217,
+        "skrill": 0.115,
+        "bramble": 0.1583
+      },
+      "houseAppearances": {
+        "kaia": 300,
+        "zibzob": 300,
+        "oolu": 300,
+        "vex": 300,
+        "pyrrhus": 300,
+        "nim": 300,
+        "skrill": 300,
+        "bramble": 300
+      },
+      "failedCommandPct": 10.6,
+      "meanTollCreditsPaid": 4.3833,
+      "meanInfluenceBySource": {
+        "stations": 2.4121,
+        "lanes": 0.3783,
+        "tradeRoutes": 0.1554,
+        "missions": 1.6683,
+        "trophies": 0.3925,
+        "bonuses": 0,
+        "barons": 0.0283,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "standard",
+      "players": 2,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 94,
+      "meanRounds": 10.24,
+      "medianRounds": 10,
+      "meanWinningInfluence": 16.29,
+      "firstPlayerWinPct": 53,
+      "winRatesBySeat": [
+        0.52,
+        0.48
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.4933,
+        "zibzob": 0.5132,
+        "oolu": 0.4342,
+        "vex": 0.5921,
+        "pyrrhus": 0.4667,
+        "nim": 0.4865,
+        "skrill": 0.473,
+        "bramble": 0.5405
+      },
+      "houseAppearances": {
+        "kaia": 75,
+        "zibzob": 76,
+        "oolu": 76,
+        "vex": 76,
+        "pyrrhus": 75,
+        "nim": 74,
+        "skrill": 74,
+        "bramble": 74
+      },
+      "failedCommandPct": 2.09,
+      "meanTollCreditsPaid": 0.9533,
+      "meanInfluenceBySource": {
+        "stations": 5.2783,
+        "lanes": 1.0083,
+        "tradeRoutes": 1.31,
+        "missions": 4.38,
+        "trophies": 1.7567,
+        "bonuses": 0,
+        "barons": 0.1583,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "standard",
+      "players": 3,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 95,
+      "meanRounds": 10.3267,
+      "medianRounds": 10,
+      "meanWinningInfluence": 16.2133,
+      "firstPlayerWinPct": 40.33,
+      "winRatesBySeat": [
+        0.3567,
+        0.2967,
+        0.3467
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.3036,
+        "zibzob": 0.2832,
+        "oolu": 0.3158,
+        "vex": 0.386,
+        "pyrrhus": 0.3274,
+        "nim": 0.3482,
+        "skrill": 0.3784,
+        "bramble": 0.3243
+      },
+      "houseAppearances": {
+        "kaia": 112,
+        "zibzob": 113,
+        "oolu": 114,
+        "vex": 114,
+        "pyrrhus": 113,
+        "nim": 112,
+        "skrill": 111,
+        "bramble": 111
+      },
+      "failedCommandPct": 5.78,
+      "meanTollCreditsPaid": 3.78,
+      "meanInfluenceBySource": {
+        "stations": 3.8822,
+        "lanes": 1.1489,
+        "tradeRoutes": 0.74,
+        "missions": 5.0444,
+        "trophies": 1.1733,
+        "bonuses": 0,
+        "barons": 0.1789,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "standard",
+      "players": 4,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 98.33,
+      "meanRounds": 10.3533,
+      "medianRounds": 10,
+      "meanWinningInfluence": 16.8133,
+      "firstPlayerWinPct": 26,
+      "winRatesBySeat": [
+        0.23,
+        0.2733,
+        0.2467,
+        0.25
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.2953,
+        "zibzob": 0.2733,
+        "oolu": 0.2053,
+        "vex": 0.2434,
+        "pyrrhus": 0.245,
+        "nim": 0.2867,
+        "skrill": 0.2483,
+        "bramble": 0.2027
+      },
+      "houseAppearances": {
+        "kaia": 149,
+        "zibzob": 150,
+        "oolu": 151,
+        "vex": 152,
+        "pyrrhus": 151,
+        "nim": 150,
+        "skrill": 149,
+        "bramble": 148
+      },
+      "failedCommandPct": 8.12,
+      "meanTollCreditsPaid": 7.6,
+      "meanInfluenceBySource": {
+        "stations": 2.9808,
+        "lanes": 1.08,
+        "tradeRoutes": 0.4167,
+        "missions": 6.2483,
+        "trophies": 0.89,
+        "bonuses": 0,
+        "barons": 0.08,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 98.33%, above 95%"
+      ]
+    },
+    {
+      "mode": "standard",
+      "players": 5,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 94.33,
+      "meanRounds": 10.7567,
+      "medianRounds": 11,
+      "meanWinningInfluence": 16.3433,
+      "firstPlayerWinPct": 23.67,
+      "winRatesBySeat": [
+        0.1933,
+        0.1933,
+        0.22,
+        0.1933,
+        0.2
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1613,
+        "zibzob": 0.2032,
+        "oolu": 0.1968,
+        "vex": 0.1958,
+        "pyrrhus": 0.2275,
+        "nim": 0.2181,
+        "skrill": 0.1711,
+        "bramble": 0.2258
+      },
+      "houseAppearances": {
+        "kaia": 186,
+        "zibzob": 187,
+        "oolu": 188,
+        "vex": 189,
+        "pyrrhus": 189,
+        "nim": 188,
+        "skrill": 187,
+        "bramble": 186
+      },
+      "failedCommandPct": 9.6,
+      "meanTollCreditsPaid": 10.41,
+      "meanInfluenceBySource": {
+        "stations": 2.7747,
+        "lanes": 1.2253,
+        "tradeRoutes": 0.3567,
+        "missions": 5.434,
+        "trophies": 0.7533,
+        "bonuses": 0,
+        "barons": 0.1747,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "standard",
+      "players": 6,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 95.67,
+      "meanRounds": 10.6567,
+      "medianRounds": 11,
+      "meanWinningInfluence": 16.5767,
+      "firstPlayerWinPct": 17.83,
+      "winRatesBySeat": [
+        0.1367,
+        0.1367,
+        0.1767,
+        0.1983,
+        0.165,
+        0.1867
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1473,
+        "zibzob": 0.1518,
+        "oolu": 0.1578,
+        "vex": 0.1925,
+        "pyrrhus": 0.1903,
+        "nim": 0.1726,
+        "skrill": 0.1644,
+        "bramble": 0.1563
+      },
+      "houseAppearances": {
+        "kaia": 224,
+        "zibzob": 224,
+        "oolu": 225,
+        "vex": 226,
+        "pyrrhus": 226,
+        "nim": 226,
+        "skrill": 225,
+        "bramble": 224
+      },
+      "failedCommandPct": 11.59,
+      "meanTollCreditsPaid": 15.2467,
+      "meanInfluenceBySource": {
+        "stations": 2.6511,
+        "lanes": 1.1778,
+        "tradeRoutes": 0.3361,
+        "missions": 5.6711,
+        "trophies": 0.6111,
+        "bonuses": 0,
+        "barons": 0.0783,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 95.67%, above 95%"
+      ]
+    },
+    {
+      "mode": "standard",
+      "players": 7,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 91.67,
+      "meanRounds": 10.5533,
+      "medianRounds": 11,
+      "meanWinningInfluence": 16.27,
+      "firstPlayerWinPct": 13.5,
+      "winRatesBySeat": [
+        0.1117,
+        0.1633,
+        0.1367,
+        0.185,
+        0.1267,
+        0.1767,
+        0.1
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1126,
+        "zibzob": 0.1069,
+        "oolu": 0.145,
+        "vex": 0.1369,
+        "pyrrhus": 0.2015,
+        "nim": 0.1274,
+        "skrill": 0.1559,
+        "bramble": 0.1565
+      },
+      "houseAppearances": {
+        "kaia": 262,
+        "zibzob": 262,
+        "oolu": 262,
+        "vex": 263,
+        "pyrrhus": 263,
+        "nim": 263,
+        "skrill": 263,
+        "bramble": 262
+      },
+      "failedCommandPct": 12.13,
+      "meanTollCreditsPaid": 18.8733,
+      "meanInfluenceBySource": {
+        "stations": 2.5519,
+        "lanes": 1.0252,
+        "tradeRoutes": 0.301,
+        "missions": 5.4033,
+        "trophies": 0.519,
+        "bonuses": 0,
+        "barons": 0.0562,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "standard",
+      "players": 8,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 81,
+      "meanRounds": 10.5833,
+      "medianRounds": 10,
+      "meanWinningInfluence": 15.8967,
+      "firstPlayerWinPct": 10.67,
+      "winRatesBySeat": [
+        0.1867,
+        0.12,
+        0.1033,
+        0.12,
+        0.1067,
+        0.1267,
+        0.13,
+        0.1067
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1367,
+        "zibzob": 0.1467,
+        "oolu": 0.1267,
+        "vex": 0.1233,
+        "pyrrhus": 0.1067,
+        "nim": 0.12,
+        "skrill": 0.1167,
+        "bramble": 0.1233
+      },
+      "houseAppearances": {
+        "kaia": 300,
+        "zibzob": 300,
+        "oolu": 300,
+        "vex": 300,
+        "pyrrhus": 300,
+        "nim": 300,
+        "skrill": 300,
+        "bramble": 300
+      },
+      "failedCommandPct": 11.29,
+      "meanTollCreditsPaid": 23.95,
+      "meanInfluenceBySource": {
+        "stations": 2.4871,
+        "lanes": 0.8363,
+        "tradeRoutes": 0.275,
+        "missions": 5.1446,
+        "trophies": 0.445,
+        "bonuses": 0,
+        "barons": 0.0308,
+        "penalty": 0
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 2,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 77.33,
+      "meanRounds": 8.8633,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.35,
+      "firstPlayerWinPct": 48.33,
+      "winRatesBySeat": [
+        0.4733,
+        0.5267
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.52,
+        "zibzob": 0.4211,
+        "oolu": 0.5789,
+        "vex": 0.5526,
+        "pyrrhus": 0.4133,
+        "nim": 0.4324,
+        "skrill": 0.5676,
+        "bramble": 0.5135
+      },
+      "houseAppearances": {
+        "kaia": 75,
+        "zibzob": 76,
+        "oolu": 76,
+        "vex": 76,
+        "pyrrhus": 75,
+        "nim": 74,
+        "skrill": 74,
+        "bramble": 74
+      },
+      "failedCommandPct": 2.69,
+      "meanTollCreditsPaid": 0.7933,
+      "meanInfluenceBySource": {
+        "stations": 7.0867,
+        "lanes": 0.81,
+        "tradeRoutes": 1.1,
+        "missions": 3.6433,
+        "trophies": 1.5033,
+        "bonuses": 0.4,
+        "barons": 0.0833,
+        "penalty": 0.78
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 3,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 80.33,
+      "meanRounds": 8.9667,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.3533,
+      "firstPlayerWinPct": 28.33,
+      "winRatesBySeat": [
+        0.3367,
+        0.3,
+        0.3633
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.3214,
+        "zibzob": 0.2212,
+        "oolu": 0.3509,
+        "vex": 0.3421,
+        "pyrrhus": 0.3363,
+        "nim": 0.25,
+        "skrill": 0.4865,
+        "bramble": 0.3604
+      },
+      "houseAppearances": {
+        "kaia": 112,
+        "zibzob": 113,
+        "oolu": 114,
+        "vex": 114,
+        "pyrrhus": 113,
+        "nim": 112,
+        "skrill": 111,
+        "bramble": 111
+      },
+      "failedCommandPct": 5.65,
+      "meanTollCreditsPaid": 2.4633,
+      "meanInfluenceBySource": {
+        "stations": 5.7878,
+        "lanes": 0.9711,
+        "tradeRoutes": 0.6844,
+        "missions": 3.9322,
+        "trophies": 1.1222,
+        "bonuses": 0.3,
+        "barons": 0.1189,
+        "penalty": 0.7378
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 4,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 83.67,
+      "meanRounds": 9.06,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.2233,
+      "firstPlayerWinPct": 23,
+      "winRatesBySeat": [
+        0.21,
+        0.28,
+        0.2467,
+        0.2633
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.2483,
+        "zibzob": 0.2467,
+        "oolu": 0.2384,
+        "vex": 0.2763,
+        "pyrrhus": 0.1656,
+        "nim": 0.2733,
+        "skrill": 0.3423,
+        "bramble": 0.2095
+      },
+      "houseAppearances": {
+        "kaia": 149,
+        "zibzob": 150,
+        "oolu": 151,
+        "vex": 152,
+        "pyrrhus": 151,
+        "nim": 150,
+        "skrill": 149,
+        "bramble": 148
+      },
+      "failedCommandPct": 9.51,
+      "meanTollCreditsPaid": 4.46,
+      "meanInfluenceBySource": {
+        "stations": 4.6533,
+        "lanes": 0.9817,
+        "tradeRoutes": 0.4217,
+        "missions": 4.0958,
+        "trophies": 0.9167,
+        "bonuses": 0.255,
+        "barons": 0.075,
+        "penalty": 0.7275
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 5,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 79,
+      "meanRounds": 9.1467,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.2033,
+      "firstPlayerWinPct": 24,
+      "winRatesBySeat": [
+        0.2,
+        0.2033,
+        0.2033,
+        0.18,
+        0.2133
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1344,
+        "zibzob": 0.2032,
+        "oolu": 0.2074,
+        "vex": 0.2116,
+        "pyrrhus": 0.1534,
+        "nim": 0.1809,
+        "skrill": 0.2995,
+        "bramble": 0.2097
+      },
+      "houseAppearances": {
+        "kaia": 186,
+        "zibzob": 187,
+        "oolu": 188,
+        "vex": 189,
+        "pyrrhus": 189,
+        "nim": 188,
+        "skrill": 187,
+        "bramble": 186
+      },
+      "failedCommandPct": 9.02,
+      "meanTollCreditsPaid": 6.3767,
+      "meanInfluenceBySource": {
+        "stations": 4.4333,
+        "lanes": 1.0693,
+        "tradeRoutes": 0.32,
+        "missions": 3.7867,
+        "trophies": 0.744,
+        "bonuses": 0.2287,
+        "barons": 0.15,
+        "penalty": 0.768
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 6,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 85.67,
+      "meanRounds": 9.01,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.4233,
+      "firstPlayerWinPct": 15.33,
+      "winRatesBySeat": [
+        0.1633,
+        0.1633,
+        0.16,
+        0.1633,
+        0.18,
+        0.17
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1473,
+        "zibzob": 0.1696,
+        "oolu": 0.1556,
+        "vex": 0.1593,
+        "pyrrhus": 0.115,
+        "nim": 0.1637,
+        "skrill": 0.2356,
+        "bramble": 0.1875
+      },
+      "houseAppearances": {
+        "kaia": 224,
+        "zibzob": 224,
+        "oolu": 225,
+        "vex": 226,
+        "pyrrhus": 226,
+        "nim": 226,
+        "skrill": 225,
+        "bramble": 224
+      },
+      "failedCommandPct": 10.79,
+      "meanTollCreditsPaid": 9.64,
+      "meanInfluenceBySource": {
+        "stations": 4.1144,
+        "lanes": 1.045,
+        "tradeRoutes": 0.3,
+        "missions": 3.9656,
+        "trophies": 0.6256,
+        "bonuses": 0.1983,
+        "barons": 0.0967,
+        "penalty": 0.7556
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 7,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 87,
+      "meanRounds": 8.9367,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.6367,
+      "firstPlayerWinPct": 15.33,
+      "winRatesBySeat": [
+        0.17,
+        0.1067,
+        0.1267,
+        0.1433,
+        0.15,
+        0.1467,
+        0.1567
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.0992,
+        "zibzob": 0.1031,
+        "oolu": 0.1603,
+        "vex": 0.1635,
+        "pyrrhus": 0.1255,
+        "nim": 0.1331,
+        "skrill": 0.1977,
+        "bramble": 0.1603
+      },
+      "houseAppearances": {
+        "kaia": 262,
+        "zibzob": 262,
+        "oolu": 262,
+        "vex": 263,
+        "pyrrhus": 263,
+        "nim": 263,
+        "skrill": 263,
+        "bramble": 262
+      },
+      "failedCommandPct": 11.16,
+      "meanTollCreditsPaid": 12.9133,
+      "meanInfluenceBySource": {
+        "stations": 3.8657,
+        "lanes": 0.8738,
+        "tradeRoutes": 0.2776,
+        "missions": 4.1771,
+        "trophies": 0.5305,
+        "bonuses": 0.1795,
+        "barons": 0.0448,
+        "penalty": 0.7862
+      },
+      "flags": []
+    },
+    {
+      "mode": "advanced",
+      "players": 8,
+      "games": 300,
+      "target": 15,
+      "targetReachedPct": 87.33,
+      "meanRounds": 8.9133,
+      "medianRounds": 9,
+      "meanWinningInfluence": 16.6833,
+      "firstPlayerWinPct": 8.5,
+      "winRatesBySeat": [
+        0.12,
+        0.1333,
+        0.1167,
+        0.0933,
+        0.1433,
+        0.1367,
+        0.0917,
+        0.165
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.1567,
+        "zibzob": 0.0933,
+        "oolu": 0.0883,
+        "vex": 0.1583,
+        "pyrrhus": 0.14,
+        "nim": 0.1133,
+        "skrill": 0.1667,
+        "bramble": 0.0833
+      },
+      "houseAppearances": {
+        "kaia": 300,
+        "zibzob": 300,
+        "oolu": 300,
+        "vex": 300,
+        "pyrrhus": 300,
+        "nim": 300,
+        "skrill": 300,
+        "bramble": 300
+      },
+      "failedCommandPct": 10.77,
+      "meanTollCreditsPaid": 16.86,
+      "meanInfluenceBySource": {
+        "stations": 3.6963,
+        "lanes": 0.7242,
+        "tradeRoutes": 0.2458,
+        "missions": 4.2646,
+        "trophies": 0.4667,
+        "bonuses": 0.1608,
+        "barons": 0.0283,
+        "penalty": 0.7608
+      },
+      "flags": []
+    }
+  ],
+  "method": "21 standalone seeded VM cohorts; each uses unmodified production game rules and bot AI with test-only accelerated timers"
+}

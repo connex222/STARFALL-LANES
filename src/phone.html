@@ -293,6 +293,7 @@ body.dialog-open{overflow:hidden}
 <div class="toast" id="toast" role="status"></div>
 <script>
 /*COMMONJS*/
+/*CONNJS*/
 /*MAPJS*/
 
 const $ = id => document.getElementById(id);
@@ -450,7 +451,7 @@ function onState() {
       else if(g.phase==='over') PhoneAudio.play('victory');
     }
     if (PhoneAudio.lastKey !== phaseKey && PhoneAudio.lastKey !== null) {
-      announce(`Round ${g.round}: ${g.phase} phase${g.phase === 'era' ? '. Choose an era upgrade when it is your turn.' : '.'}`);
+      announce(`Round ${g.round}: ${g.phase} phase${g.phase === 'era' && g.mode === 'advanced' ? '. Choose an era upgrade when it is your turn.' : '.'}`);
     }
     PhoneAudio.lastKey=phaseKey;
   } else PhoneAudio.lastKey=null;
@@ -551,7 +552,7 @@ function renderLobby() {
   if (priv.isHost) {
     const M = C.MODES;
     body += `<label class="f">Game mode</label><div class="seg">${Object.entries(M).map(([k, m]) => `<button data-mode="${k}" class="${pub.mode === k ? 'on' : ''}">${m.name}<small>${m.rounds} rounds · ${m.target} to win</small></button>`).join('')}</div>`;
-    body += `<p class="note">${pub.mode === 'advanced' ? 'Adds Cosmic Events, house perks, and −1 per unfinished Mission at the end.' : pub.mode === 'quick' ? 'Shorter game with a 60-second planning timer.' : 'The full game with a 90-second planning timer.'}</p>`;
+    body += `<p class="note">${pub.mode === 'advanced' ? 'Adds Cosmic Events, house perks, era upgrades and a maximum −1 Influence for unfinished Missions.' : pub.mode === 'quick' ? 'Shorter game, three orders and a 60-second planning timer; no era upgrade draft.' : 'Two orders and a 90-second planning timer; eras change without upgrade choices.'}</p>`;
     body += `<label class="f">Players (${pub.players.length}/8)</label><div class="list">${pub.players.map(x => `<div class="row">${avatarHTML(AVof(x), { size: 36, off: !x.connected })}<div class="grow"><b>${esc(x.name)}${x.id === pub.hostId ? ' ★' : ''}</b><small>${x.bot ? 'Bot' : x.connected ? 'Connected' : 'Disconnected'}</small></div>${x.id !== p.id ? `<button class="btn small danger" data-kick="${x.id}">Remove</button>` : ''}</div>`).join('')}</div>`;
     body += `<div style="margin-top:.6rem"><button class="btn" id="addBot" ${pub.players.length >= 8 ? 'disabled' : ''}>Add a bot</button></div>`;
     set('foot', `<button class="btn primary" id="startBtn" ${pub.players.length < 2 ? 'disabled' : ''}>${pub.players.length < 2 ? 'Need 2+ players' : `Start game (${pub.players.length} players)`}</button>`);
@@ -629,6 +630,10 @@ function renderSetup() {
 }
 function renderEra() {
   const g = G();
+  if (g.mode !== 'advanced') {
+    set('head', `<h2>The ${C.ERA_NAMES[g.era]} era</h2><p class="lead">A new chapter begins. Continue building your Trade Stations and hyperlane network; there is no upgrade draft in this mode.</p>`);
+    set('body', ''); set('foot', ''); return { map: false };
+  }
   const yourTurn = g.eraTurn === priv.pid, current = pub.players.find(p => p.id === g.eraTurn);
   set('head', `<h2>The ${C.ERA_NAMES[g.era]} era</h2><p class="lead">Last place chooses first. ${yourTurn ? 'Your turn: choose one upgrade.' : priv.eraPick ? 'Your upgrade is locked in.' : 'Waiting for ' + esc(current ? current.name : 'the next house') + ' to choose.'}</p>`);
   set('body', `<div class="list">${g.eraOffer.map(k => `<button class="card${priv.eraPick === k ? ' on' : ''}" data-up="${k}" ${yourTurn && !priv.eraPick ? '' : 'disabled'}>${priv.upgrades.includes(k) ? '<span class="tag">Owned</span>' : priv.eraPick === k ? '<span class="tag">✔ Picked</span>' : ''}<b>${esc(C.UPGRADES[k].name)}</b><p>${esc(C.UPGRADES[k].text)}</p></button>`).join('')}</div>`);
@@ -880,7 +885,7 @@ function renderPicker() {
     $('pOk').onclick = () => finishPick({ type: 'research', choice: d.choice });
   } else if (P.kind === 'strike') {
     head = `<h2>Strike</h2><p class="lead">${!d.from ? 'Tap your sector to attack from. All its Fleets attack.' : !d.to ? 'Now tap the enemy sector to attack.' : 'Strikes resolve at the end of Reveal.'}</p>`;
-    if (d.from && d.to) { const a = hex(d.from), b = hex(d.to); body = `<div class="row"><div class="grow"><b>${a.fleets} Fleets vs ${b.fleets}${b.type === 'asteroid' ? ' +1 asteroid' : ''}${b.build === 'spire' || b.build === 'mega' ? ' +1 spire' : ''}</b><small>Each side adds a die (1–6). Ties go to the defender. Win to capture the sector.</small></div></div>`; }
+    if (d.from && d.to) { const a = hex(d.from), b = hex(d.to); body = `<div class="row"><div class="grow"><b>${a.fleets} Fleets vs ${b.fleets}${b.type === 'asteroid' ? ' +1 asteroid' : ''}${b.build === 'spire' || b.build === 'mega' ? ' +1 spire' : ''}</b><small>Each side adds a die (1–6) and applicable bonuses. Ties go to the defender. The losing side loses 1 Fleet. On capture, your Fleets move in, leaving one behind if possible.</small></div></div>`; }
     if (d.from) body += `<button class="btn small" id="pReset" style="margin-top:.5rem">Choose a different source</button>`;
     foot = cancel + `<button class="btn primary" id="pOk" ${d.to ? '' : 'disabled'}>Confirm</button>`;
     set('head', head); set('body', body); set('foot', foot); bindCommon();
@@ -995,7 +1000,7 @@ function renderMyMissions() {
   const done = priv.missions.filter(m => m.done).length, ready = priv.missions.filter(m => !m.done && m.met).length;
   h += `<h2 style="margin-top:${priv.surveyOffer ? '1.2rem' : 0}">Secret Missions</h2><p class="lead">Track progress here. The server checks Missions at the end of Reveal; your TV only shows them once scored.</p>
     <div class="mission-summary"><span>${done} of ${priv.missions.length} completed</span><span>${ready ? `${ready} ready to score` : 'Keep expanding'}</span></div>`;
-  if (priv.perks) h += '<p class="note bad">Advanced mode: each unfinished Mission costs 1 Influence at game end.</p>';
+  if (priv.perks) h += '<p class="note bad">Advanced mode: unfinished Missions cost a maximum of 1 Influence in total at game end.</p>';
   h += `<div class="list">${priv.missions.map(m => missionCard(m)).join('')}</div>`;
   set('head', h); set('body', '');
   document.querySelectorAll('[data-sv]').forEach(b => b.onclick = () => send({ t: 'survey', uid: b.dataset.sv }));
