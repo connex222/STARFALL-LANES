@@ -1,0 +1,4 @@
+node_modules/
+art-source/
+*.pyc
+__pycache__/

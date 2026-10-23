@@ -1,0 +1,55 @@
+name: Review Phase 1 migration
+on:
+  push:
+    branches: [review-phase1-repair]
+    paths:
+      - 'tools/migrate_review_phase1.py'
+      - '.github/workflows/review-phase1-migration.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  migrate-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install Pillow numpy scipy
+          npm install --no-audit --no-fund --no-package-lock
+      - name: Migrate and preserve premium audio
+        run: python3 tools/migrate_review_phase1.py
+      - name: Build and run full offline tests
+        run: npm test
+      - name: Verify footprint
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('public')
+          total=sum(f.stat().st_size for f in p.rglob('*') if f.is_file())
+          pics=list((p/'art/avatars').glob('*.webp'))
+          assert len(pics)==72,len(pics)
+          assert total<15*1024*1024,total
+          print(f'72 portraits verified, public footprint {total/1048576:.2f} MiB')
+          PY
+      - name: Commit verified migration on review branch
+        run: |
+          git config user.name 'starfall-phase1-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes'
+          else
+            git commit -m 'Review Phase 1: repair 72 portraits and tests'
+            git push origin HEAD:review-phase1-repair
+          fi

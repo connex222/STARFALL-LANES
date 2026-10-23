@@ -6,22 +6,13 @@
   "scripts": {
     "start": "node server.js",
     "build": "python3 build.py",
-    "test": "node test-sim.js",
-    "test:ui": "node test-ui-static.js && node test-phase4-ui.js && node test-phase5-cinematic.js",
-    "test:phase4": "node test-phase4-ui.js",
-    "test:phase5": "node test-phase5-cinematic.js",
-    "test:phase6": "node --test test-phase6-rules.js && node --test test-phase6-simulation.js",
-    "test:rules": "node --test test-phase6-rules.js",
-    "test:offline": "npm run test:ui && npm run test:phase6 && npm run test:phase7 && npm run test:phase8 && node test-phase9-quality.js && npm run test:phase10 && npm run test:portraits && npm run test:phase13 && npm run test:phase14",
-    "test:phase7": "node test-phase7-onboarding.js",
-    "test:phase8": "node test-phase8-accessibility.js",
-    "test:phase9": "node test-phase9-quality.js && node --test test-phase9-balance.js",
+    "test": "npm run build && npm run test:offline",
+    "test:offline": "node tests/test-ui-static.js && node tests/test-phase4-ui.js && node tests/test-phase5-cinematic.js && node --test tests/test-phase6-rules.js tests/test-phase6-simulation.js && node tests/test-phase7-onboarding.js && node tests/test-phase8-accessibility.js && node tests/test-phase9-quality.js && node --test tests/test-phase10-quality.js && node tests/test-era-portraits.js && node tests/test-phase13-assets.js && node tests/test-phase14-audio.js && node tests/test-phase15-release.js --require-premium",
+    "test:sim": "node --test tests/test-phase6-simulation.js",
+    "test:live": "node tests/live-game.js",
     "audit:avatars": "python3 tools/audit_portraits.py",
-    "test:phase10": "node --test test-phase10-quality.js",
-    "test:phase10:sim": "node --test test-phase10-balance.js",
-    "test:portraits": "node test-era-portraits.js",
-    "test:phase13": "node test-phase13-assets.js",
-    "test:phase14": "node test-phase14-audio.js"
+    "test:balance": "node --test tests/test-phase9-balance.js",
+    "test:legacy-sim": "node tests/test-sim.js"
   },
   "engines": {
     "node": ">=18"
