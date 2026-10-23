@@ -52,6 +52,8 @@ jobs:
           git apply /tmp/starfall-core.patch
           git apply --check /tmp/starfall-other.patch
           git apply /tmp/starfall-other.patch
+      - name: Install FFmpeg audio verification tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Install build-time dependencies
         run: npm install --no-audit --no-fund --no-package-lock
       - name: Rebuild generated TV and phone pages
