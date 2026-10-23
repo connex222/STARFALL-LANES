@@ -7,12 +7,14 @@ const os = require('os');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
 const Playtest = require('./lib/playtest');
+const RoomEngine = require('./lib/room-engine');
 
-// Balance and pacing controls. All new Phase 4 values are here.
+// Centralised balance, combat and reveal-pacing values (Phases 3–5).
 const TUNING = Object.freeze({
   tollPerLane: 1,          // Credits owed for each rival lane used
   longLaneMin: 3,         // Minimum segments for an Influence-scoring lane
-  longLaneInfluence: 1,   // Influence per long owned lane
+  longLaneInfluence: 1,   // Influence per long owned lane in Standard/Advanced
+  quickLongLaneInfluence: 2, // Quick-only lane Influence; can be tuned independently
   tradeRouteInfluence: 1, // Influence per connected pair of owned Trade Stations
   extraStations: 2,       // Map stations = max(6, player count + this value)
   quickCommands: 3,       // Normal commands per round in Quick mode
@@ -20,7 +22,17 @@ const TUNING = Object.freeze({
   revealCommandMs: 600,   // Normal reveal pause per command or independent batch
   revealStrikeMs: 1500,   // Normal reveal pause per Strike
   revealFastCommandMs: 250, // Host Fast setting: non-Strike
-  revealFastStrikeMs: 700   // Host Fast setting: Strike
+  revealFastStrikeMs: 700,  // Host Fast setting: Strike
+  maxMissionPenalty: 1,     // Advanced: at most 1 Influence lost for unfinished Missions
+  strikeLoserLoss: 1,       // Fleets lost by the defeated side of a Strike
+  captureMove: 'allButOne', // Winning attacker occupies target, leaving a source garrison if possible
+  captureSourceReserve: 1, // Fleets kept at launch sector if attacker has more than one
+  quickTarget: 10, standardTarget: 16, advancedTarget: 15, // Per-mode target Influence
+  balanceGamesPerConfiguration: 300, // Default bot samples per mode/player count
+  balanceTargetMinPct: 60, balanceTargetMaxPct: 95, // Review acceptance band
+  balanceFairnessMultiplier: 1.5, balanceMinHouseAppearances: 20, // Fairness warning limits
+  // Simulation-only overrides, never accepted by a production server.
+  ...(process.env.STARFALL_SIMULATION === '1' ? JSON.parse(process.env.STARFALL_SIM_TUNING || '{}') : {})
 });
 const PORT = process.env.PORT || 3000;
 const FAST = process.env.FAST === '1';
@@ -89,9 +101,9 @@ const UPGRADES = {
 };
 const ERA_NAMES = ['Frontier', 'Expansion', 'Ascension'];
 const MODES = {
-  quick: { name: 'Quick', rounds: 8, target: 10, plan: 60, eras: [1, 4, 7], events: false, perks: false },
-  standard: { name: 'Standard', rounds: 12, target: 15, plan: 90, eras: [1, 5, 9], events: false, perks: false },
-  advanced: { name: 'Advanced', rounds: 12, target: 15, plan: 90, eras: [1, 5, 9], events: true, perks: true }
+  quick: { name: 'Quick', rounds: 8, target: TUNING.quickTarget, plan: 60, eras: [1, 4, 7], events: false, perks: false },
+  standard: { name: 'Standard', rounds: 12, target: TUNING.standardTarget, plan: 90, eras: [1, 5, 9], events: false, perks: false },
+  advanced: { name: 'Advanced', rounds: 12, target: TUNING.advancedTarget, plan: 90, eras: [1, 5, 9], events: true, perks: true }
 };
 const CMD_TYPES = new Set(['found', 'spire', 'lane', 'fleet', 'research', 'strike']);
 
@@ -236,18 +248,9 @@ function clustersOk(hexes) {
 }
 
 // ───────────────────────── Rooms ─────────────────────────
+// The game keeps its original game-state shape; generic room lifecycle is reusable.
 const rooms = new Map();
-function newCode() {
-  const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  let c;
-  do { c = Array.from({ length: 4 }, () => L[rnd(L.length)]).join(''); } while (rooms.has(c));
-  return c;
-}
-function makeRoom() {
-  const room = { code: newCode(), tvToken: token(), tvs: new Set(), players: [], hostId: null, mode: 'standard', game: null, phase: 'lobby', playtestEnabled: false, revealSpeed: 'normal', touched: Date.now(), seq: 0 };
-  rooms.set(room.code, room);
-  return room;
-}
+const makeRoom = () => RoomEngine.makeRoom({ rooms, rnd, token });
 const avatarOf = p => AVATARS[p.avatar] || AVATARS[0];
 const nameOf = (room, pid) => { const p = room.players.find(x => x.id === pid); return p ? p.name : '?'; };
 
@@ -457,7 +460,7 @@ function tradeRouteCount(g, pid) {
   return pairs;
 }
 function routeScores(g, pid) {
-  return { lanes: lanesOf(g,pid).filter(l=>l.len>=TUNING.longLaneMin).length*TUNING.longLaneInfluence,
+  return { lanes: lanesOf(g,pid).filter(l=>l.len>=TUNING.longLaneMin).length*(g.mode==='quick' ? TUNING.quickLongLaneInfluence : TUNING.longLaneInfluence),
     tradeRoutes: tradeRouteCount(g,pid)*TUNING.tradeRouteInfluence };
 }
 function foundOk(g, pid, h) { return foundRoute(g, pid, h) !== null; }
@@ -478,7 +481,7 @@ function legal(g, room, pid) {
     if (strikeOk(g, room, pid, h, n)) L.strike.push([h.id, n.id]);
   }
   if (g.missionDeck.length) L.research.push('mission');
-  for (const k of g.leftoverUpgrades || []) if (!hasUp(g, pid, k)) L.research.push(k);
+  if (g.mode === 'advanced') for (const k of g.leftoverUpgrades || []) if (!hasUp(g, pid, k)) L.research.push(k);
   return L;
 }
 function connected(g, pid, a, b) {
@@ -632,6 +635,14 @@ async function eraPhase(room, eraIdx) {
   log(g, `The ${ERA_NAMES[eraIdx]} era begins.`);
   fx(g, { k: 'era', era: eraIdx });
   for (const p of room.players) if (eraIdx > 0 && hasUp(g, p.id, 'militia')) addFleets(g, p.id, 1);
+  // Quick and Standard retain chapter transitions but not the upgrade draft.
+  // Only Advanced offers choices; this also prevents Research buying leftovers.
+  if (g.mode !== 'advanced') {
+    g.eraOffer = []; g.eraPicks = {}; g.eraTurn = null;
+    sync(room);
+    await sleep(1500);
+    return;
+  }
   g.eraOffer = Object.keys(UPGRADES).filter(k => UPGRADES[k].era === eraIdx);
   g.eraPicks = {};
   // Picks are sequential, last place first. All three upgrades remain available to
@@ -1034,7 +1045,7 @@ function resolveCmd(room, pid, cmd) {
       if (!g.missionDeck.length) return fail(room, pid, cmd, 'no Missions left');
       pay(res, C.research); ps.missions.push(g.missionDeck.shift());
       log(g, `${who} researched a new Mission.`);
-    } else if (UPGRADES[cmd.choice] && (g.leftoverUpgrades || []).includes(cmd.choice) && !hasUp(g, pid, cmd.choice)) {
+    } else if (g.mode === 'advanced' && UPGRADES[cmd.choice] && (g.leftoverUpgrades || []).includes(cmd.choice) && !hasUp(g, pid, cmd.choice)) {
       pay(res, C.research); applyUpgrade(room, pid, cmd.choice);
     } else return fail(room, pid, cmd, 'that research is unavailable');
     ps.round.researched = true;
@@ -1063,28 +1074,34 @@ function resolveStrike(room, pid, cmd) {
   const win = A > D;
   const an = nameOf(room, pid), dn = nameOf(room, did);
   if (win) {
-    const atkLeft = Math.max(0, atkF - 1);
-    const defLoss = Math.ceil(defF / 2), defLeft = defF - defLoss;
-    from.fleets = 0;
+    // Keep one Fleet at the source when possible. Move the rest into the capture.
+    const reserve = TUNING.captureMove === 'allButOne' && atkF > 1 ? TUNING.captureSourceReserve : 0;
+    const moved = atkF - reserve;
+    const defLoss = Math.min(defF, TUNING.strikeLoserLoss), defLeft = defF - defLoss;
+    from.fleets = reserve;
     if (defLeft > 0) {
       const retreat = nbrs(g, to).filter(n => n.owner === did).sort((a, b) => b.fleets - a.fleets)[0];
       if (retreat) retreat.fleets += defLeft;
     }
-    to.owner = pid; to.fleets = atkLeft;
+    to.owner = pid; to.fleets = moved;
     if (to.build === 'spire' || to.build === 'mega') to.build = 'outpost';
     if (!to.build) to.build = 'outpost';
-    log(g, `${an} captured ${hexLabel(to)} from ${dn}! (${A} vs ${D})`);
+    log(g, `${an} captured ${hexLabel(to)} from ${dn}! (${A} vs ${D}); ${moved} Fleet${moved === 1 ? '' : 's'} moved in, ${defLoss} defender Fleet${defLoss === 1 ? '' : 's'} lost.`);
     mood(g, pid, 'smug'); mood(g, did, 'furious');
   } else {
-    const atkLoss = Math.ceil(atkF / 2);
+    const atkLoss = Math.min(atkF, TUNING.strikeLoserLoss);
     from.fleets = atkF - atkLoss;
-    to.fleets = Math.max(0, defF - 1);
-    log(g, `${dn} held ${hexLabel(to)} against ${an}. (${A} vs ${D})`);
+    // Victorious defenders suffer no losses; the attacker loses one Fleet.
+    to.fleets = defF;
+    log(g, `${dn} held ${hexLabel(to)} against ${an}. (${A} vs ${D}); ${atkLoss} attacker Fleet${atkLoss === 1 ? '' : 's'} lost.`);
     mood(g, did, 'smug'); mood(g, pid, 'furious');
   }
   g._playtestLastStrikeOutcome = win ? 'attacker won' : 'defender held';
   Playtest.strike(g, { attacker: pid, defender: did, from: from.id, to: to.id, attackerTotal: A, defenderTotal: D, attackerWon: win, attackerDie: ad, defenderDie: dd, reroll });
-  fx(g, { k: 'clash', pid, did, from: from.id, to: to.id, A, D, ad, dd, atkF, defF, atkB, defB, win, reroll });
+  fx(g, { k: 'clash', pid, did, from: from.id, to: to.id, A, D, ad, dd, atkF, defF, atkB, defB, win, reroll,
+    attackerLost: win ? 0 : Math.min(atkF, TUNING.strikeLoserLoss),
+    defenderLost: win ? Math.min(defF, TUNING.strikeLoserLoss) : 0,
+    moved: win ? to.fleets : 0, reserve: win ? from.fleets : 0 });
 }
 
 function updateTrophies(room) {
@@ -1112,7 +1129,7 @@ function endGame(room) {
   if (g.phase === 'over') return;
   const rows = room.players.map(p => {
     const inf = influence(g, p.id);
-    const penalty = g.M.perks ? P(g, p.id).missions.filter(m => !m.done).length : 0;
+    const penalty = g.M.perks ? Math.min(TUNING.maxMissionPenalty, P(g, p.id).missions.filter(m => !m.done).length) : 0;
     const ps = P(g, p.id);
     const station = owned(g, p.id).filter(h => h.type === 'station').reduce((total, h) => total + (h.build === 'mega' ? 4 : h.build === 'spire' ? 2 : 1), 0);
     const missions = ps.missions.filter(m => m.done).reduce((total, m) => total + m.inf + (hasUp(g, p.id, 'archive') ? 1 : 0), 0);
@@ -1346,7 +1363,7 @@ function pubState(room) {
     lanes: g.lanes.map(l => ({...l, toll: l.owner ? TUNING.tollPerLane : 0,
       scores: !!l.owner && l.len >= TUNING.longLaneMin})),
     routeTuning: { tollPerLane: TUNING.tollPerLane, longLaneMin: TUNING.longLaneMin,
-      longLaneInfluence: TUNING.longLaneInfluence, tradeRouteInfluence: TUNING.tradeRouteInfluence },
+      longLaneInfluence: g.mode==='quick' ? TUNING.quickLongLaneInfluence : TUNING.longLaneInfluence, tradeRouteInfluence: TUNING.tradeRouteInfluence },
     storm, ghost, twin, stormDir: g.storm.label, round: g.round, maxRounds: g.M.rounds, era: g.era,
     commandSlots: commandSlots(g.mode), revealSpeed: room.revealSpeed || 'normal', fxBatch: g.fxBatch,
     target: g.M.target, order: g.order, phase: g.phase, phaseEnds: g.phaseEnds, pool: g.pool, event: g.event,
@@ -1378,18 +1395,9 @@ function privState(room, p) {
 }
 function pubGhostHas(g, h) { if (stormOff(g, g.storm)) return false; return bandHas(Object.assign({}, g.storm, { pos: g.storm.pos + 1 }), h); }
 
-function send(ws, o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
+const send = RoomEngine.send;
 function sync(room) {
-  room.touched = Date.now();
-  // host repair
-  const host = room.players.find(p => p.id === room.hostId);
-  if (!host || (!host.ws && !host.bot)) {
-    const h = room.players.find(p => !p.bot && p.ws);
-    if (h) room.hostId = h.id; else if (!host) room.hostId = null;
-  }
-  const pub = pubState(room);
-  for (const ws of room.tvs) send(ws, { t: 'state', pub });
-  for (const p of room.players) if (p.ws) send(p.ws, { t: 'state', pub, priv: privState(room, p) });
+  return RoomEngine.sync(room, pubState, privState);
 }
 
 // ───────────────────────── Message handling ─────────────────────────
@@ -1397,33 +1405,7 @@ const CONSTS = { AVATARS, DRAFT, UPGRADES, EVENTS, ERA_NAMES, MODES, RES };
 function onMessage(ws, msg) {
   const t = msg && msg.t;
   if (t === 'ping') return send(ws, { t: 'pong' });
-  if (t === 'tvCreate' || t === 'tvJoin') {
-    let room = t === 'tvJoin' && rooms.get(String(msg.room || '').toUpperCase());
-    if (!room) room = makeRoom();
-    room.tvs.add(ws); ws.room = room; ws.role = 'tv';
-    send(ws, { t: 'welcome', role: 'tv', room: room.code, tvToken: room.tvToken, consts: CONSTS });
-    return sync(room);
-  }
-  if (t === 'join') {
-    const room = rooms.get(String(msg.room || '').toUpperCase().trim());
-    if (!room) return send(ws, { t: 'error', text: 'No game with that code. Check the code on the TV.' });
-    let p = msg.playerId && room.players.find(x => x.id === msg.playerId && x.token === msg.token);
-    if (!p) {
-      if (room.phase !== 'lobby') return send(ws, { t: 'error', text: 'That game has already started.' });
-      if (room.players.length >= 8) return send(ws, { t: 'error', text: 'That game is full (8 players).' });
-      const taken = new Set(room.players.map(x => x.avatar));
-      const av = [0, 1, 2, 3, 4, 5, 6, 7].find(i => !taken.has(i));
-      const name = String(msg.name || '').trim().slice(0, 14) || AVATARS[av].short;
-      p = { id: 'p' + token().slice(0, 8), token: token(), name, avatar: av, isAI: false, bot: false, ws: null };
-      room.players.push(p);
-      if (!room.hostId || !room.players.find(x => x.id === room.hostId)) room.hostId = p.id;
-    }
-    if (p.ws && p.ws !== ws) { const old = p.ws; send(old, { t: 'replaced' }); old.room = null; setTimeout(() => { try { old.close(); } catch (e) { } }, 200); }
-    p.ws = ws; if (!p.bot) p.isAI = false;
-    ws.room = room; ws.role = 'phone'; ws.pid = p.id;
-    send(ws, { t: 'welcome', role: 'phone', room: room.code, playerId: p.id, token: p.token, consts: CONSTS });
-    return sync(room);
-  }
+  if (RoomEngine.handleHandshake(ws, msg, { rooms, makeRoom, token, avatars: AVATARS, consts: CONSTS, sync, send })) return;
   const room = ws.room; if (!room) return;
   if (ws.role !== 'phone') return;
   const p = room.players.find(x => x.id === ws.pid); if (!p) return;
@@ -1431,33 +1413,15 @@ function onMessage(ws, msg) {
   const g = room.game;
 
   // ── Lobby ──
-  if (t === 'avatar' && room.phase === 'lobby') {
-    const i = msg.id | 0;
-    if (i >= 0 && i < 8 && !room.players.some(x => x.avatar === i && x !== p)) {
-      if (p.name === AVATARS[p.avatar].short) p.name = AVATARS[i].short;
-      p.avatar = i;
-    }
-    return sync(room);
-  }
-  if (t === 'name' && room.phase === 'lobby') { const n = String(msg.name || '').trim().slice(0, 14); if (n) p.name = n; return sync(room); }
+  if (RoomEngine.handleLobbyAction(room, p, msg, { avatars: AVATARS, token, sync, send })) return;
   if (t === 'mode' && isHost && room.phase === 'lobby' && MODES[msg.mode]) { room.mode = msg.mode; return sync(room); }
   if (t === 'revealSpeed' && isHost && (msg.speed === 'fast' || msg.speed === 'normal')) { room.revealSpeed = msg.speed; if (g) g.revealSpeed = room.revealSpeed; return sync(room); }
   if (t === 'playtestToggle' && isHost && room.phase === 'lobby' && typeof msg.enabled === 'boolean') { room.playtestEnabled = msg.enabled; return sync(room); }
-  if (t === 'addBot' && isHost && room.phase === 'lobby' && room.players.length < 8) {
-    const taken = new Set(room.players.map(x => x.avatar));
-    const av = [0, 1, 2, 3, 4, 5, 6, 7].find(i => !taken.has(i));
-    room.players.push({ id: 'b' + token().slice(0, 8), token: token(), name: AVATARS[av].short + ' (bot)', avatar: av, isAI: true, bot: true, ws: null });
-    return sync(room);
-  }
-  if (t === 'kick' && isHost && room.phase === 'lobby') {
-    const k = room.players.find(x => x.id === msg.pid);
-    if (k && k !== p) { room.players = room.players.filter(x => x !== k); if (k.ws) { send(k.ws, { t: 'kicked' }); k.ws.room = null; } }
-    return sync(room);
-  }
   if (t === 'start' && isHost && room.phase === 'lobby' && room.players.length >= 2) { startGame(room); return sync(room); }
   if (t === 'toAI' && isHost && g) {
-    const k = room.players.find(x => x.id === msg.pid);
-    if (k && k !== p) { k.isAI = !k.isAI; if (k.isAI && g.phase === 'plan' && !P(g, k.id).engaged) aiPlan(room, k.id); }
+    RoomEngine.toggleBotSeat(room, p.id, msg.pid, pid => {
+      if (g.phase === 'plan' && !P(g, pid).engaged) aiPlan(room, pid);
+    });
     return sync(room);
   }
   if (t === 'endGame' && isHost && g) { if (g.phase === 'over') { g.alive = false; room.game = null; room.phase = 'lobby'; } else { endGame(room); } return sync(room); }
@@ -1477,7 +1441,7 @@ function onMessage(ws, msg) {
     if (setupLegal(g, p.id).includes(msg.hex)) g.setupChoice = msg.hex;
     return;
   }
-  if (t === 'eraPick' && g.phase === 'era' && g.eraTurn === p.id && !g.eraPicks[p.id] && g.eraOffer.includes(msg.id)) { g.eraPicks[p.id] = msg.id; return sync(room); }
+  if (t === 'eraPick' && g.mode === 'advanced' && g.phase === 'era' && g.eraTurn === p.id && !g.eraPicks[p.id] && g.eraOffer.includes(msg.id)) { g.eraPicks[p.id] = msg.id; return sync(room); }
   if (t === 'survey' && g.phase === 'plan') { chooseSurvey(g, p.id, msg.uid); return sync(room); }
   if (t === 'plan' && g.phase === 'plan') {
     const cmds = Array.isArray(msg.cmds) ? msg.cmds.slice(0, commandSlots(g.mode)) : [];
@@ -1540,53 +1504,9 @@ function resolveOffer(room, o, accept) {
 }
 
 // ───────────────────────── HTTP + WS ─────────────────────────
-function lanIPs() {
-  const out = [];
-  for (const list of Object.values(os.networkInterfaces())) for (const i of list || []) if (i.family === 'IPv4' && !i.internal) out.push(i.address);
-  return out;
-}
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.json': 'application/json' };
-const server = http.createServer((req, res) => {
-  let url;
-  try { url = decodeURIComponent((req.url || '/').split('?')[0]); }
-  catch (_) { res.writeHead(400); return res.end('Invalid URL'); }
-  if (url === '/') { res.writeHead(302, { Location: '/tv.html' }); return res.end(); }
-  if (url === '/info') { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify({ ips: lanIPs(), port: PORT })); }
-  if (url === '/health') { res.writeHead(200); return res.end('ok'); }
-  const file = path.resolve(PUBLIC, '.' + url);
-  if (file !== PUBLIC && !file.startsWith(PUBLIC + path.sep)) { res.writeHead(403); return res.end(); }
-  fs.readFile(file, (err, data) => {
-    if (err) { res.writeHead(404); return res.end('Not found'); }
-    res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
-    res.end(data);
-  });
-});
-// Keep inbound packets bounded so one rogue controller cannot consume unbounded memory.
-const wss = new WebSocketServer({ server, maxPayload: 32 * 1024 });
-wss.on('connection', ws => {
-  ws.isAlive = true;
-  ws.on('pong', () => { ws.isAlive = true; });
-  ws.on('message', raw => {
-    let msg; try { msg = JSON.parse(raw); } catch (e) { return; }
-    if (!msg || typeof msg !== 'object' || Array.isArray(msg)) return;
-    try { onMessage(ws, msg); } catch (e) { console.error('message error', e); }
-  });
-  ws.on('error', err => { console.warn('WebSocket connection error:', err.message); });
-  ws.on('close', () => {
-    const room = ws.room; if (!room) return;
-    if (ws.role === 'tv') room.tvs.delete(ws);
-    if (ws.role === 'phone') { const p = room.players.find(x => x.id === ws.pid); if (p && p.ws === ws) p.ws = null; }
-    sync(room);
-  });
-});
-setInterval(() => { for (const ws of wss.clients) { if (!ws.isAlive) { ws.terminate(); continue; } ws.isAlive = false; try { ws.ping(); } catch (e) { } } }, 25000);
-setInterval(() => {
-  const now = Date.now();
-  for (const [code, room] of rooms) {
-    const anyone = room.tvs.size || room.players.some(p => p.ws);
-    if (!anyone && now - room.touched > 3 * 3600 * 1000) { if (room.game) room.game.alive = false; rooms.delete(code); }
-  }
-}, 10 * 60 * 1000);
+const lanIPs = RoomEngine.lanIPs;
+const server = RoomEngine.createHttpServer({ http, fs, path, publicDir: PUBLIC, port: PORT, os });
+const wss = RoomEngine.attachWebSockets({ WebSocketServer, server, rooms, onMessage, sync, logger: console, setTimer: setInterval });
 
 if (require.main === module) {
   server.listen(PORT, () => {

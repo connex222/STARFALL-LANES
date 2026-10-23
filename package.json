@@ -7,13 +7,18 @@
     "start": "node server.js",
     "build": "python3 build.py",
     "test": "npm run build && npm run test:offline",
-    "test:offline": "node tests/test-ui-static.js && node tests/test-phase4-ui.js && node tests/test-phase5-cinematic.js && node --test tests/test-phase6-rules.js tests/test-phase6-simulation.js && node tests/test-phase7-onboarding.js && node tests/test-phase8-accessibility.js && node tests/test-phase9-quality.js && node --test tests/test-phase10-quality.js && node tests/test-era-portraits.js && node tests/test-phase13-assets.js && node tests/test-phase14-audio.js && node tests/test-phase15-release.js --require-premium && node --test tests/test-phase2-playtest.js && node --test tests/test-phase3-routes.js && node --test tests/test-phase4-agency.js",
-    "test:sim": "node --test tests/test-phase6-simulation.js",
+    "test:offline": "node tests/test-ui-static.js && node tests/test-phase4-ui.js && node tests/test-phase5-cinematic.js && node --test tests/test-phase6-rules.js tests/test-phase6-simulation.js && node tests/test-phase7-onboarding.js && node tests/test-phase8-accessibility.js && node tests/test-phase9-quality.js && node --test tests/test-phase10-quality.js && node tests/test-era-portraits.js && node tests/test-phase13-assets.js && node tests/test-phase14-audio.js && node tests/test-phase15-release.js --require-premium && node --test tests/test-phase2-playtest.js && node --test tests/test-phase3-routes.js && node --test tests/test-phase4-agency.js && node --test tests/test-phase5-rules.js && node --test tests/test-phase6-balance.js",
+    "test:sim": "node tests/balance-sim.js",
     "test:live": "node tests/live-game.js",
     "audit:avatars": "python3 tools/audit_portraits.py",
     "test:balance": "node --test tests/test-phase9-balance.js",
     "test:legacy-sim": "node tests/test-sim.js",
-    "test:phase4": "node --test tests/test-phase4-agency.js"
+    "test:phase4": "node --test tests/test-phase4-agency.js",
+    "test:phase5": "node --test tests/test-phase5-rules.js",
+    "test:sim:smoke": "node --test tests/test-phase6-simulation.js",
+    "test:balance:merge": "node tests/merge-balance.js",
+    "test:architecture": "node --test tests/test-phase8-engine.js tests/test-phase9-connection.js",
+    "test:release": "npm test && npm run test:architecture && node tests/release-audit.js --report"
   },
   "engines": {
     "node": ">=18"

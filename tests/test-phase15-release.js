@@ -7,7 +7,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const root = require('node:path').join(__dirname,'..');
+const root = require('node:path').join(__dirname, '..');
 const file = name => path.join(root, name);
 const read = name => fs.readFileSync(file(name), 'utf8');
 const presence = name => assert.ok(fs.statSync(file(name)).isFile(), `Missing ${name}`);
@@ -26,9 +26,9 @@ for (const id of ids) for (const era of eras) for (const mood of moods) {
   const p = `public/art/avatars/${id}_${era}_${mood}.webp`;
   presence(p);
   const b = fs.readFileSync(file(p));
-  assert.ok(b.toString('ascii',0,4)==='RIFF' && b.toString('ascii',8,12)==='WEBP', `Invalid PNG: ${p}`);
-  assert.equal(b.readUInt16LE(26), 256, `${p} is not 512px wide`);
-  assert.equal(b.readUInt16LE(28), 256, `${p} is not 512px high`);
+  assert.equal(b.toString('ascii',0,4),'RIFF', `Invalid WebP ${p}`); assert.equal(b.toString('ascii',8,12),'WEBP',`Invalid WebP ${p}`);
+  assert.equal(b.readUInt16LE(26), 256, `${p} is not 256px wide`);
+  assert.equal(b.readUInt16LE(28), 256, `${p} is not 256px high`);
   count++;
 }
 assert.equal(count, 72);
@@ -46,8 +46,8 @@ assert.ok(read('public/tv.html').includes('musicToggle'), 'TV music controls mis
 assert.ok(read('public/tv.html').includes('duckMusic'), 'Sound priority mixing missing');
 assert.ok(read('public/phone.html').includes('phoneSound'), 'Phone mute controls missing');
 assert.ok(read('public/how-to-play.html').includes('How to Play'), 'How-to-play title missing');
-const server = read('server.js');
-assert.ok(server.includes("url === '/health'"), 'Render /health endpoint missing');
+const server = read('server.js')+read('lib/room-engine.js');
+assert.ok(server.includes("url==='/health'"), 'Render /health endpoint missing');
 assert.ok(server.includes('maxPayload'), 'WebSocket payload limits missing');
 assert.ok(server.includes('Cache-Control'), 'Static cache headers missing');
 const audio = {};

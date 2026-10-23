@@ -46,7 +46,7 @@ check('Source renderer embedded in both generated clients',()=>{
 });
 check('Optional sound-lab audition interface',()=>{const h=read('public/sound-lab.html');assert.ok(h.includes("new Audio('audio/'+id+'.mp3')"));assert.match(h,/aria-pressed/);});
 check('Phase 5 cinematic rendering remains separate from the authoritative gameplay server',()=>{
-  const server=read('server.js');
+  const server=read('server.js')+read('lib/room-engine.js');
   assert.match(server,/function resolveStrike\(/);
   assert.match(server,/function incomePhase\(/);
   assert.match(server,/new WebSocketServer\(/);

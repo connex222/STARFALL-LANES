@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const root = require('node:path').join(__dirname,'..');
+const root = require('node:path').join(__dirname, '..');
 const read = p => fs.readFileSync(path.join(root,p),'utf8');
 const tests = [];
 function check(label,fn){fn(); tests.push(label); console.log('✓ '+label);}
@@ -44,7 +44,7 @@ check('Responsive mobile artwork and screen-specific guides',()=>{
   assert.match(read('public/info.css'),/@media\(max-width:600px\)/);
 });
 check('Server-authoritative game untouched, static resources accessible',()=>{
-  const t=read('server.js'); assert.match(t,/new WebSocketServer/);assert.match(t,/\.css/);assert.match(t,/\.mp3/);
+  const t=read('server.js')+read('lib/room-engine.js'); assert.match(t,/new WebSocketServer/);assert.match(t,/\.css/);assert.match(t,/\.mp3/);
   for(const page of ['tv.html','phone.html','how-to-play.html','lore.html','sound-lab.html']) assert.ok(fs.existsSync(path.join(root,'public',page)));
 });
 console.log(`Phase 7 onboarding checks passed: ${tests.length}`);

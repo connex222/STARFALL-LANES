@@ -1,0 +1,64 @@
+{
+  "schema": "starfall.balance.v1",
+  "generatedAt": "2026-10-23T13:14:42.197Z",
+  "seed": 816010,
+  "profile": "baseline",
+  "tuningOverrides": {},
+  "gamesPerConfig": 12,
+  "totalGames": 12,
+  "groups": [
+    {
+      "mode": "standard",
+      "players": 4,
+      "games": 12,
+      "target": 16,
+      "targetReachedPct": 100,
+      "meanRounds": 10.5,
+      "medianRounds": 10.5,
+      "meanWinningInfluence": 17.3333,
+      "firstPlayerWinPct": 16.67,
+      "winRatesBySeat": [
+        0.25,
+        0.0833,
+        0.25,
+        0.4167
+      ],
+      "winRatesByHouse": {
+        "kaia": 0.2,
+        "zibzob": 0.1667,
+        "oolu": 0.1429,
+        "vex": 0.375,
+        "pyrrhus": 0,
+        "nim": 0.3333,
+        "skrill": 0.4,
+        "bramble": 0.5
+      },
+      "houseAppearances": {
+        "kaia": 5,
+        "zibzob": 6,
+        "oolu": 7,
+        "vex": 8,
+        "pyrrhus": 7,
+        "nim": 6,
+        "skrill": 5,
+        "bramble": 4
+      },
+      "failedCommandPct": 7.52,
+      "meanTollCreditsPaid": 7.8333,
+      "meanInfluenceBySource": {
+        "stations": 2.9583,
+        "lanes": 1.1875,
+        "tradeRoutes": 0.3542,
+        "missions": 6.5625,
+        "trophies": 0.9583,
+        "bonuses": 0,
+        "barons": 0.1042,
+        "penalty": 0
+      },
+      "flags": [
+        "Target reached in 100%, above 95%"
+      ]
+    }
+  ],
+  "elapsedSeconds": 0.74
+}

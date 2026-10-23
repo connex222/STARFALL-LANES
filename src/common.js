@@ -34,20 +34,6 @@ function costHTML(c) {
   const parts = Object.entries(c || {}).filter(([, v]) => v > 0).map(([k, v]) => `<span class="cost res-${k}">${v}${ricon(k)}</span>`);
   return parts.length ? parts.join('') : '<span class="cost">Free</span>';
 }
-function Conn(onMsg, onOpen, onStatus) {
-  let ws, ping, stopped = false;
-  function open() {
-    ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
-    ws.onopen = () => { onStatus && onStatus(true); onOpen(send); clearInterval(ping); ping = setInterval(() => send({ t: 'ping' }), 20000); };
-    ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (x) { return; } onMsg(m); };
-    ws.onclose = () => { clearInterval(ping); if (stopped) return; onStatus && onStatus(false); setTimeout(open, 1500); };
-  }
-  function stop() { stopped = true; try { ws.close(); } catch (e) { } }
-  function restart() { if (!stopped) return; stopped = false; open(); }
-  function send(o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
-  open();
-  return { send, stop, restart };
-}
 function clockFrom(pub) {
   const off = pub.now - Date.now();
   return () => Date.now() + off;
