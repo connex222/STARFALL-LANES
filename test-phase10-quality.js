@@ -73,5 +73,5 @@ test('Phone and TV explain scoring and preserve help, lore and sound features',(
   assert.match(fs.readFileSync('public/phone.html','utf8'),/score-detail summary/);
   assert.ok(fs.existsSync('public/how-to-play.html'));
   assert.ok(fs.existsSync('public/lore.html'));
-  assert.equal(fs.readdirSync('public/audio').filter(f=>f.endsWith('.mp3')).length,9);
+  assert.equal(fs.readdirSync('public/audio').filter(f=>f.endsWith('.mp3')).length,10);
 });

@@ -182,3 +182,17 @@ Run `npm run test:offline` and `npm run test:phase10:sim` for the two test group
 - `npm run audit:avatars`: 24/72 image variants present and valid (three era-neutral images for each leader), with 48 expression-specific images outstanding (Smug and Furious × three eras × eight leaders). The 8 Ascension-specific costume paintings, as distinct artwork rather than era composites, also remain desirable production upgrades.
 - `npm run test:portraits` verifies all 24 filenames and PNG dimensions, source renderer behaviour, and the TV/phone generated screens. Tests and audio from the existing game remain bundled.
 - No gameplay or network rules were changed by this artwork update. Real-device TV/phone acceptance testing is still required.
+
+## Character update — Batch 3
+
+Eight new Smug portraits are included with three era-based visual treatments each. See `PHASE-12-SMUG-INTEGRATION.md`. The final Furious art batch is outstanding.
+
+## Batch 4 character and sound update (October 2026)
+
+- 72 512×512 character portraits are bundled: eight leaders, Frontier/Expansion/Ascension, Neutral/Smug/Furious. The 24 Furious files derive from eight new Furious character paintings with distinct era visual treatments.
+- `public/audio/command-bridge-theme.mp3`: original 90-second instrumental backing music. Enable TV sound, then use the independent Music button. The game remembers the preferred music setting; effects remain opt-in and phone-local.
+- `public/sound-lab.html`: preview all ten audio tracks independently.
+- Nine premium sound effects have been generated using Mirelo, but provider downloads were blocked within the authoring workspace. Existing bundled effects remain playable. On a networked computer, `python tools/download_mirelo_audio.py` installs the new sounds before their signed links expire on **29 October 2026**. Check successful results and redeploy.
+- Sonilo's text-to-music trial was already exhausted; the new score is an original local synth composition, not a Sonilo deliverable.
+- `npm run test:phase13` checks portraits, music length/channels, TV/phone integration and Sound Lab. `npm run test:offline` includes it.
+- See `PHASE-13-AUDIO-AND-FURIOUS.md` for limits, provenance and asset import steps.
