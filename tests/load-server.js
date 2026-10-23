@@ -2,12 +2,14 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { createRequire } = require('node:module');
 
 // Production still requires `ws`. This test-only loader uses a tiny inert stand-in
 // so server rules can be exercised on an isolated VM without npm/network access.
 module.exports = function loadServer(seed = 0x57A6FA11) {
   const filename = path.join(__dirname, '..', 'server.js');
   const intervals = [];
+  const serverRequire = createRequire(filename);
   const math = Object.create(Math);
   math.random = () => {
     seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
@@ -18,7 +20,7 @@ module.exports = function loadServer(seed = 0x57A6FA11) {
     on() { return this; }
   }
   const context = {
-    require(id) { return id === 'ws' ? { WebSocketServer: StubWebSocketServer } : require(id); },
+    require(id) { return id === 'ws' ? { WebSocketServer: StubWebSocketServer } : serverRequire(id); },
     module: { exports: {} }, exports: {},
     __dirname: path.dirname(filename), __filename: filename,
     process: { env: { ...process.env, FAST: '1' } },

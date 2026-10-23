@@ -6,7 +6,22 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
+const Playtest = require('./lib/playtest');
 
+// Balance and pacing controls. All new Phase 4 values are here.
+const TUNING = Object.freeze({
+  tollPerLane: 1,          // Credits owed for each rival lane used
+  longLaneMin: 3,         // Minimum segments for an Influence-scoring lane
+  longLaneInfluence: 1,   // Influence per long owned lane
+  tradeRouteInfluence: 1, // Influence per connected pair of owned Trade Stations
+  extraStations: 2,       // Map stations = max(6, player count + this value)
+  quickCommands: 3,       // Normal commands per round in Quick mode
+  regularCommands: 2,     // Normal commands in Standard and Advanced
+  revealCommandMs: 600,   // Normal reveal pause per command or independent batch
+  revealStrikeMs: 1500,   // Normal reveal pause per Strike
+  revealFastCommandMs: 250, // Host Fast setting: non-Strike
+  revealFastStrikeMs: 700   // Host Fast setting: Strike
+});
 const PORT = process.env.PORT || 3000;
 const FAST = process.env.FAST === '1';
 const SPEED = FAST ? 0.004 : 1;
@@ -130,8 +145,12 @@ function compass(dx, dy) {
 }
 
 // ───────────────────────── Map generation ─────────────────────────
-function genMap(size) {
+function genMap(size, playerCount = null) {
   const spec = MAPS[size], R = spec.R;
+  const stationCount = playerCount == null ? spec.counts.station : Math.max(6, playerCount + TUNING.extraStations);
+  // Keep the total number of hexes fixed; trade excess Void hexes for stations.
+  const counts = { ...spec.counts, station: stationCount, void: spec.counts.void + spec.counts.station - stationCount };
+  if (counts.void < 0 || stationCount > STATION_NAMES.length) throw new RangeError('Too many stations for this map');
   const all = [];
   for (let q = -R; q <= R; q++) for (let r = -R; r <= R; r++) if (Math.abs(q + r) <= R) all.push({ q, r });
   let best = null;
@@ -143,19 +162,19 @@ function genMap(size) {
     // stations: not adjacent to each other or the beacon
     const stations = [];
     for (const h of free) {
-      if (stations.length >= spec.counts.station) break;
+      if (stations.length >= counts.station) break;
       if (hdist(h, { q: 0, r: 0 }) < 2) continue;
       if (stations.some(s => hdist(s, h) < 2)) continue;
       stations.push(h);
     }
-    if (stations.length < spec.counts.station) continue;
+    if (stations.length < counts.station) continue;
     const names = shuffle(STATION_NAMES.slice());
     stations.forEach((s, i) => { s.type = 'station'; s.name = names[i]; });
     const rest = free.filter(h => !h.type);
     let ok = false;
     for (let t = 0; t < 80 && !ok; t++) {
       const bag = [];
-      for (const k of ['rock', 'ice', 'crystal', 'gas', 'asteroid', 'void']) for (let i = 0; i < spec.counts[k]; i++) bag.push(k);
+      for (const k of ['rock', 'ice', 'crystal', 'gas', 'asteroid', 'void']) for (let i = 0; i < counts[k]; i++) bag.push(k);
       shuffle(bag);
       rest.forEach((h, i) => { h.type = bag[i]; });
       ok = clustersOk(hexes);
@@ -225,7 +244,7 @@ function newCode() {
   return c;
 }
 function makeRoom() {
-  const room = { code: newCode(), tvToken: token(), tvs: new Set(), players: [], hostId: null, mode: 'standard', game: null, phase: 'lobby', touched: Date.now(), seq: 0 };
+  const room = { code: newCode(), tvToken: token(), tvs: new Set(), players: [], hostId: null, mode: 'standard', game: null, phase: 'lobby', playtestEnabled: false, revealSpeed: 'normal', touched: Date.now(), seq: 0 };
   rooms.set(room.code, room);
   return room;
 }
@@ -235,7 +254,7 @@ const nameOf = (room, pid) => { const p = room.players.find(x => x.id === pid); 
 // ───────────────────────── Game setup ─────────────────────────
 function startGame(room) {
   const n = room.players.length;
-  const m = genMap(n <= 4 ? 'small' : 'large');
+  const m = genMap(n <= 4 ? 'small' : 'large', n);
   const mode = MODES[room.mode];
   const g = {
     alive: true, R: m.R, hexes: m.hexes, lanes: m.lanes, mode: room.mode, M: mode,
@@ -243,9 +262,11 @@ function startGame(room) {
     phase: 'missions', phaseEnds: 0, draftDeck: [], draftDiscard: [], pool: [],
     missionDeck: [], eventDeck: [], event: null, ps: {}, trophies: { network: null, armada: null },
     log: [], fx: null, fxSeq: 0, setupTurn: null, eraOffer: [], eraPicks: {}, leftoverUpgrades: [], offers: [], offerSeq: 0,
-    results: null, moods: {}, uid: 0, incomeShow: null, eraTurn: null
+    results: null, moods: {}, uid: 0, incomeShow: null, eraTurn: null, revealSpeed: room.revealSpeed || 'normal', fxBatch: null
   };
   room.game = g; room.phase = 'game';
+  g.playtest = Playtest.create(room, g);
+  if (g.playtest) Playtest.setPhase(g, 'missions');
   g.storm = spawnStorm(g, true);
   // decks
   for (const [k, d] of Object.entries(DRAFT)) for (let i = 0; i < d.n; i++) g.draftDeck.push({ uid: 'd' + (g.uid++), key: k });
@@ -255,14 +276,20 @@ function startGame(room) {
   for (const p of room.players) {
     g.ps[p.id] = {
       res: { ore: 1, ice: 1, crystal: 1, plasma: 1, credits: 2 }, missions: [], missionOffer: [], held: [], kept: [],
-      upgrades: [], bonusInf: 0, plan: emptyPlan(), engaged: false, offersSent: 0, vexUsed: false, surveyOffer: null,
+      upgrades: [], bonusInf: 0, plan: emptyPlan(room.mode), engaged: false, backupUsed: false, offersSent: 0, vexUsed: false, surveyOffer: null,
       pendingMega: false, megaDone: false, round: {}, keepDone: false
     };
   }
   setOrder(room);
   runGame(room).catch(e => { console.error('game error', e); });
 }
-function emptyPlan() { return { cmds: [null, null], rank: [], play: [], supply: null }; }
+function commandSlots(mode) { return mode === 'quick' ? TUNING.quickCommands : TUNING.regularCommands; }
+function emptyPlan(mode = 'standard') { return { cmds: Array(commandSlots(mode)).fill(null), backup: null, rank: [], play: [], supply: null }; }
+function revealPause(room, strike=false) {
+  const fast = room.revealSpeed === 'fast';
+  return strike ? (fast ? TUNING.revealFastStrikeMs : TUNING.revealStrikeMs)
+    : (fast ? TUNING.revealFastCommandMs : TUNING.revealCommandMs);
+}
 function setOrder(room) {
   const g = room.game, ids = room.players.map(p => p.id);
   g.order = ids.slice(g.firstIdx % ids.length).concat(ids.slice(0, g.firstIdx % ids.length));
@@ -335,15 +362,105 @@ function laneCost(g, pid, l, warp) {
   const segs = Math.max(0, l.len - (warp ? 1 : 0));
   return { ore: Math.max(0, segs - (hasUp(g, pid, 'autominers') ? 1 : 0)), plasma: segs };
 }
-function foundOk(g, pid, h) {
-  if (!h || !CLAIMABLE.has(h.type) || h.owner) return false;
-  if (nbrs(g, h).some(n => n.owner === pid)) return true;
-  for (const l of lanesOf(g, pid)) {
-    const cells = [l.a, l.b, ...l.path];
-    for (const c of cells) { const x = g.hexes[c]; if (x.id === h.id || hdist(x, h) === 1) return true; }
+// Lowest-toll routes are found server-side. Only owned sectors connect for
+// free on foot; unused lanes never create shortcuts. Ties prefer fewer edges.
+function reachableRoutes(g, pid, starts) {
+  const adj = new Map();
+  const add = (a, b, lane, paid) => {
+    if (!adj.has(a)) adj.set(a, []);
+    adj.get(a).push({ to: b, lane, paid });
+  };
+  const myHexes = owned(g, pid);
+  for (const h of myHexes) for (const n of nbrs(g, h)) if (n.owner === pid) add(h.id, n.id, null, false);
+  for (const l of g.lanes) {
+    if (!l.owner) continue;
+    const paid = l.owner !== pid;
+    add(l.a, l.b, l.id, paid);
+    add(l.b, l.a, l.id, paid);
   }
-  return false;
+  const best = new Map();
+  const work = [...new Set(starts)].map(id => ({ id, lanes: [], cost: 0, steps: 0 }));
+  while (work.length) {
+    work.sort((a, b) => a.cost - b.cost || a.steps - b.steps || a.id.localeCompare(b.id));
+    const cur = work.shift();
+    const prior = best.get(cur.id);
+    if (prior && (prior.cost < cur.cost || (prior.cost === cur.cost && prior.steps <= cur.steps))) continue;
+    best.set(cur.id, cur);
+    for (const e of adj.get(cur.id) || []) {
+      const cost = cur.cost + (e.paid ? TUNING.tollPerLane : 0);
+      const steps = cur.steps + 1;
+      const prev = best.get(e.to);
+      if (!prev || cost < prev.cost || (cost === prev.cost && steps < prev.steps))
+        work.push({ id: e.to, cost, steps, lanes: e.paid ? [...cur.lanes, e.lane] : cur.lanes });
+    }
+  }
+  return best;
 }
+function foundRoute(g, pid, h) {
+  if (!h || !CLAIMABLE.has(h.type) || h.owner) return null;
+  // Adjacent worlds and existing owned hyperlanes are free, as before.
+  if (nbrs(g, h).some(n => n.owner === pid)) return { cost: 0, lanes: [] };
+  for (const l of lanesOf(g, pid)) {
+    if ([l.a, l.b, ...l.path].some(id => id === h.id || hdist(g.hexes[id], h) === 1))
+      return { cost: 0, lanes: [] };
+  }
+  const reachable = reachableRoutes(g, pid, owned(g, pid).map(x => x.id));
+  let choice = null;
+  for (const l of g.lanes) {
+    if (!l.owner || l.owner === pid) continue;
+    if (![l.a, l.b, ...l.path].some(id => id === h.id || hdist(g.hexes[id], h) === 1)) continue;
+    for (const endpoint of [l.a, l.b]) {
+      const approach = reachable.get(endpoint);
+      if (!approach) continue;
+      const lanes = [...new Set([...approach.lanes, l.id])];
+      const cost = lanes.length * TUNING.tollPerLane;
+      if (!choice || cost < choice.cost || (cost === choice.cost && lanes.length < choice.lanes.length)) choice = { cost, lanes };
+    }
+  }
+  return choice;
+}
+function missionRoute(g, pid, m) {
+  if (m.type !== 'link' && m.type !== 'beacon') return null;
+  const best = reachableRoutes(g, pid, [m.a]);
+  const route = best.get(m.b);
+  return route ? { cost: route.cost, lanes: route.lanes } : null;
+}
+function settleTolls(room, pid, route, reason) {
+  if (!route || !canPay(P(room.game, pid).res, { credits: route.cost })) return false;
+  const g = room.game;
+  P(g, pid).res.credits -= route.cost;
+  for (const id of new Set(route.lanes)) {
+    const lane = g.lanes.find(l => l.id === id);
+    if (!lane || !lane.owner || lane.owner === pid) continue;
+    P(g, lane.owner).res.credits += TUNING.tollPerLane;
+    log(g, `${nameOf(room, pid)} paid ${TUNING.tollPerLane} Credit toll to ${nameOf(room, lane.owner)} for ${reason}.`);
+    if (g.playtest) (g.playtest.tolls ||= []).push({ round: g.round, from: pid, to: lane.owner, lane: id, credits: TUNING.tollPerLane, reason });
+  }
+  return true;
+}
+function tradeRouteCount(g, pid) {
+  // Each pair of owned Trade Stations linked by OWN lanes scores once.
+  const adj = new Map();
+  const add = (a,b) => { if (!adj.has(a)) adj.set(a, []); adj.get(a).push(b); };
+  for (const l of lanesOf(g,pid)) { add(l.a,l.b); add(l.b,l.a); }
+  const visited=new Set(); let pairs=0;
+  for (const start of adj.keys()) {
+    if (visited.has(start)) continue;
+    const stack=[start]; visited.add(start); let stations=0;
+    while(stack.length) {
+      const id=stack.pop(), h=g.hexes[id];
+      if (h && h.type==='station' && h.owner===pid) stations++;
+      for(const n of adj.get(id)||[]) if(!visited.has(n)) { visited.add(n); stack.push(n); }
+    }
+    pairs+=stations*(stations-1)/2;
+  }
+  return pairs;
+}
+function routeScores(g, pid) {
+  return { lanes: lanesOf(g,pid).filter(l=>l.len>=TUNING.longLaneMin).length*TUNING.longLaneInfluence,
+    tradeRoutes: tradeRouteCount(g,pid)*TUNING.tradeRouteInfluence };
+}
+function foundOk(g, pid, h) { return foundRoute(g, pid, h) !== null; }
 function strikeOk(g, room, pid, from, to) {
   if (!from || !to || from.owner !== pid || from.fleets < 1) return false;
   if (!to.owner || to.owner === pid || hdist(from, to) !== 1 || inStorm(g, to)) return false;
@@ -352,8 +469,8 @@ function strikeOk(g, room, pid, from, to) {
 }
 function legal(g, room, pid) {
   const mine = owned(g, pid);
-  const L = { found: [], spire: [], lane: [], fleetPlace: mine.map(h => h.id), move: [], strike: [], research: [], shields: mine.map(h => h.id) };
-  for (const h of Object.values(g.hexes)) if (foundOk(g, pid, h)) L.found.push(h.id);
+  const L = { found: [], foundTolls: {}, spire: [], lane: [], fleetPlace: mine.map(h => h.id), move: [], strike: [], research: [], shields: mine.map(h => h.id) };
+  for (const h of Object.values(g.hexes)) { const r = foundRoute(g,pid,h); if (r) { L.found.push(h.id); L.foundTolls[h.id] = r.cost; } }
   for (const h of mine) if (h.type === 'station' && h.build === 'outpost') L.spire.push(h.id);
   for (const l of g.lanes) if (!l.owner && [l.a, l.b].some(e => g.hexes[e].type === 'station' && g.hexes[e].owner === pid)) L.lane.push(l.id);
   for (const h of mine) for (const n of nbrs(g, h)) {
@@ -378,7 +495,7 @@ function connected(g, pid, a, b) {
 function missionMet(g, pid, m) {
   const mine = owned(g, pid);
   switch (m.type) {
-    case 'link': case 'beacon': return connected(g, pid, m.a, m.b);
+    case 'link': case 'beacon': { const route = missionRoute(g,pid,m); return !!route && canPay(P(g,pid).res,{credits:route.cost}); }
     case 'hold': return mine.filter(h => h.type === m.world).length >= 3;
     case 'spires': return mine.filter(h => h.build === 'spire' || h.build === 'mega').length >= 2;
     case 'lanes': return lanesOf(g, pid).length >= 3;
@@ -408,7 +525,8 @@ function influence(g, pid) {
     if (c.key === 'icebaron' && mine.filter(h => h.type === 'ice').length >= 3) v++;
     if (c.key === 'crystalbaron' && mine.filter(h => h.type === 'crystal').length >= 3) v++;
   }
-  return v;
+  const routes=routeScores(g,pid);
+  return v + routes.lanes + routes.tradeRoutes;
 }
 function laneSegs(g, pid) { return lanesOf(g, pid).reduce((s, l) => s + l.len, 0); }
 function rates(g, room, pid) {
@@ -425,7 +543,10 @@ function rates(g, room, pid) {
 
 // ───────────────────────── Effects / log ─────────────────────────
 function log(g, text) { g.log.push(text); if (g.log.length > 40) g.log.shift(); }
-function fx(g, o) { g.fx = Object.assign({ seq: ++g.fxSeq }, o); }
+function fx(g, o) {
+  g.fx = Object.assign({ seq: ++g.fxSeq }, o);
+  if (g._fxCapture) g._fxCapture.push(g.fx);
+}
 function mood(g, pid, m) { g.moods[pid] = { m, until: Date.now() + 7000 }; }
 
 // ───────────────────────── Game loop ─────────────────────────
@@ -454,12 +575,12 @@ async function runGame(room) {
     ps.missionOffer = keep;
     ps.keepDone = true;
   } }
-  g.phase = 'missions';
+  Playtest.setPhase(g, 'missions');
   await waitFor(room, 30000, () => room.players.every(p => P(g, p.id).keepDone || p.isAI));
   if (!live(room, g)) return;
   for (const p of room.players) { const ps = P(g, p.id); ps.missions = ps.missionOffer; ps.missionOffer = []; }
   // 2. Snake placement
-  g.phase = 'setup';
+  Playtest.setPhase(g, 'setup');
   const snake = g.order.concat(g.order.slice().reverse());
   for (const pid of snake) {
     g.setupTurn = pid; g.setupChoice = null;
@@ -476,6 +597,7 @@ async function runGame(room) {
   // 3. Rounds
   for (let rd = 1; rd <= g.M.rounds; rd++) {
     g.round = rd;
+    Playtest.beginRound(room, influence);
     if (!live(room, g)) return;
     if (g.round > 1) { g.firstIdx = (g.firstIdx + 1) % room.players.length; setOrder(room); }
     const eraIdx = g.M.eras.indexOf(g.round);
@@ -483,6 +605,7 @@ async function runGame(room) {
     await incomePhase(room); if (!live(room, g)) return;
     await planPhase(room); if (!live(room, g)) return;
     await revealPhase(room); if (!live(room, g)) return;
+    Playtest.endRound(room, influence);
     const target = g.M.target;
     if (room.players.some(p => influence(g, p.id) >= target)) break;
   }
@@ -505,7 +628,7 @@ function eraPickOrder(room) {
 }
 async function eraPhase(room, eraIdx) {
   const g = room.game;
-  g.phase = 'era';
+  Playtest.setPhase(g, 'era');
   log(g, `The ${ERA_NAMES[eraIdx]} era begins.`);
   fx(g, { k: 'era', era: eraIdx });
   for (const p of room.players) if (eraIdx > 0 && hasUp(g, p.id, 'militia')) addFleets(g, p.id, 1);
@@ -553,7 +676,7 @@ function applyUpgrade(room, pid, k) {
 
 async function incomePhase(room) {
   const g = room.game;
-  g.phase = 'income';
+  Playtest.setPhase(g, 'income');
   // record storm cover from last round, then move
   for (const h of Object.values(g.hexes)) h.stormPrev = inStorm(g, h);
   g.twin = null;
@@ -628,7 +751,7 @@ async function incomePhase(room) {
 
 async function planPhase(room) {
   const g = room.game;
-  g.phase = 'plan';
+  Playtest.setPhase(g, 'plan');
   g.incomeShow = null;
   // Draft pool
   g.pool = [];
@@ -639,12 +762,12 @@ async function planPhase(room) {
   }
   for (const p of room.players) {
     const ps = P(g, p.id);
-    ps.plan = emptyPlan(); ps.engaged = false;
+    ps.plan = emptyPlan(g.mode); ps.backupUsed = false; ps.engaged = false;
     if (p.isAI) aiPlan(room, p.id);
   }
   await waitFor(room, g.M.plan * 1000, () => room.players.every(p => P(g, p.id).engaged || p.isAI));
   // close any pending offers
-  for (const o of g.offers) o.status = o.status || 'expired';
+  for (const o of g.offers) if (!o.status) { o.status = 'expired'; Playtest.trade(g, 'offer_resolved', { id: o.id, from: o.from, to: o.to, status: 'expired' }); }
   g.offers = [];
   for (const p of room.players) {
     const ps = P(g, p.id);
@@ -655,9 +778,60 @@ async function planPhase(room) {
   }
 }
 
+// Only group orders whose sectors and lanes cannot overlap. Research/Found
+// can access global/shared routes and therefore always get their own update.
+function independentFootprint(g, cmd, backup=null) {
+  if (!cmd || !['spire','lane','fleet'].includes(cmd.type)) return null;
+  if (backup && !['spire','lane','fleet'].includes(backup.type)) return null;
+  const footprint = c => {
+    if (!c) return [];
+    if (c.type === 'spire') return [c.target];
+    if (c.type === 'fleet') return [c.place,c.move?.from,c.move?.to].filter(Boolean);
+    if (c.type === 'lane') {
+      const l = g.lanes.find(x=>x.id===c.lane);
+      return l ? [l.a,l.b,...(l.path||[]),`lane:${l.id}`] : null;
+    }
+    return null;
+  };
+  const one=footprint(cmd), two=footprint(backup);
+  return one && (backup==null || two) ? new Set([...(one||[]),...(two||[])]) : null;
+}
+
+// A backup is free to queue but pays normally if used. An unsuccessful
+// primary order receives its +1 Credit only if the backup also fails (or
+// none was queued). No duplicate refund and no additional command slot.
+function executePlannedOrder(room,pid,cmd,slot) {
+  const g=room.game, ps=P(g,pid);
+  const backup=ps.plan.backup && !ps.backupUsed ? ps.plan.backup : null;
+  const run=c=> {
+    g._playtestLastFailure=null; g._playtestLastStrikeOutcome=null;
+    if(c.type==='strike') resolveStrike(room,pid,c);
+    else resolveCmd(room,pid,c);
+    return {failure:g._playtestLastFailure,strike:g._playtestLastStrikeOutcome};
+  };
+  g._backupResolution=!!backup;
+  try {
+    const first=run(cmd);
+    Playtest.command(g,pid,slot,cmd,first.failure,first.strike);
+    if (!first.failure || !backup) return {success:!first.failure,backupUsed:false};
+    ps.backupUsed=true;
+    log(g,`${nameOf(room,pid)} is attempting their Backup order after command ${slot} failed.`);
+    fx(g,{k:'backup',pid,slot});
+    const second=run(backup);
+    Playtest.command(g,pid,`backup-${slot}`,backup,second.failure,second.strike);
+    if (second.failure) {
+      ps.res.credits+=1;
+      log(g,`${nameOf(room,pid)}'s Backup also failed. (+1 Credit)`);
+    } else {
+      log(g,`${nameOf(room,pid)}'s Backup succeeded in slot ${slot}.`);
+    }
+    return {success:!second.failure,backupUsed:true};
+  } finally { g._backupResolution=false; }
+}
+
 async function revealPhase(room) {
   const g = room.game;
-  g.phase = 'reveal';
+  Playtest.setPhase(g, 'reveal');
   sync(room);
   await sleep(900);
   // 1. Draft
@@ -693,33 +867,58 @@ async function revealPhase(room) {
     }
   }
   sync(room);
-  // 3. Commands
+  // 3. Commands: authoritative resolution stays sequential. Only independent
+  // visual effects are sent in a single batch, avoiding needless TV waits.
   const strikes = [];
-  for (const i of [0, 1]) {
-    for (const pid of g.order) {
-      const cmd = P(g, pid).plan.cmds[i];
-      if (!cmd) continue;
-      if (cmd.type === 'strike') { strikes.push({ pid, cmd }); continue; }
-      resolveCmd(room, pid, cmd);
+  for (let i = 0; i < commandSlots(g.mode); i++) {
+    let batch = [], touched = new Set();
+    const flush = async () => {
+      if (!batch.length) return true;
+      g._fxCapture = [];
+      for (const {pid, cmd, slot} of batch) executePlannedOrder(room, pid, cmd, slot);
+      const effects = g._fxCapture; g._fxCapture = null;
+      g.fxBatch = effects.length ? {seq: g.fxSeq, events: effects} : null;
       sync(room);
-      await sleep(1200);
-      if (!live(room, g)) return;
+      await sleep(revealPause(room));
+      batch = []; touched = new Set();
+      return live(room, g);
+    };
+    for (const pid of g.order) {
+      const cmd = P(g,pid).plan.cmds[i];
+      if (!cmd) continue;
+      if (cmd.type === 'strike') {
+        strikes.push({pid,cmd,slot:i+1});
+        continue;
+      }
+      const footprint = independentFootprint(g, cmd, P(g,pid).plan.backup);
+      if (!footprint || [...footprint].some(x => touched.has(x))) {
+        if (!await flush()) return;
+      }
+      batch.push({pid,cmd,slot:i+1});
+      if (footprint) for (const x of footprint) touched.add(x);
+      else if (!await flush()) return;
     }
+    if (!await flush()) return;
   }
-  // 4. Clashes
-  for (const s of strikes) {
-    resolveStrike(room, s.pid, s.cmd);
+  // 4. Strikes still resolve last, in the original seat/slot order.
+  for (const {pid,cmd,slot} of strikes) {
+    g._fxCapture = [];
+    executePlannedOrder(room, pid, cmd, slot);
+    g.fxBatch = g._fxCapture.length ? {seq: g.fxSeq, events: g._fxCapture} : null;
+    g._fxCapture = null;
     sync(room);
-    await sleep(2200);
-    if (!live(room, g)) return;
+    await sleep(revealPause(room, true));
+    if (!live(room,g)) return;
   }
   // 5. Missions & trophies
   for (const p of room.players) {
     for (const m of P(g, p.id).missions) {
       if (!m.done && missionMet(g, p.id, m)) {
+        const route = (m.type === 'link' || m.type === 'beacon') ? missionRoute(g,p.id,m) : null;
+        if (route && !settleTolls(room,p.id,route,'Mission route')) continue;
         m.done = true; mood(g, p.id, 'smug');
         log(g, `${p.name} completed a Mission: ${m.text} (+${m.inf}).`);
-        fx(g, { k: 'mission', pid: p.id, text: m.text, inf: m.inf });
+        fx(g, { k: 'mission', pid: p.id, text: m.text, inf: m.inf, toll: route?.cost || 0 });
         sync(room); await sleep(1500);
       }
     }
@@ -769,10 +968,12 @@ function chooseSurvey(g, pid, uid) {
 
 function fail(room, pid, cmd, why) {
   const g = room.game;
-  P(g, pid).res.credits += 1;
-  log(g, `${nameOf(room, pid)}: ${cmdName(cmd)} failed — ${why}. (+1 Credit)`);
+  const refund = !g._backupResolution;
+  if (refund) P(g,pid).res.credits += 1;
+  log(g, `${nameOf(room, pid)}: ${cmdName(cmd)} failed — ${why}.${refund ? ' (+1 Credit)' : ' Checking Backup order.'}`);
   fx(g, { k: 'fail', pid, why });
   mood(g, pid, 'furious');
+  g._playtestLastFailure = why;
 }
 function cmdName(c) { return { found: 'Found Outpost', spire: 'Raise Spire', lane: 'Open Hyperlane', fleet: 'Build Fleet', research: 'Research', strike: 'Strike' }[c.type] || 'Command'; }
 
@@ -780,11 +981,13 @@ function resolveCmd(room, pid, cmd) {
   const g = room.game, ps = P(g, pid), res = ps.res, C = costs(g, room, pid), who = nameOf(room, pid);
   if (cmd.type === 'found') {
     const h = g.hexes[cmd.target];
-    if (!foundOk(g, pid, h)) return fail(room, pid, cmd, 'that sector is no longer reachable');
-    if (!canPay(res, C.found)) return fail(room, pid, cmd, 'not enough resources');
+    const route = foundRoute(g,pid,h);
+    if (!route) return fail(room, pid, cmd, 'that sector is no longer reachable');
+    if (!canPay(res, { ...C.found, credits: route.cost })) return fail(room, pid, cmd, 'not enough resources for the Outpost and lane toll');
+    settleTolls(room,pid,route,'Outpost reach');
     pay(res, C.found); h.owner = pid; h.build = 'outpost'; h.fleets = 0;
     log(g, `${who} founded an Outpost on ${hexLabel(h)}.`);
-    fx(g, { k: 'found', pid, hex: h.id });
+    fx(g, { k: 'found', pid, hex: h.id, toll: route.cost, recipients: route.lanes.map(id => g.lanes.find(l => l.id === id)?.owner).filter(Boolean) });
   } else if (cmd.type === 'spire') {
     const h = g.hexes[cmd.target];
     if (!h || h.owner !== pid || h.type !== 'station' || h.build !== 'outpost') return fail(room, pid, cmd, 'that station is not yours to upgrade');
@@ -879,6 +1082,8 @@ function resolveStrike(room, pid, cmd) {
     log(g, `${dn} held ${hexLabel(to)} against ${an}. (${A} vs ${D})`);
     mood(g, did, 'smug'); mood(g, pid, 'furious');
   }
+  g._playtestLastStrikeOutcome = win ? 'attacker won' : 'defender held';
+  Playtest.strike(g, { attacker: pid, defender: did, from: from.id, to: to.id, attackerTotal: A, defenderTotal: D, attackerWon: win, attackerDie: ad, defenderDie: dd, reroll });
   fx(g, { k: 'clash', pid, did, from: from.id, to: to.id, A, D, ad, dd, atkF, defF, atkB, defB, win, reroll });
 }
 
@@ -904,7 +1109,7 @@ function updateTrophies(room) {
 function endGame(room) {
   const g = room.game;
   if (!live(room, g)) return;
-  g.phase = 'over';
+  if (g.phase === 'over') return;
   const rows = room.players.map(p => {
     const inf = influence(g, p.id);
     const penalty = g.M.perks ? P(g, p.id).missions.filter(m => !m.done).length : 0;
@@ -913,13 +1118,17 @@ function endGame(room) {
     const missions = ps.missions.filter(m => m.done).reduce((total, m) => total + m.inf + (hasUp(g, p.id, 'archive') ? 1 : 0), 0);
     const trophies = (g.trophies.network === p.id ? 2 : 0) + (g.trophies.armada === p.id ? 2 : 0);
     const kept = ps.kept.reduce((total, c) => total + (c.key === 'icebaron' && owned(g, p.id).filter(h => h.type === 'ice').length >= 3 ? 1 : 0) + (c.key === 'crystalbaron' && owned(g, p.id).filter(h => h.type === 'crystal').length >= 3 ? 1 : 0), 0);
-    const breakdown = { stations: station, missions, trophies, bonuses: ps.bonusInf, barons: kept, penalty };
+    const routes = routeScores(g,p.id);
+    const breakdown = { stations: station, lanes: routes.lanes, tradeRoutes: routes.tradeRoutes,
+      missions, trophies, bonuses: ps.bonusInf, barons: kept, penalty };
     return { pid: p.id, inf, penalty, final: inf - penalty, credits: ps.res.credits, segs: laneSegs(g, p.id), breakdown };
   });
   rows.sort((a, b) => b.final - a.final || b.credits - a.credits || b.segs - a.segs);
   const t = rows[0];
   const winners = rows.filter(r => r.final === t.final && r.credits === t.credits && r.segs === t.segs).map(r => r.pid);
   g.results = { rows, winners };
+  if (g.playtest) g.playtestReport = Playtest.finish(room, influence, g.results);
+  else g.phase = 'over';
   for (const w of winners) mood(g, w, 'smug');
   log(g, winners.length > 1 ? 'A shared victory! The Cluster has joint Wardens.' : `${nameOf(room, winners[0])} is Warden of the Cluster!`);
   fx(g, { k: 'over' });
@@ -930,7 +1139,7 @@ function endGame(room) {
 function expireOffers(room) {
   const g = room.game; if (!g) return;
   const now = Date.now(); let changed = false;
-  for (const o of g.offers) if (!o.status && now > o.expires) { o.status = 'expired'; changed = true; }
+  for (const o of g.offers) if (!o.status && now > o.expires) { o.status = 'expired'; changed = true; Playtest.trade(g, 'offer_resolved', { id: o.id, from: o.from, to: o.to, status: 'expired' }); }
   if (changed) { g.offers = g.offers.filter(o => !o.status || now - o.expires < 4000); sync(room); }
 }
 function cleanBundle(b) {
@@ -996,7 +1205,7 @@ function aiPlan(room, pid) {
     }
     return canPay(avail(), c);
   };
-  const take = (cmd, c) => { if (cmds.length >= 2) return; if (!tradeFor(c)) return; for (const [k, v] of Object.entries(c)) spend[k] = (spend[k] || 0) + v; cmds.push(cmd); };
+  const take = (cmd, c) => { if (cmds.length >= commandSlots(g.mode)) return; if (!tradeFor(c)) return; for (const [k, v] of Object.entries(c)) spend[k] = (spend[k] || 0) + v; cmds.push(cmd); };
   const scarce = () => { const r = avail(); return RAW.slice().sort((a, b) => r[a] - r[b]); };
   // Objectives are pursued using *existing* legal actions and standard costs.
   const missions = ps.missions.filter(m => !m.done);
@@ -1008,31 +1217,37 @@ function aiPlan(room, pid) {
   // First secure a near-complete objective; this can be worth 2–3 Influence.
   if (holdTarget && holdTarget.have >= 1) {
     const goal = L.found.find(id => g.hexes[id].type === holdTarget.world);
-    if (goal) take({ type: 'found', target: goal }, C.found);
+    if (goal) take({ type: 'found', target: goal }, { ...C.found, credits: L.foundTolls[goal] || 0 });
   }
-  if (asteroidMission && cmds.length < 2 && asteroidOwned) {
+  if (asteroidMission && cmds.length < commandSlots(g.mode) && asteroidOwned) {
     const count = Math.min(3-asteroidOwned.fleets, 3, Math.floor(avail().credits / C.fleetEach));
     if (count > 0) take({ type: 'fleet', n: count, place: asteroidOwned.id }, { credits: count * C.fleetEach });
   }
-  if (asteroidMission && cmds.length < 2 && !asteroidOwned) {
+  if (asteroidMission && cmds.length < commandSlots(g.mode) && !asteroidOwned) {
     const goal = L.found.find(id => g.hexes[id].type === 'asteroid');
     if (goal) take({ type: 'found', target: goal }, C.found);
   }
   // Claim stations (the most direct Influence source) and upgrade when possible.
-  if (L.spire.length && cmds.length < 2) take({ type: 'spire', target: L.spire[0] }, C.spire);
+  if (L.spire.length && cmds.length < commandSlots(g.mode)) take({ type: 'spire', target: L.spire[0] }, C.spire);
   const stations = L.found.filter(id => g.hexes[id].type === 'station');
-  if (stations.length && cmds.length < 2) {
+  if (stations.length && cmds.length < commandSlots(g.mode)) {
     const target = stations.slice().sort((a,b) =>
       g.lanes.filter(l => l.a === b || l.b === b).length - g.lanes.filter(l => l.a === a || l.b === a).length)[0];
-    take({ type: 'found', target }, C.found);
+    take({ type: 'found', target }, { ...C.found, credits: L.foundTolls[target] || 0 });
   }
   // Buying a short hyperlane builds future income and can satisfy Lane Missions.
-  if (cmds.length < 2 && L.lane.length) {
-    const id = L.lane.slice().sort((a,b) => (C.lanes[a].ore+C.lanes[a].plasma)-(C.lanes[b].ore+C.lanes[b].plasma))[0];
+  if (cmds.length < commandSlots(g.mode) && L.lane.length) {
+    const id = L.lane.slice().sort((a,b) => {
+      const la=g.lanes.find(l=>l.id===a), lb=g.lanes.find(l=>l.id===b);
+      const score=l=>(l.len>=TUNING.longLaneMin?8:0) +
+        (g.hexes[l.a].owner===pid && g.hexes[l.b].owner===pid ? 12 : 0) +
+        (g.lanes.filter(x=>x.owner && x.owner!==pid && (x.a===l.a || x.b===l.b || x.a===l.b || x.b===l.b)).length*2);
+      return score(lb)-score(la) || (C.lanes[a].ore+C.lanes[a].plasma)-(C.lanes[b].ore+C.lanes[b].plasma);
+    })[0];
     take({ type: 'lane', lane: id }, C.lanes[id]);
   }
   // Build toward a 5-Fleet Grand Armada trophy if no stronger purchase fits.
-  if (cmds.length < 2 && L.fleetPlace.length && fleetsOf(g, pid) < 5) {
+  if (cmds.length < commandSlots(g.mode) && L.fleetPlace.length && fleetsOf(g, pid) < 5) {
     const n = Math.min(3, 5-fleetsOf(g,pid), Math.floor(avail().credits/C.fleetEach));
     if (n > 0) {
       const place = L.fleetPlace.slice().sort((a,b) => Number(g.hexes[b].type === 'station')-Number(g.hexes[a].type === 'station'))[0];
@@ -1041,7 +1256,7 @@ function aiPlan(room, pid) {
   }
   // Gather a missing resource and pursue held mission types when no scoring
   // objective is available right now.
-  if (cmds.length < 2 && L.found.length) {
+  if (cmds.length < commandSlots(g.mode) && L.found.length) {
     const want = scarce();
     const goal = L.found.filter(id => !cmds.some(c => c.target === id)).sort((a,b) => {
       const ha=g.hexes[a], hb=g.hexes[b];
@@ -1050,21 +1265,33 @@ function aiPlan(room, pid) {
       const ra=want.indexOf(PROD[ha.type]), rb=want.indexOf(PROD[hb.type]);
       return (ma+(ra<0?9:ra))-(mb+(rb<0?9:rb));
     })[0];
-    if (goal) take({ type: 'found', target:goal }, C.found);
+    if (goal) take({ type: 'found', target:goal }, { ...C.found, credits: L.foundTolls[goal] || 0 });
   }
-  if (cmds.length < 2) {
+  if (cmds.length < commandSlots(g.mode)) {
     const s = L.strike.filter(([a,b]) => g.hexes[a].fleets >= g.hexes[b].fleets+2)
       .sort((x,y) => Number(g.hexes[y[1]].type==='station')-Number(g.hexes[x[1]].type==='station'));
     if (s.length) take({ type:'strike',from:s[0][0],to:s[0][1]}, {});
   }
-  if (cmds.length < 2 && L.research.length) {
+  if (cmds.length < commandSlots(g.mode) && L.research.length) {
     const ups = L.research.filter(k=>k!=='mission');
     const ch = ups.length ? botEraChoice(room,pid,ups) : (L.research.includes('mission')?'mission':null);
     if (ch) take({type:'research',choice:ch},C.research);
   }
   // rank: prefer resources/Credits early, Barons if close
   const pref = ['cache', 'supply', 'prospector', 'warp', 'overdrive', 'survey', 'icebaron', 'crystalbaron', 'shields', 'immunity', 'stormrider'];
-  ps.plan = { cmds: [cmds[0] || null, cmds[1] || null], rank: g.pool.slice().sort((a, b) => pref.indexOf(a.key) - pref.indexOf(b.key)).map(c => c.uid), play: [] };
+  // Keep backup independent from the regular resource budget; it executes
+  // only when a regular command fails, so it must not reserve resources.
+  const backupChoices = [
+    ...L.found.filter(id=>!cmds.some(c=>c.type==='found'&&c.target===id)).map(id=>({type:'found',target:id})),
+    ...L.spire.filter(id=>!cmds.some(c=>c.type==='spire'&&c.target===id)).map(id=>({type:'spire',target:id})),
+    ...L.lane.filter(id=>!cmds.some(c=>c.type==='lane'&&c.lane===id)).map(id=>({type:'lane',lane:id}))
+  ];
+  const backup = backupChoices.find(c => {
+    const fee = c.type==='found' ? {...C.found,credits:L.foundTolls[c.target]||0}
+      : c.type==='spire' ? C.spire : C.lanes[c.lane];
+    return canPay(ps.res,fee);
+  }) || (L.fleetPlace.length && ps.res.credits>=C.fleetEach ? {type:'fleet',n:1,place:L.fleetPlace[0]} : null);
+  ps.plan = { cmds: Array.from({length:commandSlots(g.mode)},(_,i)=>cmds[i]||null), backup, rank: g.pool.slice().sort((a, b) => pref.indexOf(a.key) - pref.indexOf(b.key)).map(c => c.uid), play: [] };
   for (const c of ps.held) {
     if (c.key === 'overdrive' && cmds.some(x => x.type === 'strike')) ps.plan.play.push({ uid: c.uid });
     else if (c.key === 'warp' && cmds.some(x => x.type === 'lane')) ps.plan.play.push({ uid: c.uid });
@@ -1080,10 +1307,11 @@ function doExchange(room, pid, give, get) {
   const g = room.game, ps = P(g, pid);
   if (!RES.includes(give) || !RES.includes(get) || give === get) return false;
   const r = rates(g, room, pid)[give];
-  if (ps.res[give] < r) return false;
+  if (ps.res[give] < r) { Playtest.trade(g, 'bank_exchange', { pid, give, get, rate: r, success: false }); return false; }
   const vexDiscount = perk(g, room, pid, 'vex') && !ps.vexUsed && r === 2 && g.event !== 'boom' && !(give === 'ice' && hasUp(g, pid, 'cryo'));
   ps.res[give] -= r; ps.res[get] += 1;
   if (vexDiscount) ps.vexUsed = true;
+  Playtest.trade(g, 'bank_exchange', { pid, give, get, rate: r, success: true });
   return true;
 }
 
@@ -1104,7 +1332,7 @@ function pubState(room) {
       eraPicked: !!g.eraPicks[p.id], mood: md && md.until > now ? md.m : 'neutral'
     });
   });
-  const out = { room: room.code, phase: room.phase, mode: room.mode, hostId: room.hostId, players, now };
+  const out = { room: room.code, phase: room.phase, mode: room.mode, hostId: room.hostId, players, now, playtestEnabled: !!room.playtestEnabled, revealSpeed: room.revealSpeed || 'normal' };
   if (!g) return out;
   const storm = [], ghost = [], twin = [];
   const gb = Object.assign({}, g.storm, { pos: g.storm.pos + 1 });
@@ -1115,10 +1343,16 @@ function pubState(room) {
   }
   out.game = {
     R: g.R, hexes: Object.values(g.hexes).map(h => ({ id: h.id, q: h.q, r: h.r, type: h.type, name: h.name, owner: h.owner, build: h.build, fleets: h.fleets })),
-    lanes: g.lanes, storm, ghost, twin, stormDir: g.storm.label, round: g.round, maxRounds: g.M.rounds, era: g.era,
+    lanes: g.lanes.map(l => ({...l, toll: l.owner ? TUNING.tollPerLane : 0,
+      scores: !!l.owner && l.len >= TUNING.longLaneMin})),
+    routeTuning: { tollPerLane: TUNING.tollPerLane, longLaneMin: TUNING.longLaneMin,
+      longLaneInfluence: TUNING.longLaneInfluence, tradeRouteInfluence: TUNING.tradeRouteInfluence },
+    storm, ghost, twin, stormDir: g.storm.label, round: g.round, maxRounds: g.M.rounds, era: g.era,
+    commandSlots: commandSlots(g.mode), revealSpeed: room.revealSpeed || 'normal', fxBatch: g.fxBatch,
     target: g.M.target, order: g.order, phase: g.phase, phaseEnds: g.phaseEnds, pool: g.pool, event: g.event,
     trophies: g.trophies, log: g.log.slice(-8), fx: g.fx, setupTurn: g.setupTurn, eraOffer: g.eraOffer,
-    results: g.results, income: g.incomeShow, mode: g.mode, deckLeft: g.draftDeck.length, eraTurn: g.eraTurn
+    results: g.results, income: g.incomeShow, mode: g.mode, deckLeft: g.draftDeck.length, eraTurn: g.eraTurn,
+    playtest: { enabled: !!g.playtest, report: g.phase === 'over' ? (g.playtestReport || null) : null }
   };
   return out;
 }
@@ -1129,14 +1363,16 @@ function privState(room, p) {
   const ps = P(g, p.id);
   const mine = owned(g, p.id);
   Object.assign(out, {
-    res: ps.res, missions: ps.missions.map(m => Object.assign({}, m, { met: !m.done && missionMet(g, p.id, m) })),
+    res: ps.res, missions: ps.missions.map(m => Object.assign({}, m, {
+      met: !m.done && missionMet(g, p.id, m),
+      toll: (m.type === 'link' || m.type === 'beacon') ? missionRoute(g,p.id,m)?.cost ?? null : null })),
     missionOffer: ps.missionOffer, keepDone: ps.keepDone, held: ps.held, kept: ps.kept, upgrades: ps.upgrades, plan: ps.plan, engaged: ps.engaged,
     surveyOffer: ps.surveyOffer, eraPick: g.eraPicks[p.id] || null, rates: rates(g, room, p.id), offersSent: ps.offersSent,
     stormNext: mine.filter(h => h.id && pubGhostHas(g, h)).map(h => h.id),
     offersIn: g.offers.filter(o => o.to === p.id && !o.status), offersOut: g.offers.filter(o => o.from === p.id),
     legal: (g.phase === 'plan' || g.phase === 'setup' || g.phase === 'income') ? legal(g, room, p.id) : null,
     costs: costs(g, room, p.id), setupLegal: g.setupTurn === p.id ? setupLegal(g, p.id) : null,
-    perks: g.M.perks
+    perks: g.M.perks, commandSlots: commandSlots(g.mode), backupUsed: !!ps.backupUsed
   });
   return out;
 }
@@ -1205,6 +1441,8 @@ function onMessage(ws, msg) {
   }
   if (t === 'name' && room.phase === 'lobby') { const n = String(msg.name || '').trim().slice(0, 14); if (n) p.name = n; return sync(room); }
   if (t === 'mode' && isHost && room.phase === 'lobby' && MODES[msg.mode]) { room.mode = msg.mode; return sync(room); }
+  if (t === 'revealSpeed' && isHost && (msg.speed === 'fast' || msg.speed === 'normal')) { room.revealSpeed = msg.speed; if (g) g.revealSpeed = room.revealSpeed; return sync(room); }
+  if (t === 'playtestToggle' && isHost && room.phase === 'lobby' && typeof msg.enabled === 'boolean') { room.playtestEnabled = msg.enabled; return sync(room); }
   if (t === 'addBot' && isHost && room.phase === 'lobby' && room.players.length < 8) {
     const taken = new Set(room.players.map(x => x.avatar));
     const av = [0, 1, 2, 3, 4, 5, 6, 7].find(i => !taken.has(i));
@@ -1242,7 +1480,7 @@ function onMessage(ws, msg) {
   if (t === 'eraPick' && g.phase === 'era' && g.eraTurn === p.id && !g.eraPicks[p.id] && g.eraOffer.includes(msg.id)) { g.eraPicks[p.id] = msg.id; return sync(room); }
   if (t === 'survey' && g.phase === 'plan') { chooseSurvey(g, p.id, msg.uid); return sync(room); }
   if (t === 'plan' && g.phase === 'plan') {
-    const cmds = Array.isArray(msg.cmds) ? msg.cmds.slice(0, 2) : [];
+    const cmds = Array.isArray(msg.cmds) ? msg.cmds.slice(0, commandSlots(g.mode)) : [];
     const clean = c => {
       if (!c || !CMD_TYPES.has(c.type)) return null;
       const o = { type: c.type };
@@ -1250,7 +1488,8 @@ function onMessage(ws, msg) {
       if (c.type === 'fleet') { o.n = Math.max(0, Math.min(3, c.n | 0)); if (c.move && typeof c.move.from === 'string' && typeof c.move.to === 'string') o.move = { from: c.move.from, to: c.move.to, n: Math.max(1, c.move.n | 0) }; }
       return o;
     };
-    ps.plan.cmds = [clean(cmds[0]), clean(cmds[1])];
+    ps.plan.cmds = Array.from({length:commandSlots(g.mode)},(_,i)=>clean(cmds[i]));
+    ps.plan.backup = clean(msg.backup);
     if (Array.isArray(msg.rank)) {
       const available = new Set(g.pool.map(c => c.uid));
       ps.plan.rank = [...new Set(msg.rank.filter(u => typeof u === 'string' && available.has(u)))].slice(0, 9);
@@ -1270,6 +1509,7 @@ function onMessage(ws, msg) {
     ps.offersSent++;
     const o = { id: 'o' + (++g.offerSeq), from: p.id, to: to.id, give, get, expires: Date.now() + ms(20000), status: null };
     g.offers.push(o);
+    Playtest.trade(g, 'offer_proposed', { id: o.id, from: o.from, to: o.to, give: o.give, get: o.get });
     if (to.isAI) {
       setTimeout(() => {
         if (o.status || room.game !== g || g.phase !== 'plan' || Date.now() >= o.expires) return;
@@ -1295,6 +1535,7 @@ function resolveOffer(room, o, accept) {
     o.status = 'accepted';
     log(g, `${nameOf(room, o.from)} and ${nameOf(room, o.to)} made a trade.`);
   } else o.status = accept ? 'failed' : 'declined';
+  Playtest.trade(g, 'offer_resolved', { id: o.id, from: o.from, to: o.to, status: o.status });
   sync(room);
 }
 
@@ -1353,10 +1594,12 @@ if (require.main === module) {
     for (const ip of lanIPs()) console.log(`  TV:     http://${ip}:${PORT}/tv.html`);
   });
 }
-module.exports = { server, rooms, genMap, MAPS, _internal: {
+module.exports = { server, rooms, genMap, MAPS, TUNING, _internal: {
   startGame, makeRoom, onMessage, pubState, privState, sync, P, costs, legal, influence, owned, inStorm, moveStorm,
+  foundRoute, missionRoute, settleTolls, routeScores, tradeRouteCount,
   incomePhase, planPhase, revealPhase, eraPhase, eraPickOrder, receiveCard, resolveCmd, resolveStrike,
   resolveOffer, updateTrophies, networkSize, missionMet, genMissions, endGame, emptyPlan,
   aiPlan, botEraChoice, botSetupChoice, botMissionPriority, botKeepMissions,
+  commandSlots, revealPause, independentFootprint, executePlannedOrder,
   applyUpgrade, cleanBundle, canPay, spawnStorm, bandHas, setOrder, doExchange
 } };

@@ -52,6 +52,11 @@ body{overflow:hidden;background:#070A16}
 #popup{position:absolute;left:50%;bottom:1.2rem;transform:translateX(-50%);display:none}
 #popup.show{display:block;animation:pop .35s}
 .clash{background:var(--panel);border-radius:1rem;padding:.8rem 1.2rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:1.2rem;border:2px solid var(--line)}
+/* Phase 3: visible money transfer that can be understood across the sofa. */
+.toll-flow{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.toll-flow .toll-coin{display:inline-grid;place-items:center;background:linear-gradient(135deg,#ffd66b,#c88219);color:#211400;border:2px solid #ffeaa3;border-radius:100%;height:2.5rem;width:2.5rem;box-shadow:0 0 18px #edac4870;font-weight:900;animation:toll-credit-flight 1.05s ease-out both}
+@keyframes toll-credit-flight{0%{transform:translateX(-50px) scale(.6);opacity:.15}65%{transform:translateX(8px) scale(1.18);opacity:1}100%{transform:translateX(0) scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.toll-flow .toll-coin{animation:none}}
 .clash .side{text-align:center;min-width:8rem}
 .clash .sum{font-family:Inter;font-weight:800;font-size:2.2rem}
 .clash .bd{font-size:.72rem;color:var(--muted)}
@@ -61,6 +66,8 @@ body{overflow:hidden;background:#070A16}
 .big{position:absolute;inset:0;display:none;place-items:center;background:rgba(7,10,22,.72);backdrop-filter:blur(3px)}
 .big.show{display:grid}
 .big .inner{text-align:center;max-width:80%;animation:pop .5s}
+.big .inner{max-height:calc(100dvh - 110px);max-width:min(92%,920px);overflow-y:auto;overscroll-behaviour:contain;padding:.85rem 1rem 1.4rem;scrollbar-width:thin}
+.playtest-downloads .sf-action{cursor:pointer;min-height:48px;font-size:clamp(.68rem,.85vw,.85rem)}
 .big h2{font-size:3rem;font-weight:900;margin-bottom:.5rem}
 .big p{font-size:1.1rem;color:var(--muted)}
 .ups{display:flex;gap:1rem;justify-content:center;margin-top:1.2rem}
@@ -484,7 +491,7 @@ function render() {
   if (!inGame) { lastRoundPhase=null;lastWinScene=false;$('cinematic').classList.remove('show');return renderLobby(); }
   const g = pub.game;
   map.setState(pub, C.AVATARS);
-  if (g.fx && g.fx.seq !== lastFx) { const first = lastFx === 0; lastFx = g.fx.seq; if (!first) onFx(g.fx); }
+  if (g.fx && g.fx.seq !== lastFx) { const first = lastFx === 0; lastFx = g.fx.seq; if (!first) { const events = g.fxBatch?.seq === g.fx.seq ? g.fxBatch.events : [g.fx]; for (const event of events) onFx(event); } }
   sceneForPhase(g);
   renderTop(g); renderRail(g); renderSide(g); renderTick(g); renderBanner(g); renderBig(g);
 }
@@ -503,13 +510,14 @@ function renderLobby() {
   $('roster').innerHTML = slots.join('');
   $('musterCount').textContent = pub.players.length + ' / 8 JOINED';
   $('lHint').textContent = pub.players.length < 2 ? 'Waiting for at least 2 players.' : 'The host (★) starts the game from their phone.';
+  if (pub.playtestEnabled) $('lHint').textContent += ' · Playtest logging enabled.';
 }
 function renderTop(g) {
   $('tEra').textContent = `Era: ${C.ERA_NAMES[g.era]}`;
   $('tRound').textContent = g.round ? `Round ${g.round} of ${g.maxRounds}` : 'Setting up';
   $('tStorm').querySelector('span').textContent = `Storm heading ${g.stormDir}`;
   const names = { missions: 'Choose Missions', setup: 'Landing', era: 'New era', income: 'Storm & income', plan: 'Plan your moves', reveal: 'Reveal', over: 'Game over' };
-  $('tPhase').textContent = names[g.phase] || '';
+  $('tPhase').textContent = g.phase === 'reveal' && g.revealSpeed === 'fast' ? 'Reveal · Fast' : (names[g.phase] || '');
 }
 setInterval(() => {
   if (!pub || !pub.game) return;
@@ -577,6 +585,15 @@ function renderBanner(g) {
   if (g.phase === 'income') h = g.event ? `Cosmic Event: ${esc(C.EVENTS[g.event].name)}` : 'The storm moves. Income arrives.';
   $('banner').innerHTML = h;
 }
+function downloadPlaytest(format) {
+  const report = pub?.game?.playtest?.report;
+  if (!report) return;
+  const content = format === 'json' ? JSON.stringify(report.json, null, 2) : report.markdown;
+  const mime = format === 'json' ? 'application/json' : 'text/markdown';
+  const url = URL.createObjectURL(new Blob([content], {type: mime + ';charset=utf-8'}));
+  const a = document.createElement('a');a.href = url; a.download = `starfall-playtest-${pub.room}-${Date.now()}.${format}`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 function renderBig(g) {
   const big = $('big'), inner = $('bigInner');
   if (g.phase === 'era' && g.eraOffer.length) {
@@ -589,8 +606,12 @@ function renderBig(g) {
     inner.innerHTML = `<div class="over"><div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1rem">${w.map(p => avatarHTML(AV(p), { size: 120, mood: 'smug', era: 2 })).join('')}</div>
       <h2>${w.length > 1 ? 'Shared victory!' : esc(w[0].name) + ' wins!'}</h2><p>${w.length > 1 ? 'Joint Wardens of the Cluster.' : 'Warden of the Starfall Cluster.'}</p>
       <table><tr><th></th><th>House</th><th>Influence</th><th></th><th>Credits</th></tr>${rows}</table>
-      <p style="margin-top:.65rem;font-size:.77rem;color:#bad5ef">${g.results.rows[0]?.breakdown ? `Winning Influence: ${g.results.rows[0].breakdown.stations} from stations, ${g.results.rows[0].breakdown.missions} from Missions, ${g.results.rows[0].breakdown.trophies} from trophies, ${g.results.rows[0].breakdown.bonuses + g.results.rows[0].breakdown.barons} from bonuses${g.results.rows[0].breakdown.penalty ? `, less ${g.results.rows[0].breakdown.penalty} for unfinished Missions` : ''}.` : ''}</p>
+      <p style="margin-top:.65rem;font-size:.77rem;color:#bad5ef">${g.results.rows[0]?.breakdown ? `Winning Influence: ${g.results.rows[0].breakdown.stations} from stations, ${g.results.rows[0].breakdown.lanes || 0} from long lanes, ${g.results.rows[0].breakdown.tradeRoutes || 0} from Trade Routes, ${g.results.rows[0].breakdown.missions} from Missions, ${g.results.rows[0].breakdown.trophies} from trophies, ${g.results.rows[0].breakdown.bonuses + g.results.rows[0].breakdown.barons} from bonuses${g.results.rows[0].breakdown.penalty ? `, less ${g.results.rows[0].breakdown.penalty} for unfinished Missions` : ''}.` : ''}</p>
+      ${g.playtest?.report ? '<div class="playtest-downloads" style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;margin-top:1rem"><button class="sf-action primary" id="downloadPlaytestJson" type="button">Download playtest log (JSON)</button><button class="sf-action" id="downloadPlaytestMd" type="button">Download playtest summary</button></div>' : ''}
       <p style="margin-top:1rem;font-size:.85rem">The host can start a new game from their phone.</p></div>`;
+    const jsonBtn = $('downloadPlaytestJson'), mdBtn = $('downloadPlaytestMd');
+    if (jsonBtn) jsonBtn.onclick = () => downloadPlaytest('json');
+    if (mdBtn) mdBtn.onclick = () => downloadPlaytest('md');
   } else big.classList.remove('show');
 }
 
@@ -600,7 +621,13 @@ function popup(html, dur) { const el = $('popup'); el.innerHTML = html; el.class
 function onFx(f) {
   map.addFx(f);
   const g = pub.game;
-  if (f.k === 'found') { Snd.beam(); scene('NEW COLONY','OUTPOST FOUNDED','A new world joins a rival house'); }
+  if (f.k === 'found') {
+    Snd.beam();scene('NEW COLONY','OUTPOST FOUNDED',f.toll ? `Rival hyperlane toll paid: ${f.toll} Credit${f.toll===1?'':'s'}` : 'A new world joins a rival house');
+    if (f.toll) {
+      const owners=[...new Set(f.recipients || [])].map(id=>P(id)?.name).filter(Boolean).join(', ');
+      popup(`<div class="clash toll-flow"><strong>${esc(P(f.pid)?.name || 'House')}</strong><span class="toll-coin">${f.toll}₡</span><strong>→ ${esc(owners || 'Rival lane owner')}</strong><div class="bd">Hyperlane toll paid</div></div>`,1400);
+    }
+  }
   if (f.k === 'spire') { Snd.beam(); scene('COLONY EXPANSION','SPIRE CONSTRUCTED','Your empire grows upwards',false,2000); }
   if (f.k === 'lane') { Snd.whoosh(); scene('HYPERSPACE NETWORK','HYPERLANE OPENED','Trade routes are now operational',false,1900); }
   if (f.k === 'fleet' || f.k === 'move') { if(!Snd.play('fleet-move'))Snd.tone(500,.2,'triangle',.08,900); }
@@ -614,10 +641,15 @@ function onFx(f) {
     const p = P(f.pid), d = C.DRAFT[f.key];
     popup(`<div class="clash">${avatarHTML(AV(p), { size: 44, era: g.era })}<div><b>${esc(p.name)}</b> drafts <b>${esc(d.name)}</b><div class="bd">${esc(d.text)}</div></div></div>`, 1000);
   }
+  if (f.k === 'toll') {
+    Snd.chime();
+    const payer=P(f.pid), owner=P(f.to);
+    if (payer && owner) popup(`<div class="clash">${avatarHTML(AV(payer), {size:48,era:g.era})}<div><b>${esc(payer.name)}</b> pays <b>${f.credits} Credit toll</b> to <b>${esc(owner.name)}</b><div class="bd">Rival hyperlane ${esc(f.lane)}</div></div></div>`, 1200);
+  }
   if (f.k === 'mission' || f.k === 'trophy') {
     Snd.fanfare();
     const p = P(f.pid);
-    const txt = f.k === 'mission' ? `Mission complete: ${esc(f.text)} (+${f.inf})` : `Takes ${f.key === 'network' ? 'Longest Network' : 'Grand Armada'} (+2)`;
+    const txt = f.k === 'mission' ? `Mission complete: ${esc(f.text)} (+${f.inf})${f.toll?` · ${f.toll} Credit toll paid`:''}` : `Takes ${f.key === 'network' ? 'Longest Network' : 'Grand Armada'} (+2)`;
     popup(`<div class="clash">${avatarHTML(AV(p), { size: 56, mood: 'smug', era: g.era })}<div><b>${esc(p.name)}</b><div>${txt}</div></div></div>`, 1500);
   }
   if (f.k === 'clash') {

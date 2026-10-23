@@ -1,0 +1,1236 @@
+{
+  "schema": "starfall.playtest.v1",
+  "session": {
+    "room": "VFWD",
+    "mode": "quick",
+    "map": "small",
+    "radius": 3,
+    "playerCount": 4,
+    "beganAt": "2026-10-23T09:34:03.358Z",
+    "players": [
+      {
+        "pid": "bot0",
+        "seat": 1,
+        "name": "Bot 1",
+        "avatar": 0,
+        "botAtStart": true
+      },
+      {
+        "pid": "bot1",
+        "seat": 2,
+        "name": "Bot 2",
+        "avatar": 1,
+        "botAtStart": true
+      },
+      {
+        "pid": "bot2",
+        "seat": 3,
+        "name": "Bot 3",
+        "avatar": 2,
+        "botAtStart": true
+      },
+      {
+        "pid": "bot3",
+        "seat": 4,
+        "name": "Bot 4",
+        "avatar": 3,
+        "botAtStart": true
+      }
+    ],
+    "endedAt": "2026-10-23T09:34:04.085Z",
+    "durationMs": 727
+  },
+  "phases": [
+    {
+      "round": 0,
+      "phase": "missions",
+      "startedAt": "2026-10-23T09:34:03.359Z",
+      "durationMs": 0
+    },
+    {
+      "round": 0,
+      "phase": "missions",
+      "startedAt": "2026-10-23T09:34:03.359Z",
+      "durationMs": 7
+    },
+    {
+      "round": 0,
+      "phase": "setup",
+      "startedAt": "2026-10-23T09:34:03.366Z",
+      "durationMs": 46
+    },
+    {
+      "round": 1,
+      "phase": "era",
+      "startedAt": "2026-10-23T09:34:03.412Z",
+      "durationMs": 7
+    },
+    {
+      "round": 1,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.419Z",
+      "durationMs": 17
+    },
+    {
+      "round": 1,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.436Z",
+      "durationMs": 9
+    },
+    {
+      "round": 1,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.445Z",
+      "durationMs": 73
+    },
+    {
+      "round": 2,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.518Z",
+      "durationMs": 17
+    },
+    {
+      "round": 2,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.535Z",
+      "durationMs": 9
+    },
+    {
+      "round": 2,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.544Z",
+      "durationMs": 54
+    },
+    {
+      "round": 3,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.598Z",
+      "durationMs": 15
+    },
+    {
+      "round": 3,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.613Z",
+      "durationMs": 8
+    },
+    {
+      "round": 3,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.621Z",
+      "durationMs": 54
+    },
+    {
+      "round": 4,
+      "phase": "era",
+      "startedAt": "2026-10-23T09:34:03.675Z",
+      "durationMs": 8
+    },
+    {
+      "round": 4,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.683Z",
+      "durationMs": 16
+    },
+    {
+      "round": 4,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.699Z",
+      "durationMs": 7
+    },
+    {
+      "round": 4,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.706Z",
+      "durationMs": 49
+    },
+    {
+      "round": 5,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.755Z",
+      "durationMs": 17
+    },
+    {
+      "round": 5,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.772Z",
+      "durationMs": 8
+    },
+    {
+      "round": 5,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.780Z",
+      "durationMs": 38
+    },
+    {
+      "round": 6,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.818Z",
+      "durationMs": 17
+    },
+    {
+      "round": 6,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.835Z",
+      "durationMs": 7
+    },
+    {
+      "round": 6,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.842Z",
+      "durationMs": 47
+    },
+    {
+      "round": 7,
+      "phase": "era",
+      "startedAt": "2026-10-23T09:34:03.889Z",
+      "durationMs": 7
+    },
+    {
+      "round": 7,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.896Z",
+      "durationMs": 17
+    },
+    {
+      "round": 7,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:03.913Z",
+      "durationMs": 7
+    },
+    {
+      "round": 7,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:03.920Z",
+      "durationMs": 69
+    },
+    {
+      "round": 8,
+      "phase": "income",
+      "startedAt": "2026-10-23T09:34:03.989Z",
+      "durationMs": 16
+    },
+    {
+      "round": 8,
+      "phase": "plan",
+      "startedAt": "2026-10-23T09:34:04.005Z",
+      "durationMs": 8
+    },
+    {
+      "round": 8,
+      "phase": "reveal",
+      "startedAt": "2026-10-23T09:34:04.013Z",
+      "durationMs": 72
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "startedAt": "2026-10-23T09:34:03.412Z",
+      "durationMs": 106,
+      "influenceBefore": {
+        "bot0": 0,
+        "bot1": 0,
+        "bot2": 0,
+        "bot3": 0
+      },
+      "influenceAfter": {
+        "bot0": 1,
+        "bot1": 1,
+        "bot2": 1,
+        "bot3": 0
+      }
+    },
+    {
+      "round": 2,
+      "startedAt": "2026-10-23T09:34:03.518Z",
+      "durationMs": 79,
+      "influenceBefore": {
+        "bot0": 1,
+        "bot1": 1,
+        "bot2": 1,
+        "bot3": 0
+      },
+      "influenceAfter": {
+        "bot0": 2,
+        "bot1": 2,
+        "bot2": 0,
+        "bot3": 1
+      }
+    },
+    {
+      "round": 3,
+      "startedAt": "2026-10-23T09:34:03.597Z",
+      "durationMs": 78,
+      "influenceBefore": {
+        "bot0": 2,
+        "bot1": 2,
+        "bot2": 0,
+        "bot3": 1
+      },
+      "influenceAfter": {
+        "bot0": 3,
+        "bot1": 2,
+        "bot2": 1,
+        "bot3": 2
+      }
+    },
+    {
+      "round": 4,
+      "startedAt": "2026-10-23T09:34:03.675Z",
+      "durationMs": 80,
+      "influenceBefore": {
+        "bot0": 3,
+        "bot1": 2,
+        "bot2": 1,
+        "bot3": 2
+      },
+      "influenceAfter": {
+        "bot0": 4,
+        "bot1": 3,
+        "bot2": 2,
+        "bot3": 2
+      }
+    },
+    {
+      "round": 5,
+      "startedAt": "2026-10-23T09:34:03.755Z",
+      "durationMs": 63,
+      "influenceBefore": {
+        "bot0": 4,
+        "bot1": 3,
+        "bot2": 2,
+        "bot3": 2
+      },
+      "influenceAfter": {
+        "bot0": 4,
+        "bot1": 3,
+        "bot2": 2,
+        "bot3": 4
+      }
+    },
+    {
+      "round": 6,
+      "startedAt": "2026-10-23T09:34:03.818Z",
+      "durationMs": 70,
+      "influenceBefore": {
+        "bot0": 4,
+        "bot1": 3,
+        "bot2": 2,
+        "bot3": 4
+      },
+      "influenceAfter": {
+        "bot0": 4,
+        "bot1": 3,
+        "bot2": 2,
+        "bot3": 4
+      }
+    },
+    {
+      "round": 7,
+      "startedAt": "2026-10-23T09:34:03.889Z",
+      "durationMs": 99,
+      "influenceBefore": {
+        "bot0": 4,
+        "bot1": 3,
+        "bot2": 2,
+        "bot3": 4
+      },
+      "influenceAfter": {
+        "bot0": 9,
+        "bot1": 8,
+        "bot2": 4,
+        "bot3": 6
+      }
+    },
+    {
+      "round": 8,
+      "startedAt": "2026-10-23T09:34:03.988Z",
+      "durationMs": 95,
+      "influenceBefore": {
+        "bot0": 9,
+        "bot1": 8,
+        "bot2": 4,
+        "bot3": 6
+      },
+      "influenceAfter": {
+        "bot0": 9,
+        "bot1": 9,
+        "bot2": 5,
+        "bot3": 8
+      }
+    }
+  ],
+  "commands": [
+    {
+      "round": 1,
+      "pid": "bot2",
+      "slot": 1,
+      "type": "found",
+      "target": "-1,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "found",
+      "target": "-1,-1",
+      "result": "failed",
+      "reason": "that sector is no longer reachable",
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "found",
+      "target": "1,-3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot1",
+      "slot": 1,
+      "type": "found",
+      "target": "2,-2",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot2",
+      "slot": 2,
+      "type": "fleet",
+      "target": "-2,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "fleet",
+      "target": "-1,0",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot0",
+      "slot": 2,
+      "type": "fleet",
+      "target": "1,2",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 1,
+      "pid": "bot1",
+      "slot": 2,
+      "type": "fleet",
+      "target": "2,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 2,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "found",
+      "target": "-2,1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 2,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "spire",
+      "target": "1,-3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 2,
+      "pid": "bot1",
+      "slot": 1,
+      "type": "found",
+      "target": "3,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 2,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "strike",
+      "target": "-1,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": "attacker won"
+    },
+    {
+      "round": 3,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "found",
+      "target": "0,3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 3,
+      "pid": "bot2",
+      "slot": 1,
+      "type": "found",
+      "target": "-3,0",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 3,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "found",
+      "target": "-3,1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 3,
+      "pid": "bot0",
+      "slot": 2,
+      "type": "found",
+      "target": "1,-2",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 3,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "spire",
+      "target": "-1,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 4,
+      "pid": "bot1",
+      "slot": 1,
+      "type": "spire",
+      "target": "2,-2",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 4,
+      "pid": "bot2",
+      "slot": 1,
+      "type": "spire",
+      "target": "-3,0",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 4,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "fleet",
+      "target": "-3,1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 4,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "spire",
+      "target": "0,3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 5,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "fleet",
+      "target": "-3,1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 5,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "found",
+      "target": "-2,2",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 6,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "found",
+      "target": "0,-3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 6,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "found",
+      "target": "0,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 6,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "strike",
+      "target": "-3,0",
+      "result": "success",
+      "reason": null,
+      "outcome": "defender held"
+    },
+    {
+      "round": 7,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "lane",
+      "target": "L6",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 7,
+      "pid": "bot1",
+      "slot": 1,
+      "type": "spire",
+      "target": "3,-1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 7,
+      "pid": "bot2",
+      "slot": 1,
+      "type": "found",
+      "target": "-2,3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 7,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "fleet",
+      "target": "-3,1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 7,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "lane",
+      "target": "L0",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot1",
+      "slot": 1,
+      "type": "lane",
+      "target": "L2",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot2",
+      "slot": 1,
+      "type": "lane",
+      "target": "L7",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot3",
+      "slot": 1,
+      "type": "fleet",
+      "target": "-3,1",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot0",
+      "slot": 1,
+      "type": "found",
+      "target": "1,0",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot1",
+      "slot": 2,
+      "type": "found",
+      "target": "2,0",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot3",
+      "slot": 2,
+      "type": "lane",
+      "target": "L3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    },
+    {
+      "round": 8,
+      "pid": "bot0",
+      "slot": 2,
+      "type": "found",
+      "target": "3,-3",
+      "result": "success",
+      "reason": null,
+      "outcome": null
+    }
+  ],
+  "trades": [
+    {
+      "round": 2,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "crystal",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 2,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "plasma",
+      "get": "ice",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 2,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "crystal",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "credits",
+      "get": "crystal",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "credits",
+      "get": "crystal",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "ice",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 3,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 4,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 4,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 4,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "ice",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 4,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "ice",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 5,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 5,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "ice",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 5,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "plasma",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "crystal",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "ore",
+      "get": "credits",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 6,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "crystal",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 7,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "ice",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 7,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 7,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 7,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 7,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "crystal",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "ice",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "crystal",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot0",
+      "give": "plasma",
+      "get": "ice",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot1",
+      "give": "credits",
+      "get": "ice",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot2",
+      "give": "credits",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "ice",
+      "get": "ore",
+      "rate": 3,
+      "success": true
+    },
+    {
+      "round": 8,
+      "kind": "bank_exchange",
+      "pid": "bot3",
+      "give": "credits",
+      "get": "plasma",
+      "rate": 3,
+      "success": true
+    }
+  ],
+  "strikes": [
+    {
+      "round": 2,
+      "attacker": "bot3",
+      "defender": "bot2",
+      "from": "-1,0",
+      "to": "-1,-1",
+      "attackerTotal": 7,
+      "defenderTotal": 1,
+      "attackerWon": true,
+      "attackerDie": 3,
+      "defenderDie": 1,
+      "reroll": null
+    },
+    {
+      "round": 6,
+      "attacker": "bot3",
+      "defender": "bot2",
+      "from": "-3,1",
+      "to": "-3,0",
+      "attackerTotal": 4,
+      "defenderTotal": 6,
+      "attackerWon": false,
+      "attackerDie": 2,
+      "defenderDie": 5,
+      "reroll": null
+    }
+  ],
+  "tolls": [
+    {
+      "round": 7,
+      "from": "bot0",
+      "to": "bot3",
+      "lane": "L0",
+      "credits": 1,
+      "reason": "Mission route"
+    },
+    {
+      "round": 7,
+      "from": "bot1",
+      "to": "bot3",
+      "lane": "L0",
+      "credits": 1,
+      "reason": "Mission route"
+    }
+  ],
+  "finalScores": [
+    {
+      "pid": "bot1",
+      "inf": 9,
+      "penalty": 0,
+      "final": 9,
+      "credits": 3,
+      "segs": 2,
+      "breakdown": {
+        "stations": 6,
+        "lanes": 0,
+        "tradeRoutes": 1,
+        "missions": 2,
+        "trophies": 0,
+        "bonuses": 0,
+        "barons": 0,
+        "penalty": 0
+      }
+    },
+    {
+      "pid": "bot0",
+      "inf": 9,
+      "penalty": 0,
+      "final": 9,
+      "credits": 2,
+      "segs": 3,
+      "breakdown": {
+        "stations": 6,
+        "lanes": 1,
+        "tradeRoutes": 0,
+        "missions": 2,
+        "trophies": 0,
+        "bonuses": 0,
+        "barons": 0,
+        "penalty": 0
+      }
+    },
+    {
+      "pid": "bot3",
+      "inf": 8,
+      "penalty": 0,
+      "final": 8,
+      "credits": 0,
+      "segs": 4,
+      "breakdown": {
+        "stations": 4,
+        "lanes": 0,
+        "tradeRoutes": 0,
+        "missions": 2,
+        "trophies": 2,
+        "bonuses": 0,
+        "barons": 0,
+        "penalty": 0
+      }
+    },
+    {
+      "pid": "bot2",
+      "inf": 5,
+      "penalty": 0,
+      "final": 5,
+      "credits": 0,
+      "segs": 3,
+      "breakdown": {
+        "stations": 4,
+        "lanes": 1,
+        "tradeRoutes": 0,
+        "missions": 0,
+        "trophies": 0,
+        "bonuses": 0,
+        "barons": 0,
+        "penalty": 0
+      }
+    }
+  ],
+  "winners": [
+    "bot1"
+  ],
+  "summary": {
+    "averageRoundSeconds": 0.08,
+    "failureRate": 0.0263,
+    "totalCommands": 38,
+    "failedCommands": 1,
+    "failedPerPlayerRound": {
+      "bot3:1": 1
+    },
+    "commandCounts": {
+      "found": 17,
+      "spire": 6,
+      "lane": 5,
+      "fleet": 8,
+      "research": 0,
+      "strike": 2
+    },
+    "mostUsed": "found",
+    "leastUsed": "research",
+    "tradeOffersProposed": 0,
+    "tradeOffersAccepted": 0,
+    "bankExchanges": 38,
+    "strikes": 2,
+    "tollCreditsPaid": 2
+  }
+}

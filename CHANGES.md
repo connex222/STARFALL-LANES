@@ -1,34 +1,33 @@
-# STARFALL LANES — Review Programme, Phase 1
+# STARFALL LANES — Review Phase 4 Changes
 
-## Players
-- All eight established leaders display the correct Frontier, Expansion and Ascension expression portraits: 72/72. The public portrait set is now 256px WebP, drastically reducing loading size.
-- Sound Lab no longer lists the backing music twice; the existing premium sound cues are retained. The backing composition has been regenerated from synthesiser code in true 48 kHz stereo at 192 kbps, rather than upsampled.
-- No changes to modes, resource costs, scoring, combat, or turns.
+## For players
+- **Backup order:** each round, optionally queue one fallback action. It triggers only when your regular action fails, in the same command position, and is used at most once. It costs the normal resources only when executed. Failed-order compensation (+1 Credit) is only awarded when no backup succeeds.
+- **Quick mode:** queue **three** regular orders instead of two. Standard and Advanced still have two.
+- **More responsive reveal:** independent actions can share a TV animation beat, while the server still determines outcomes in the same authoritative order. Strikes remain last.
+- All existing route tolls, route scores, Missions, sound controls, Playtest Mode, phone accessibility controls and reconnection remain in place.
 
-## Hosts
-- The server is still authoritative; original QR joining, reconnect and bot takeover are unchanged.
-- Game can start at home over Wi-Fi or from Render. This working folder has not been deployed to Render or committed to GitHub.
-- Local `npm test` succeeds without fetching packages; clean production runtime still requires `npm install` for `ws`.
+## For the host
+- In the phone **Host menu**, select **Normal** (600 ms per command, 1,500 ms per Strike) or **Fast** (250 ms / 700 ms). Only the host can change it. The TV shows Reveal · Fast when applicable.
+- The optional Playtest log captures primary and Backup attempts separately. A successful backup is not an extra regular action.
 
-## Developers
-- Consolidated all 72 images in `public/art/avatars/`, removed duplicate public paths, and added WebP HTTP MIME support.
-- Original 512px PNG masters are held in ignored `art-source/avatars/` for safekeeping. They are included in the complete download but will **not** be pushed by Git by default; back them up privately.
-- Moved phase/batch notes into `docs/changelog/` and test scripts into `tests/`, while preserving their relative imports.
-- Rebuilt public screens from `src/`. Offline build uses already-embedded fonts and QR code if optional npm developer packages cannot be fetched.
-- Removed obsolete expiring-link installers and relocated old procedural audio backups outside `public`.
-- Web-served `public/` is approximately 8.2 MiB, reduced from roughly 67 MiB.
+## Tunable values in `server.js` (`TUNING`)
 
-## Commands
-- `npm start` — host game (after `npm install`, which needs access to npm registry).
-- `npm run build` — generate public pages from editable source.
-- `npm test` — build and run the full **fast offline regression** suite (passing).
-- `npm run test:sim` — nine seeded in-process games (included in suite).
-- `npm run test:balance` — historical 27-game diagnostic cohort (long-running, not part of fast suite; this environment timed out).
-- `npm run test:live` — not implemented until the review's Phase 7; deliberately fails to prevent false release sign-off.
-- `python3 tools/audit_portraits.py` — audit 72 production files.
+| Key | Default | Meaning |
+|---|---:|---|
+| `tollPerLane` | 1 | Credit toll per rival lane |
+| `longLaneMin` | 3 | Minimum lane segment length for scoring |
+| `longLaneInfluence` | 1 | Influence per qualifying lane |
+| `tradeRouteInfluence` | 1 | Influence per connected station pair |
+| `extraStations` | 2 | Station count: max(6, players + extraStations) |
+| `quickCommands` | 3 | Quick mode order slots |
+| `regularCommands` | 2 | Standard / Advanced order slots |
+| `revealCommandMs` | 600 | Normal command animation pause |
+| `revealStrikeMs` | 1500 | Normal Strike pause |
+| `revealFastCommandMs` | 250 | Fast command animation pause |
+| `revealFastStrikeMs` | 700 | Fast Strike pause |
 
-## Still outstanding
-- Real TV + phone WebSocket multiplayer acceptance tests and browser-device audio.
-- Gameplay identity / 8-player scoring / Advanced-mode balance, scheduled for later review phases.
-- Normal npm dependency install could not be verified in this sandbox (external registry unavailable); existing server tests use a stub.
-- No GitHub push or Render deployment performed.
+## Files changed
+`server.js`, `src/phone.html`, `src/tv.html`, `public/how-to-play.html`, `package.json`, `tests/test-phase4-agency.js`, `tests/smoke-phase4-8bots.js`, `docs/PHASE-4-AGENCY.md`, `README.md`, generated `public/phone.html` and `public/tv.html`.
+
+## Verification / limitations
+`npm test` passed, including **11 new Phase 4 tests** and the existing suites. Five seeded offline bot matches completed at 2/4/8 Quick, 4 Standard and 8 Advanced players. `node --check` passed for all edited JS and extracted client scripts. Public assets retain **72 WebP portraits** and remain below 15 MB. This is **not** human multiplayer, real-browser, performance or device-audio acceptance. GitHub/Render remain unchanged until separately updated.

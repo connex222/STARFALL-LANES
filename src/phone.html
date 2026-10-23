@@ -271,6 +271,9 @@ body.dialog-open{overflow:hidden}
 .score-detail dl{padding:.2rem .85rem .8rem;margin:0}
 .score-detail dl div{display:flex;justify-content:space-between;gap:1rem;font-size:.79rem;padding:.28rem 0;border-top:1px solid rgba(120,176,206,.17)}
 .score-detail dt{color:var(--muted,#a4b7c8)}.score-detail dd{font-variant-numeric:tabular-nums;font-weight:800;margin:0}
+.backup-slot{display:grid;gap:.4rem;margin:.8rem 0 .35rem;border:2px dashed rgba(104,218,251,.55);border-radius:14px;padding:.65rem;background:linear-gradient(135deg,rgba(32,118,157,.13),transparent)}
+.backup-slot>b{color:var(--accent);font-size:.9rem}.backup-slot>small{color:var(--muted);font-size:.75rem;line-height:1.35}
+.backup-slot .slot{width:100%}.backup-slot .row{margin-top:.2rem}
 </style>
 </head>
 <body>
@@ -388,7 +391,7 @@ const canPay = (res, c) => Object.entries(c).every(([k, v]) => (res[k] || 0) >= 
 function cmdCost(c) {
   if (!c || !priv) return {};
   const K = priv.costs;
-  if (c.type === 'found') return K.found;
+  if (c.type === 'found') return sumCost(K.found, { credits: priv.legal?.foundTolls?.[c.target] || 0 });
   if (c.type === 'spire') return K.spire;
   if (c.type === 'lane') { const lc = Object.assign({}, K.lanes[c.lane] || {}); if (ui.plan && ui.plan.play.some(p => heldKey(p.uid) === 'warp')) { const l = lane(c.lane); if (l) { lc.plasma = Math.max(0, lc.plasma - 1); lc.ore = Math.max(0, lc.ore - 1); } } return lc; }
   if (c.type === 'fleet') return { credits: (c.n || 0) * K.fleetEach };
@@ -414,7 +417,9 @@ function ensurePlan() {
   if (!g || g.phase !== 'plan') return;
   if (ui.planRound !== g.round || !ui.plan) {
     ui.planRound = g.round; ui.pick = null; ui.editSlot = null; ui.tab = 'console';
-    ui.plan = JSON.parse(JSON.stringify(priv.plan || { cmds: [null, null], rank: [], play: [] }));
+    ui.plan = JSON.parse(JSON.stringify(priv.plan || { cmds: Array(priv.commandSlots || 2).fill(null), backup: null, rank: [], play: [] }));
+    ui.plan.cmds = Array.from({length: priv.commandSlots || 2},(_,i)=>ui.plan.cmds?.[i]||null);
+    ui.plan.backup ||= null;
     if (!ui.plan.rank || !ui.plan.rank.length) ui.plan.rank = g.pool.map(c => c.uid);
     ui.ex = { give: null, get: null }; ui.offer = { to: null, give: {}, get: {} }; ui.prevOffersSent = null; ui.offerPending = false;
     if (navigator.vibrate) navigator.vibrate(60);
@@ -422,7 +427,7 @@ function ensurePlan() {
   ui.plan.rank = ui.plan.rank.filter(u => g.pool.some(c => c.uid === u)).concat(g.pool.map(c => c.uid).filter(u => !ui.plan.rank.includes(u)));
 }
 function pushPlan(engage) {
-  const o = { t: 'plan', cmds: ui.plan.cmds, rank: ui.plan.rank, play: ui.plan.play, supply: ui.plan.supply || null };
+  const o = { t: 'plan', cmds: ui.plan.cmds, backup: ui.plan.backup || null, rank: ui.plan.rank, play: ui.plan.play, supply: ui.plan.supply || null };
   if (engage !== undefined) o.engage = engage;
   else if (priv.engaged) o.engage = false;
   send(o);
@@ -552,6 +557,7 @@ function renderLobby() {
     set('foot', `<button class="btn primary" id="startBtn" ${pub.players.length < 2 ? 'disabled' : ''}>${pub.players.length < 2 ? 'Need 2+ players' : `Start game (${pub.players.length} players)`}</button>`);
   } else {
     body += `<p class="note" style="margin-top:1rem">Waiting for the host to start the game. Mode: <b>${C.MODES[pub.mode].name}</b>.</p>`;
+    if (pub.playtestEnabled) body += `<p class="note">Playtest logging is on. Results will be available after the game.</p>`;
     set('foot', '');
   }
   set('body', body);
@@ -590,7 +596,7 @@ function missionProgress(m) {
 function missionCard(m, extra) {
   const progress = missionProgress(m);
   const bar = progress && progress.total ? `<div class="progress" role="progressbar" aria-label="${esc(m.text)} progress" aria-valuemin="0" aria-valuemax="${progress.total}" aria-valuenow="${progress.current}"><span style="width:${100 * progress.current / progress.total}%"></span></div>` : '';
-  return `<div class="card mission-card${m.done ? ' done' : ''}${extra || ''}"><span class="tag">${m.done ? '✔ Scored' : m.met ? 'Scores at Reveal' : '+' + m.inf}</span><b>${esc(m.text)}</b><div class="mission-meta">${esc(progress ? progress.detail : '')}${m.done ? ` · ${m.inf} Influence earned` : ` · ${m.inf} Influence available`}</div>${bar}</div>`;
+  return `<div class="card mission-card${m.done ? ' done' : ''}${extra || ''}"><span class="tag">${m.done ? '✔ Scored' : m.met ? 'Scores at Reveal' : '+' + m.inf}</span><b>${esc(m.text)}</b><div class="mission-meta">${esc(progress ? progress.detail : '')}${m.toll ? ` · Route toll: ${m.toll} Credit${m.toll===1?'':'s'}` : ''}${m.done ? ` · ${m.inf} Influence earned` : ` · ${m.inf} Influence available`}</div>${bar}</div>`;
 }
 function renderMissions() {
   if (priv.keepDone) {
@@ -644,17 +650,29 @@ function renderWatch() {
   set('foot', '');
   return { map: true };
 }
+function savePlaytestFile(format) {
+  const report = G()?.playtest?.report;
+  if (!report) return;
+  const content = format === 'json' ? JSON.stringify(report.json, null, 2) : report.markdown;
+  const type = format === 'json' ? 'application/json' : 'text/markdown';
+  const file = `starfall-playtest-${pub.room}-${Date.now()}.${format}`;
+  const url = URL.createObjectURL(new Blob([content], {type: type + ';charset=utf-8'}));
+  const a = document.createElement('a');a.href = url; a.download = file; document.body.appendChild(a);a.click();a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 function renderOver() {
   const g = G(), r = g.results;
   const w = r.winners.includes(priv.pid);
   set('head', `<h2>${w ? (r.winners.length > 1 ? 'Shared victory!' : 'You win!') : 'Game over'}</h2><p class="lead">${esc(g.log[g.log.length - 1] || '')}</p>`);
   const label = x => { const b = x.breakdown; if (!b) return ''; const items = [
-    ['Trade Stations & Spires', b.stations], ['Completed Missions', b.missions],
+    ['Trade Stations & Spires', b.stations], ['Long Hyperlanes', b.lanes || 0], ['Trade Routes', b.tradeRoutes || 0], ['Completed Missions', b.missions],
     ['Trophies', b.trophies], ['Cosmic Event bonuses', b.bonuses],
     ['Baron cards', b.barons], ['Unfinished Mission penalty', -b.penalty]
   ]; return `<details class="score-detail"><summary>How ${esc(pub.players.find(p=>p.id===x.pid)?.name || 'this house')} scored ${x.final} Influence</summary><dl>${items.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${v>0?'+':''}${v}</dd></div>`).join('')}</dl></details>`; };
   set('body', `<table class="res-tbl">${r.rows.map((x, i) => { const p = pub.players.find(y => y.id === x.pid); return `<tr class="${r.winners.includes(x.pid) ? 'win' : ''}"><td>${i + 1}</td><td>${avatarHTML(AVof(p), { size: 30 })}</td><td>${esc(p.name)}${x.penalty ? `<br><small style="color:var(--muted)">${x.inf} − ${x.penalty} unfinished</small>` : ''}</td><td class="n">${x.final}</td></tr>`; }).join('')}</table><h3 style="margin-top:1.1rem">Where the Influence came from</h3><div class="score-details">${r.rows.map(label).join('')}</div>`);
-  set('foot', priv.isHost ? `<button class="btn primary" id="again">Back to lobby</button>` : '');
+  set('foot', priv.isHost ? `${g.playtest?.report ? '<button class="btn" id="playtestJsonPhone">Download playtest JSON</button><button class="btn" id="playtestMdPhone">Download playtest summary</button>' : ''}<button class="btn primary" id="again">Back to lobby</button>` : '');
+  if ($('playtestJsonPhone')) $('playtestJsonPhone').onclick = () => savePlaytestFile('json');
+  if ($('playtestMdPhone')) $('playtestMdPhone').onclick = () => savePlaytestFile('md');
   if ($('again')) $('again').onclick = () => send({ t: 'toLobby' });
   return { map: false };
 }
@@ -703,7 +721,7 @@ function renderIntel(){
   const lanes=g.lanes.map(l=>{
     const owner=players.get(l.owner);
     const label=owner?(l.owner===priv.pid?'Your house':owner.name):'Unclaimed';
-    return `<li class="intel-item"><strong>${esc(hexName(l.a))} ↔ ${esc(hexName(l.b))}</strong><small>${l.len} hex segment${l.len===1?'':'s'} · ${esc(label)}${(hex(l.a)?.type==='beacon'||hex(l.b)?.type==='beacon')?' · Beacon connection':''}</small></li>`;
+    return `<li class="intel-item"><strong>${esc(hexName(l.a))} ↔ ${esc(hexName(l.b))}</strong><small>${l.len} hex segment${l.len===1?'':'s'} · ${esc(label)}${l.owner ? ` · Toll ${l.toll} Credit${l.toll===1?'':'s'} per use · ${l.scores?'Long lane scores Influence':'Short lane'}` : ' · No toll until claimed'}${(hex(l.a)?.type==='beacon'||hex(l.b)?.type==='beacon')?' · Beacon connection':''}</small></li>`;
   });
   set('body',`<label class="f" for="intelFilter">Show sectors</label><select id="intelFilter" class="intel-select">${filters.map(([k,label])=>`<option value="${k}"${ui.intelFilter===k?' selected':''}>${label}</option>`).join('')}</select>
     <section class="intel-zone" aria-label="Galaxy sector catalogue"><h3>${rows.length} of ${g.hexes.length} sectors</h3>${sectorList}</section>
@@ -741,50 +759,59 @@ function renderPlan() {
   return renderConsole();
 }
 function engageFoot() {
+  const max = priv.commandSlots || 2;
   const n = ui.plan.cmds.filter(Boolean).length;
   if (priv.engaged) set('foot', `<button class="btn good" id="eng">✔ Engaged — tap to change orders</button><div class="engage-hint">Your orders are locked until you tap to change them.</div>`);
-  else set('foot', `<button class="btn primary" id="eng">Engage${n < 2 ? ` (${n} of 2 orders)` : ''}</button><div class="engage-hint">${n ? `${n} of 2 orders selected` : 'Orders are optional — empty slots are skipped'}</div>`);
+  else set('foot', `<button class="btn primary" id="eng">Engage${n < max ? ` (${n} of ${max} orders)` : ''}</button><div class="engage-hint">${n ? `${n} of ${max} orders selected` : 'Orders are optional — empty slots are skipped'} · Backup is optional</div>`);
   $('eng').onclick = () => { pushPlan(!priv.engaged); };
 }
 function renderConsole() {
   const g = G(), L = priv.legal, K = priv.costs, res = priv.res;
-  const phaseStatus = `<div class="phase-status" role="status"><span><span class="phase-label">Command phase · ${esc(C.ERA_NAMES[g.era])}</span><strong>${priv.engaged ? 'Orders submitted' : 'Prepare your orders'}</strong></span><span class="phase-count ${priv.engaged ? 'complete' : ''}">${ui.plan.cmds.filter(Boolean).length}/2 orders</span></div>`;
+  const phaseStatus = `<div class="phase-status" role="status"><span><span class="phase-label">Command phase · ${esc(C.ERA_NAMES[g.era])}</span><strong>${priv.engaged ? 'Orders submitted' : 'Prepare your orders'}</strong></span><span class="phase-count ${priv.engaged ? 'complete' : ''}">${ui.plan.cmds.filter(Boolean).length}/${priv.commandSlots || 2} orders</span></div>`;
   let head = phaseStatus;
   if (priv.stormNext.length) head += `<div class="warn" role="status"><i></i><span>The storm reaches ${priv.stormNext.length} of your sectors next round. They won't produce.</span></div>`;
-  const slots = [0, 1].map(i => {
+  const slots = Array.from({length:priv.commandSlots || 2},(_,i) => {
     const c = ui.plan.cmds[i];
     if (!c) return `<button class="slot${ui.editSlot === i ? ' editing' : ''}" data-slot="${i}"><span class="n">${i + 1}</span><span class="grow"><b>Empty order</b><small>Choose a command below</small></span></button>`;
     return `<div class="slot filled"><span class="n">${i + 1}</span><span class="grow"><b>${cmdTitle(c)}</b><small>${esc(cmdDetail(c))}</small></span><span class="costs" style="display:flex;gap:.3rem;font-size:.82rem">${costHTML(cmdCost(c))}</span><button class="icon-btn" data-clear="${i}" aria-label="Remove order ${i + 1}">×</button></div>`;
   }).join('<div style="height:.45rem"></div>');
-  const total = sumCost(cmdCost(ui.plan.cmds[0]), cmdCost(ui.plan.cmds[1]));
+  const total = ui.plan.cmds.reduce((sum,c)=>sumCost(sum,cmdCost(c)),{});
   const short = Object.entries(total).filter(([k, v]) => v > (res[k] || 0)).map(([k]) => RES_NAMES[k]);
   const full = ui.plan.cmds.every(Boolean);
+  const selectingBackup = ui.editSlot === 'backup' || (full && !ui.plan.backup);
   const rsch = ui.plan.cmds.some(c => c && c.type === 'research');
   const defs = [
     ['found', 'Found Outpost', K.found, L.found.length, 'No free sector next to yours'],
     ['spire', 'Raise Spire', K.spire, L.spire.length, 'Needs an Outpost on a Trade Station'],
     ['lane', 'Open Hyperlane', null, L.lane.length, 'Needs a Trade Station at one end'],
     ['fleet', 'Build Fleet', { credits: K.fleetEach }, L.fleetPlace.length, 'No sectors'],
-    ['research', 'Research', K.research, L.research.length && !rsch, rsch ? 'Once per round' : 'Nothing to research'],
+    ['research', 'Research', K.research, L.research.length && (!rsch || selectingBackup), rsch ? 'Research can succeed only once per round' : 'Nothing to research'],
     ['strike', 'Strike', {}, L.strike.length, pub.game.event === 'ceasefire' ? 'Cease-fire this round' : 'No enemy next to your Fleets']
   ];
-  const btns = defs.map(([k, name, cost, ok, why]) => `<button class="cmd" data-cmd="${k}" ${ok && !full ? '' : 'disabled'}><b>${name}</b><span class="costs">${k === 'lane' ? '<span class="cost">1' + ricon('ore') + '+1' + ricon('plasma') + ' per segment</span>' : k === 'fleet' ? `<span class="cost">${K.fleetEach}${ricon('credits')} each</span>` : costHTML(cost)}</span>${!ok ? `<span class="why">${why}</span>` : ''}</button>`).join('');
-  set('head', head + slots + (short.length ? `<p class="note bad">Not enough ${short.join(', ')} for both orders. A command that can't be paid fails and refunds 1 Credit.</p>` : '') + (full ? '' : `<div class="cmds">${btns}</div>`) + `<p class="note">Trade on the Trade tab before you Engage. Orders resolve in turn order; Strikes happen last.</p>`);
+  const btns = defs.map(([k, name, cost, ok, why]) => `<button class="cmd" data-cmd="${k}" ${ok && (!full || selectingBackup) ? '' : 'disabled'}><b>${name}</b><span class="costs">${k === 'lane' ? '<span class="cost">1' + ricon('ore') + '+1' + ricon('plasma') + ' per segment</span>' : k === 'fleet' ? `<span class="cost">${K.fleetEach}${ricon('credits')} each</span>` : costHTML(cost)}</span>${!ok ? `<span class="why">${why}</span>` : ''}</button>`).join('');
+  const fallback = ui.plan.backup;
+  const backupUI = `<div class="backup-slot"><b>Backup — only if an order fails</b><small>Free to queue. Costs the normal resources only if used. It replaces the failed order in the same slot, once per round.</small>` +
+    (fallback ? `<div class="row"><div class="grow"><b>${cmdTitle(fallback)}</b><small>${esc(cmdDetail(fallback))}</small></div><button class="icon-btn" data-backup-clear="1" aria-label="Remove Backup order">×</button></div>`
+      : `<button class="slot${selectingBackup?' editing':''}" data-slot="backup"><span class="n">↪</span><span class="grow"><b>Choose Backup</b><small>Optional safety net for one failed order</small></span></button>`) + `</div>`;
+  set('head', head + slots + backupUI + (short.length ? `<p class="note bad">Not enough ${short.join(', ')} for all ${priv.commandSlots || 2} orders. An unaffordable command may fail. A successful Backup prevents its failed-order refund.</p>` : '') + (!full || !fallback ? `<div class="cmds">${btns}</div>` : '') + `<p class="note">Trade on the Trade tab before you Engage. Regular orders resolve in turn order; Strikes happen last. Tap the Backup slot before selecting a command to set your fallback.</p>`);
   set('body', '');
   engageFoot();
   document.querySelectorAll('[data-clear]').forEach(b => b.onclick = () => { ui.plan.cmds[+b.dataset.clear] = null; pushPlan(); render(); });
-  document.querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { ui.editSlot = +b.dataset.slot; render(); });
+  document.querySelectorAll('[data-backup-clear]').forEach(b => b.onclick = () => { ui.plan.backup = null; ui.editSlot = 'backup'; pushPlan(); render(); });
+  document.querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { ui.editSlot = b.dataset.slot === 'backup' ? 'backup' : +b.dataset.slot; render(); });
   document.querySelectorAll('[data-cmd]').forEach(b => b.onclick = () => startPick(b.dataset.cmd));
   return { map: false };
 }
 function startPick(kind) {
-  const slot = ui.editSlot != null && !ui.plan.cmds[ui.editSlot] ? ui.editSlot : ui.plan.cmds[0] ? 1 : 0;
+  const slot = ui.editSlot === 'backup' ? 'backup' : ui.editSlot != null && !ui.plan.cmds[ui.editSlot] ? ui.editSlot : ui.plan.cmds.findIndex(c=>!c) === -1 ? 'backup' : ui.plan.cmds.findIndex(c=>!c);
   ui.pick = { kind, slot, step: 0, d: { n: Math.min(3, Math.max(1, Math.floor(priv.res.credits / priv.costs.fleetEach)) || 1) } };
   ui.editSlot = null;
   render();
 }
 function finishPick(cmd) {
-  ui.plan.cmds[ui.pick.slot] = cmd; ui.pick = null; pushPlan(); render();
+  if (ui.pick.slot === 'backup') ui.plan.backup = cmd;
+  else ui.plan.cmds[ui.pick.slot] = cmd;
+  ui.pick = null; pushPlan(); render();
 }
 function setMarks() {
   const g = G();
@@ -810,8 +837,8 @@ function renderPicker() {
   let head = '', body = '', foot = '', mapOn = true;
   const bindCommon = () => { $('pCancel').onclick = () => { ui.pick = null; render(); }; };
   if (P.kind === 'found' || P.kind === 'spire') {
-    head = `<h2>${P.kind === 'found' ? 'Found Outpost' : 'Raise Spire'}</h2><p class="lead">${P.kind === 'found' ? 'Tap a glowing sector next to your territory or your hyperlanes.' : 'Tap one of your Trade Stations.'} Cost: ${costHTML(P.kind === 'found' ? K.found : K.spire)}</p>`;
-    body = d.target ? `<div class="row"><div class="grow"><b>${esc(hexName(d.target))}</b><small>${P.kind === 'spire' ? 'Spire: 2 Influence, 2 Credits a round' : hex(d.target).type === 'station' ? 'Trade Station: 1 Influence, 1 Credit a round' : 'Produces every round outside the storm'}</small></div></div>` : '';
+    head = `<h2>${P.kind === 'found' ? 'Found Outpost' : 'Raise Spire'}</h2><p class="lead">${P.kind === 'found' ? 'Tap a glowing sector near your territory or a connected hyperlane. Rival lanes charge Credits.' : 'Tap one of your Trade Stations.'} Cost: ${costHTML(P.kind === 'found' ? K.found : K.spire)}</p>`;
+    body = d.target ? `<div class="row"><div class="grow"><b>${esc(hexName(d.target))}</b><small>${P.kind === 'spire' ? 'Spire: 2 Influence, 2 Credits a round' : (hex(d.target).type === 'station' ? 'Trade Station: 1 Influence, 1 Credit a round' : 'Produces every round outside the storm') + (L.foundTolls?.[d.target] ? ` · Toll: ${L.foundTolls[d.target]} Credit${L.foundTolls[d.target] === 1 ? '' : 's'} to rival lane owners` : ' · No toll')}</small></div></div>` : '';
     foot = cancel + `<button class="btn primary" id="pOk" ${d.target ? '' : 'disabled'}>Confirm</button>`;
     set('head', head); set('body', body); set('foot', foot); bindCommon();
     $('pOk').onclick = () => finishPick({ type: P.kind, target: d.target });
@@ -1104,9 +1131,15 @@ function renderModal() {
     if (g) {
       h += `<p class="lead">A bot can play for anyone who has left or dropped out. Hand control back when they return.</p><div class="list">${pub.players.filter(p => p.id !== priv.pid).map(p => `<div class="row">${avatarHTML(AVof(p), { size: 34, off: !p.connected })}<div class="grow"><b>${esc(p.name)}</b><small>${p.isAI ? 'Bot playing' : p.connected ? 'Connected' : 'Disconnected'}</small></div>${p.bot ? '' : `<button class="btn small" data-ai="${p.id}">${p.isAI ? 'Return control' : 'Bot takes over'}</button>`}</div>`).join('')}</div>`;
       h += `<div style="display:flex;flex-direction:column;gap:.5rem;margin-top:1rem"><button class="btn danger" id="endG">${g.phase === 'over' ? 'Back to lobby' : 'End game now and score it'}</button><button class="btn" id="closeM">Close</button></div>`;
-    } else h += `<button class="btn" id="closeM">Close</button>`;
+    } else {
+      h += `<div style="margin:.8rem 0;padding:.85rem;border:1px solid rgba(76,181,228,.35);border-radius:12px"><label style="display:flex;gap:.65rem;align-items:center;cursor:pointer"><input type="checkbox" id="playtestToggle" ${pub.playtestEnabled?'checked':''} style="width:22px;height:22px;accent-color:#33d6ff"><span><b>Playtest log</b><small style="display:block;color:var(--muted);margin-top:.2rem">Optional · off by default. Records timings, orders and trades for this game only. No names or actions are sent to an external service.</small></span></label></div>`;
+      h += `<button class="btn" id="closeM">Close</button>`;
+    }
+    h += `<section class="trade-section"><b>Reveal speed</b><p class="note">Normal: 600 ms per command / 1,500 ms per Strike. Fast: 250 / 700 ms. The server decides the result in the same order.</p><div class="seg" style="display:grid;grid-template-columns:1fr 1fr;gap:.45rem"><button data-speed="normal" class="${pub.revealSpeed === 'normal' ? 'on' : ''}" aria-pressed="${pub.revealSpeed === 'normal'}">Normal</button><button data-speed="fast" class="${pub.revealSpeed === 'fast' ? 'on' : ''}" aria-pressed="${pub.revealSpeed === 'fast'}">Fast</button></div></section>`;
     sh.innerHTML = h; md.classList.add('show');
     document.querySelectorAll('[data-ai]').forEach(b => b.onclick = () => send({ t: 'toAI', pid: b.dataset.ai }));
+    document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { send({ t: 'revealSpeed', speed: b.dataset.speed }); });
+    if ($('playtestToggle')) $('playtestToggle').onchange = e => send({ t: 'playtestToggle', enabled: !!e.target.checked });
     if ($('endG')) $('endG').onclick = () => { send({ t: 'endGame' }); ui.modal = null; render(); };
     $('closeM').onclick = () => { ui.modal = null; render(); };
     return;
