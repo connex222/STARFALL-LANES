@@ -20,9 +20,9 @@ function avatarArtFallback(el, neutral, master) {
 function avatarHTML(av, o) {
   o = o || {};
   const s = o.size || 48, mood = o.mood || 'neutral', era = ERA_IDS[o.era || 0] || 'frontier';
-  const master = `art/avatars/${av.id}_frontier_neutral.png`;
-  const neutral = `art/avatars/${av.id}_${era}_neutral.png`;
-  const wanted = `art/avatars/${av.id}_${era}_${mood}.png`;
+  const master = `art/avatars/${av.id}_frontier_neutral.webp`;
+  const neutral = `art/avatars/${av.id}_${era}_neutral.webp`;
+  const wanted = `art/avatars/${av.id}_${era}_${mood}.webp`;
   const src = [wanted, neutral, master].find(file => !artFailed.has(file));
   const img = src ? `<img src="${src}" alt="" loading="eager" onerror="avatarArtFallback(this, '${neutral}', '${master}')">` : '';
   const state = mood === 'furious' ? 'under pressure' : mood === 'smug' ? 'celebrating' : 'ready';
