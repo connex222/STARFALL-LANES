@@ -1,0 +1,20 @@
+STARFALL LANES — AUDIO UPGRADE / PHASE 14
+
+The game already plays offline with 72 portraits, one upgraded 90s stereo
+background score and nine original synthesised sound effects.
+
+To finish installing the NINE premium sounds already generated using Mirelo:
+  1. Extract this ZIP completely on a Windows PC connected to the internet.
+  2. Double-click Run-Premium-Audio-Install.cmd at the top of the folder.
+  3. Confirm the SUCCESS: All 9 premium effects installed message.
+  4. Start the game and open Sound Lab to hear the updated cues.
+  5. Commit/redeploy the edited project to GitHub/Render.
+
+Signed audio downloads expire 29 October 2026. If downloads fail, existing
+sound effects are preserved; the playable game remains intact. The premium
+sounds are NOT YET bundled in this ZIP.
+
+On Mac/Linux with Python 3:
+  python3 tools/download_mirelo_audio.py
+
+Read PHASE-14-AUDIO-READINESS.md for verification and limitations.

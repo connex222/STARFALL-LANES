@@ -338,7 +338,18 @@ const Snd = {
     if(!this.on||!this.ctx||!this.buffers[k])return false;
     const c=this.ctx,src=c.createBufferSource(),g=c.createGain();
     src.buffer=this.buffers[k];g.gain.value=Math.min(.85,Math.max(.02,gain*.55));
+    if(['solar-storm','fleet-clash','era-transition','victory','spire-build'].includes(k))this.duckMusic();
     src.connect(g).connect(this.output);src.start();return true;
+  },
+  duckMusic(){
+    // Keep cinematic effects intelligible without abrupt music cut-offs.
+    if(!this.on||!this.ctx||!this.music)return;
+    const t=this.ctx.currentTime, level=this.music.gain.gain;
+    level.cancelScheduledValues(t);
+    level.setValueAtTime(level.value,t);
+    level.linearRampToValueAtTime(.048,t+.1);
+    level.setValueAtTime(.048,t+.8);
+    level.linearRampToValueAtTime(.19,t+2.6);
   },
   startAmbience() {
     if(!this.on||!this.ctx)return;

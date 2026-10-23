@@ -190,9 +190,9 @@ Eight new Smug portraits are included with three era-based visual treatments eac
 ## Batch 4 character and sound update (October 2026)
 
 - 72 512×512 character portraits are bundled: eight leaders, Frontier/Expansion/Ascension, Neutral/Smug/Furious. The 24 Furious files derive from eight new Furious character paintings with distinct era visual treatments.
-- `public/audio/command-bridge-theme.mp3`: original 90-second instrumental backing music. Enable TV sound, then use the independent Music button. The game remembers the preferred music setting; effects remain opt-in and phone-local.
+- `public/audio/command-bridge-theme.mp3`: original 90-second 48 kHz stereo / 192 kbps instrumental backing music. Enable TV sound, then use the independent Music button. The game remembers the preferred music setting; effects remain opt-in and phone-local.
 - `public/sound-lab.html`: preview all ten audio tracks independently.
-- Nine premium sound effects have been generated using Mirelo, but provider downloads were blocked within the authoring workspace. Existing bundled effects remain playable. On a networked computer, `python tools/download_mirelo_audio.py` installs the new sounds before their signed links expire on **29 October 2026**. Check successful results and redeploy.
+- Nine premium sound effects have been generated using Mirelo, but provider downloads were blocked within the authoring workspace. Existing bundled effects remain playable. On a networked Windows computer, double-click `Run-Premium-Audio-Install.cmd` (no Python needed); or run `python tools/download_mirelo_audio.py` on another computer. Both installers validate all nine cues and preserve originals on failure. The installer replaces sounds before their signed links expire on **29 October 2026**. Check successful results and redeploy.
 - Sonilo's text-to-music trial was already exhausted; the new score is an original local synth composition, not a Sonilo deliverable.
 - `npm run test:phase13` checks portraits, music length/channels, TV/phone integration and Sound Lab. `npm run test:offline` includes it.
 - See `PHASE-13-AUDIO-AND-FURIOUS.md` for limits, provenance and asset import steps.

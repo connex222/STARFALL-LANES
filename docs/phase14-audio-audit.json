@@ -1,0 +1,109 @@
+{
+  "project": "Starfall Lanes",
+  "build": "Phase 14 Audio Readiness",
+  "tracks": [
+    {
+      "file": "ambient-orbit.mp3",
+      "duration_seconds": 16.06,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 96165,
+      "bytes": 193004,
+      "sha256": "c687663f434a2f6e826dfb1bec9d34ff6e6a6e35c26c73efa32ca52c6909523e",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "command-bridge-theme.mp3",
+      "duration_seconds": 90.31,
+      "sample_rate_hz": 48000,
+      "channels": 2,
+      "bitrate_bps": 192054,
+      "bytes": 2168108,
+      "sha256": "1a5140a29b79b3c1fabb21a0ee86d963cb1eaa8008d34552d6dc047b767f69fb",
+      "provenance": "Original locally synthesised music"
+    },
+    {
+      "file": "credits.mp3",
+      "duration_seconds": 0.84,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 99161,
+      "bytes": 10412,
+      "sha256": "3746d9061f1517f61bf701b6bb4121e68d1c2e990819a2032acd1104dfac4689",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "era-transition.mp3",
+      "duration_seconds": 3.05,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 96871,
+      "bytes": 36908,
+      "sha256": "76778cd88a169ed8b0a10b2186ecd007fa5113d0f1818c3f2ea2cd40a6a3b90e",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "fleet-clash.mp3",
+      "duration_seconds": 2.16,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 97229,
+      "bytes": 26252,
+      "sha256": "75fc87944fd031940b451276dcd81f2e201543cdb73dd507ae6941b6abd34fe7",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "fleet-move.mp3",
+      "duration_seconds": 0.96,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 98766,
+      "bytes": 11852,
+      "sha256": "0668cc534ba838d93cbdb541d02829513b979e7bf81613d71ae2b306e5adfbd4",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "hyperlane-open.mp3",
+      "duration_seconds": 1.56,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 97702,
+      "bytes": 19052,
+      "sha256": "2e88ed77fa6470fb14f56afc95f773b3a01fac544287ffd4dafa4a2290cf7dec",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "solar-storm.mp3",
+      "duration_seconds": 2.35,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 97129,
+      "bytes": 28556,
+      "sha256": "d9a9b27b286abdc127d004d8ee3c92caa0cd301c77ea2eb0898ddc4a87b0a6db",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "spire-build.mp3",
+      "duration_seconds": 1.92,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 97383,
+      "bytes": 23372,
+      "sha256": "4845a5b6115900187632b8185fdfd55aa63a565378950258bc12e4f2a1d26404",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    },
+    {
+      "file": "victory.mp3",
+      "duration_seconds": 3.26,
+      "sample_rate_hz": 24000,
+      "channels": 2,
+      "bitrate_bps": 96813,
+      "bytes": 39500,
+      "sha256": "ee980b16f3d70b8fe0c6ea0d3aa0b4c023a499444f791cf50be928bdd47c7e87",
+      "provenance": "Locally synthesised fallback sound effect (Mirelo generated but not imported)"
+    }
+  ],
+  "status": "Nine Mirelo effects generated but not downloaded into this workspace",
+  "needs_action": "Run-Premium-Audio-Install.cmd on networked Windows PC; links expire 2026-10-29",
+  "validation": "ffprobe confirms decoded MP3 audio in all tracks"
+}

@@ -7,7 +7,7 @@ import math, subprocess
 import numpy as np
 from scipy.io import wavfile
 from scipy.signal import butter,sosfilt
-SR=24000
+SR=48000
 BEAT=60/88
 BARS=32
 SECONDS=BARS*4*BEAT+3
@@ -78,6 +78,6 @@ OUT=Path(__file__).resolve().parent.parent/'public'/'audio'
 OUT.mkdir(parents=True,exist_ok=True)
 wav=OUT/'command-bridge-theme.wav';mp3=OUT/'command-bridge-theme.mp3'
 wavfile.write(str(wav),SR,np.stack([L,R],axis=1))
-subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(wav),'-codec:a','libmp3lame','-qscale:a','3',str(mp3)],check=True)
+subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(wav),'-codec:a','libmp3lame','-b:a','192k','-ar','48000',str(mp3)],check=True)
 wav.unlink()
 print(f'Produced original instrumental backing track: {SECONDS:.1f}s, {mp3.stat().st_size:,} bytes; sample-free composition')
