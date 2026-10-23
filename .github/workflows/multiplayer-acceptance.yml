@@ -18,6 +18,8 @@ jobs:
       - name: Install dependencies
         # This project has no package-lock.json yet; npm ci would fail.
         run: npm install --no-audit --no-fund
+      - name: Install audio test utilities
+        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
       - name: Full offline tests
         run: npm test
       - name: Phase 8-10 release audit
