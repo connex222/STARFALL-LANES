@@ -1,0 +1,150 @@
+{
+  "producer": "Mirelo previously generated sources; offline mastering only",
+  "new_mirelo_generation": false,
+  "assets": {
+    "ambient-orbit": {
+      "source_sha256": "985dd8732889c7515cc429f6edbc89ba6010922a3c57995490bf9b8e1b5b2fae",
+      "master_sha256": "6d68f72b830641c58001fe07e0a01ddf81a89fc80b6c0d1c368aba2761f5fd9d",
+      "old": {
+        "lufs": -19.09,
+        "true_peak_dbfs": -1.86,
+        "lra": 2.3
+      },
+      "new": {
+        "lufs": -24.16,
+        "true_peak_dbfs": -6.64,
+        "lra": 1.6
+      },
+      "size_bytes": 595628,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "credits": {
+      "source_sha256": "01e1d53f684dd00a604cd24479ba7448ea9aab67268debc050374b7542fb02e3",
+      "master_sha256": "93475dad84b5bb008dfbd11e0c4ba691de998d6e17c2e7dba9a25a6e2d88de41",
+      "old": {
+        "lufs": -22.42,
+        "true_peak_dbfs": -3.28,
+        "lra": 0.0
+      },
+      "new": {
+        "lufs": -21.97,
+        "true_peak_dbfs": -2.73,
+        "lra": 0.0
+      },
+      "size_bytes": 44396,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "era-transition": {
+      "source_sha256": "613da03b390cf1dc2231b99e089c106c3ee394d05c16a11f9d9071e0ef83f1cd",
+      "master_sha256": "7bc7a2317fedc914a039ecb3e41d9968de1c6f08a2b6061458678e44723b54e6",
+      "old": {
+        "lufs": -18.57,
+        "true_peak_dbfs": -1.24,
+        "lra": 16.8
+      },
+      "new": {
+        "lufs": -19.49,
+        "true_peak_dbfs": -2.66,
+        "lra": 17.0
+      },
+      "size_bytes": 133676,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "fleet-clash": {
+      "source_sha256": "7dd71b532ed30e4e842717f17b695b2e8432d16bb613457c12c36bd5b214394a",
+      "master_sha256": "4b89d9d1143ca08e4de949b4b14d71548aedd2c43b0b238b861e29b91a97be95",
+      "old": {
+        "lufs": -19.32,
+        "true_peak_dbfs": -3.46,
+        "lra": 8.9
+      },
+      "new": {
+        "lufs": -20.33,
+        "true_peak_dbfs": -3.85,
+        "lra": 8.4
+      },
+      "size_bytes": 133676,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "fleet-move": {
+      "source_sha256": "eefd6994674ed6a8dba0138cca0730644d89b80099fe9c2be3d80bb40ce10fd2",
+      "master_sha256": "b77d1c3e61e735cf5f284ba4e9b4886732d637d4fd2d5615202d60d0aef7c004",
+      "old": {
+        "lufs": -17.06,
+        "true_peak_dbfs": -1.2,
+        "lra": 0.6
+      },
+      "new": {
+        "lufs": -18.59,
+        "true_peak_dbfs": -3.54,
+        "lra": 0.6
+      },
+      "size_bytes": 78380,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "hyperlane-open": {
+      "source_sha256": "59a71472fd212ddfa1951d6b3f371cc10edf91982d47e3cbd462869cccd3e276",
+      "master_sha256": "b2abf388e8e561938ff21026ab0f6e4e9204c0a31419858dd740e69b26c9be31",
+      "old": {
+        "lufs": -19.63,
+        "true_peak_dbfs": -1.26,
+        "lra": 4.8
+      },
+      "new": {
+        "lufs": -20.27,
+        "true_peak_dbfs": -2.74,
+        "lra": 4.0
+      },
+      "size_bytes": 109484,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "solar-storm": {
+      "source_sha256": "d2c76f5b9478be978c543561c8b4a65834323f7ceb86a142ff16f81dd377844a",
+      "master_sha256": "acf410d411a8c0ffa300f370f746dd9187d744f108ff1c6a71a1674f5582a406",
+      "old": {
+        "lufs": -18.01,
+        "true_peak_dbfs": -1.13,
+        "lra": 14.7
+      },
+      "new": {
+        "lufs": -21.02,
+        "true_peak_dbfs": -3.85,
+        "lra": 14.3
+      },
+      "size_bytes": 145196,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "spire-build": {
+      "source_sha256": "e95dc0920263be7bc4923184e6a8ea247f242b2b23c0669e2e51bdae83cad417",
+      "master_sha256": "f49ed1fd62334d4f3d6cde08813534d1aab627894ce82e322a580d572bd0bfa8",
+      "old": {
+        "lufs": -21.64,
+        "true_peak_dbfs": -1.01,
+        "lra": 2.0
+      },
+      "new": {
+        "lufs": -21.05,
+        "true_peak_dbfs": -2.55,
+        "lra": 2.1
+      },
+      "size_bytes": 121580,
+      "format": "MP3 48 kHz mono 192 kbps"
+    },
+    "victory": {
+      "source_sha256": "1d4b41b9d64c04086140a90986c9ad18fd0d3eaa8df5dd2997e673db7e7f1e0f",
+      "master_sha256": "d714260dc92ffd8503e0e18c550e2ed2b6204a29d6cbc1c6576bf5a08d4640ad",
+      "old": {
+        "lufs": -15.98,
+        "true_peak_dbfs": -1.86,
+        "lra": 5.9
+      },
+      "new": {
+        "lufs": -20.06,
+        "true_peak_dbfs": -6.42,
+        "lra": 5.6
+      },
+      "size_bytes": 135980,
+      "format": "MP3 48 kHz mono 192 kbps"
+    }
+  }
+}

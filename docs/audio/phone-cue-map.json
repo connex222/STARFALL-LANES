@@ -1,0 +1,42 @@
+{
+  "phone-join": {
+    "source": "credits",
+    "start_seconds": 0.0,
+    "duration_seconds": 0.78
+  },
+  "phone-ready": {
+    "source": "credits",
+    "start_seconds": 0.25,
+    "duration_seconds": 0.95
+  },
+  "phone-trade": {
+    "source": "credits",
+    "start_seconds": 0.03,
+    "duration_seconds": 1.22
+  },
+  "phone-turn": {
+    "source": "era-transition",
+    "start_seconds": 0.25,
+    "duration_seconds": 1.65
+  },
+  "phone-storm": {
+    "source": "solar-storm",
+    "start_seconds": 0.05,
+    "duration_seconds": 1.62
+  },
+  "phone-battle": {
+    "source": "fleet-clash",
+    "start_seconds": 0.05,
+    "duration_seconds": 1.65
+  },
+  "phone-victory": {
+    "source": "victory",
+    "start_seconds": 0.15,
+    "duration_seconds": 2.75
+  },
+  "phone-alert": {
+    "source": "hyperlane-open",
+    "start_seconds": 0.22,
+    "duration_seconds": 1.1
+  }
+}

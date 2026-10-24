@@ -1,0 +1,19 @@
+{
+  "note": "Provider generated audio URLs. Assets not shipped in ZIP unless downloaded with tools/install_plugin_audio.py. Existing audio remains safe.",
+  "provider": "Creative Claw Mirelo SFX 2.0 / Daydream Music",
+  "files": {
+    "phone-join": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/00512d8e-20df-4a42-be17-49617db5a57a.mp3",
+    "phone-ready": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/3968730e-86d1-48b2-8114-a03019d99453.mp3",
+    "phone-trade": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/2fd6f41e-de17-45d3-9bde-dd28a967bd44.mp3",
+    "phone-turn": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/515d504e-4fdc-4831-8560-c73c6e79db73.mp3",
+    "phone-alert": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/ce5b2f42-c805-4068-81b2-be60a95cd06c.mp3",
+    "lane-toll": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/5424616f-2b86-459b-b458-9c88c514feb5.mp3",
+    "backup-order": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/505b29e8-7cd7-4f52-b88a-d4d9099c972f.mp3",
+    "mission-complete": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/f4e96c48-02c3-4342-9e6f-d09beb74caa7.mp3",
+    "order-failed": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/f2b2db15-e2e4-4e0e-b639-aa9b85332471.mp3",
+    "phone-battle": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/de1a0814-5104-4ba9-b3f5-cc178f6dc0d0.mp3",
+    "phone-storm": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/09882e3f-d049-4ca0-a2b0-36502d330b07.mp3",
+    "phone-victory": "https://cdn.creativeclaw.co/u/f3e7a3b1/audio/727bc2db-dc07-4da2-a22b-5f649ee3571d.mp3",
+    "exploration-theme": "https://gen.daydream.live/v1/songs/sng_uBj3Wt0jwmQH8dKD9OI3YU/1.mp3"
+  }
+}

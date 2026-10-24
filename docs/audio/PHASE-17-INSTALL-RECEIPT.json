@@ -1,0 +1,97 @@
+{
+  "producer": "Mirelo SFX 2.0 via Creative Claw; Daydream music",
+  "installation": "All assets validated before replace; local playable audio",
+  "files": {
+    "phone-join": {
+      "duration_seconds": 2.5,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 71564,
+      "sha256": "b6dd4ab632b7f18e4b39ad524d38fdcc5c8c3316fde1bab9b7ccaa780cc8e8bc"
+    },
+    "phone-ready": {
+      "duration_seconds": 1.8,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 32588,
+      "sha256": "7d53cb08d2b2e8a8c36efef9a660c64433dd0b222b2c49ea42346d64fd4029c3"
+    },
+    "phone-trade": {
+      "duration_seconds": 2.4,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 56300,
+      "sha256": "863d6373a546bd64b375a4ce65cb0458db9c36e6c7c1ec9cb4d8ac8d7e506dfd"
+    },
+    "phone-turn": {
+      "duration_seconds": 2.2,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 34508,
+      "sha256": "119c9cb8583159cc74201c9944c73cf7d9b967fbd4b2bef6a7eb8d60fc1fc1f0"
+    },
+    "phone-alert": {
+      "duration_seconds": 2.1,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 63764,
+      "sha256": "108f29c1e8f1803cb824ac4cf49c94a756deb78c57f0568f51c8a865a6f9f3d7"
+    },
+    "lane-toll": {
+      "duration_seconds": 2.4,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 67820,
+      "sha256": "2ed14d3818db7ae78a981a177c17b8bd7d5e77bd015014c9f86add055478186f"
+    },
+    "backup-order": {
+      "duration_seconds": 2.8,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 56252,
+      "sha256": "3ca147aba81217f073bd81bd315c5344a6cc004ff5000b1db3a4cb8c2e44f55b"
+    },
+    "mission-complete": {
+      "duration_seconds": 3.7,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 75212,
+      "sha256": "8d55480e026cfe73f36b4cf499168abc50b3fd99c14b5caf54ccd45c0c413a5c"
+    },
+    "order-failed": {
+      "duration_seconds": 2.1,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 32732,
+      "sha256": "bdfcc7b1477c0ac4860f16b2601a4d5ab24592ff187fbfa47c3d502539e22884"
+    },
+    "phone-battle": {
+      "duration_seconds": 3.3,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 50300,
+      "sha256": "c15372400ca75582277e54c6bff5bf6a755b47c9889c03c776b06f097197bae3"
+    },
+    "phone-storm": {
+      "duration_seconds": 3.1,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 86540,
+      "sha256": "6dcb6384b76b3c62a6cd1e50b543ee3d410b556a31c45a42ce8ac755a85b6ba9"
+    },
+    "phone-victory": {
+      "duration_seconds": 4.0,
+      "sample_rate": 48000,
+      "channels": 1,
+      "bytes": 65804,
+      "sha256": "8179ae55042d70fbda76af3dc70ec995c3b407006242b35a3399ba8a06aeefe0"
+    },
+    "exploration-theme": {
+      "duration_seconds": 120.024,
+      "sample_rate": 48000,
+      "channels": 2,
+      "bytes": 2880621,
+      "sha256": "dbdb8d8a3824843f3a0d01a76c20510f356517f7198c80f3a401db68611d9164"
+    }
+  }
+}

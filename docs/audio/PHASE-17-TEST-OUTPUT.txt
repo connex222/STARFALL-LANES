@@ -1,0 +1,484 @@
+
+> starfall-lanes@1.0.0 test:offline
+> node tests/test-ui-static.js && node tests/test-phase4-ui.js && node tests/test-phase5-cinematic.js && node --test tests/test-phase6-rules.js tests/test-phase6-simulation.js && node tests/test-phase7-onboarding.js && node tests/test-phase8-accessibility.js && node tests/test-phase9-quality.js && node --test tests/test-phase10-quality.js && node tests/test-era-portraits.js && node tests/test-phase13-assets.js && node tests/test-phase14-audio.js && node tests/test-phase15-release.js --require-premium && node --test tests/test-phase2-playtest.js && node --test tests/test-phase3-routes.js && node --test tests/test-phase4-agency.js && node --test tests/test-phase5-rules.js && node --test tests/test-phase6-balance.js && node tests/test-audio-mirelo-mix.js
+
+UI static checks passed (6):
+- tv: source and public have Phase 3 interface
+- phone: source and public have Phase 3 interface
+- TV: nine-card adaptive pool and visible map key
+- Phone: visible order count and Engage state
+- Brand and portrait assets exist
+- Server remains authoritative and all modes remain present
+Phase 4 static tests passed: 7
+  ✓ Draft ranking: editable and generated builds
+  ✓ Legal sector selection: editable and generated builds
+  ✓ Trading: editable and generated builds
+  ✓ Missions: editable and generated builds
+  ✓ Responsive styling: editable and generated builds
+  ✓ Self-contained public phone build
+  ✓ Server protocol unchanged
+✓ Nine bundled MP3 samples, no external audio dependency
+✓ Editable TV and generated TV load local audio with consent
+✓ TV is cinematic but phone retains lightweight interaction
+✓ All visual events bind to server-authoritative data
+✓ Source renderer embedded in both generated clients
+✓ Optional sound-lab audition interface
+✓ Phase 5 cinematic rendering remains separate from the authoritative gameplay server
+Phase 5 cinematic checks passed: 7
+TAP version 13
+# Subtest: hex maps honour sector counts, station spacing and lane ranges
+ok 1 - hex maps honour sector counts, station spacing and lane ranges
+  ---
+  duration_ms: 15.192655
+  type: 'test'
+  ...
+# Subtest: Station influence upgrades replace rather than stack
+ok 2 - Station influence upgrades replace rather than stack
+  ---
+  duration_ms: 0.710711
+  type: 'test'
+  ...
+# Subtest: Reverse influence draft resolves ties by first-player order
+ok 3 - Reverse influence draft resolves ties by first-player order
+  ---
+  duration_ms: 0.83785
+  type: 'test'
+  ...
+# Subtest: Supply Drop awards selected resource, with deterministic fallback
+ok 4 - Supply Drop awards selected resource, with deterministic fallback
+  ---
+  duration_ms: 0.312262
+  type: 'test'
+  ...
+# Subtest: Strikes capture sectors, retreat survivors, and downgrade captured Spires
+ok 5 - Strikes capture sectors, retreat survivors, and downgrade captured Spires
+  ---
+  duration_ms: 0.789648
+  type: 'test'
+  ...
+# Subtest: Research only offers upgrades left unpicked after earlier eras
+ok 6 - Research only offers upgrades left unpicked after earlier eras
+  ---
+  duration_ms: 7.637648
+  type: 'test'
+  ...
+# Subtest: A failed command refunds precisely one Credit
+ok 7 - A failed command refunds precisely one Credit
+  ---
+  duration_ms: 0.22309
+  type: 'test'
+  ...
+# Subtest: Expired trade offers cannot be accepted, including before the cleanup tick
+ok 8 - Expired trade offers cannot be accepted, including before the cleanup tick
+  ---
+  duration_ms: 0.960401
+  type: 'test'
+  ...
+# Subtest: Era phase rejects selections from a house that is not choosing
+ok 9 - Era phase rejects selections from a house that is not choosing
+  ---
+  duration_ms: 1.055191
+  type: 'test'
+  ...
+# Subtest: Messages cannot spend other houses resources and rejects invalid Draft ranks
+ok 10 - Messages cannot spend other houses resources and rejects invalid Draft ranks
+  ---
+  duration_ms: 0.902656
+  type: 'test'
+  ...
+# Subtest: Old controller is revoked on reconnect and wrong credentials cannot take an active seat
+ok 11 - Old controller is revoked on reconnect and wrong credentials cannot take an active seat
+  ---
+  duration_ms: 1.150262
+  type: 'test'
+  ...
+# Subtest: HTTP rejects malformed percent escapes and traversal attempts
+ok 12 - HTTP rejects malformed percent escapes and traversal attempts
+  ---
+  duration_ms: 19.661366
+  type: 'test'
+  ...
+# SIM: quick    2 players, round 8, winning Influence 8
+# SIM: quick    4 players, round 4, winning Influence 10
+# SIM: quick    8 players, round 7, winning Influence 10
+# SIM: standard 2 players, round 12, winning Influence 20
+# SIM: standard 4 players, round 11, winning Influence 19
+# SIM: standard 8 players, round 11, winning Influence 18
+# SIM: advanced 2 players, round 8, winning Influence 15
+# SIM: advanced 4 players, round 9, winning Influence 18
+# SIM: advanced 8 players, round 9, winning Influence 17
+# Subtest: full bot games finish consistently across modes and map sizes
+ok 13 - full bot games finish consistently across modes and map sizes
+  ---
+  duration_ms: 8006.983546
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8064.147483
+✓ TV and phone share prominent How to Play and Lore links
+✓ Both learning pages are bundled and independently accessible
+✓ Phone has independent opt-in sound and reuse of bundled MP3 files
+✓ TV keeps original opt-in sound and mute with level adjustment
+✓ Responsive mobile artwork and screen-specific guides
+✓ Server-authoritative game untouched, static resources accessible
+Phase 7 onboarding checks passed: 6
+✓ Portraits preserve names and house identity while using era and status cues
+✓ All eight existing neutral master portraits remain intact
+✓ Modal keyboard trap, Escape/close and focus restoration are in the live phone code
+✓ Draft priority is keyboard operable and politely announced
+✓ TV PC and phone retain their built-in help, sound and motion controls
+✓ Planning navigation exposes selection and unread alert labels
+✓ Rules and lore pages have skip navigation and visible focus
+Phase 8 source integration checks passed: 7
+✓ All screen source and generated code expose Galaxy Intel and five filters
+✓ Structured map list makes ownership, build, Fleets, storm and lanes textual
+✓ Intel remains a display-only client feature, never mutates server commands
+✓ Phone sound uses bounded channels, independent volume and visibility safety
+✓ All screen inline JavaScript is syntactically parseable
+✓ Existing 9 MP3 cues and 8 canonical master portraits are intact
+✓ Seeded balance evidence is recorded, but win conditions are unchanged
+Phase 9 integration checks passed: 7
+TAP version 13
+# Subtest: Bot mission choice keeps exactly two attainable objectives without rule change
+ok 1 - Bot mission choice keeps exactly two attainable objectives without rule change
+  ---
+  duration_ms: 4.77891
+  type: 'test'
+  ...
+# Subtest: Bot upgrade choice prioritises fleet economy and profitable routes
+ok 2 - Bot upgrade choice prioritises fleet economy and profitable routes
+  ---
+  duration_ms: 1.035072
+  type: 'test'
+  ...
+# Subtest: Bot setup chooses a legal productive hex and diversifies start
+ok 3 - Bot setup chooses a legal productive hex and diversifies start
+  ---
+  duration_ms: 10.363642
+  type: 'test'
+  ...
+# Subtest: Bot planning uses the standard legal cost system and fills at most two slots
+ok 4 - Bot planning uses the standard legal cost system and fills at most two slots
+  ---
+  duration_ms: 5.166272
+  type: 'test'
+  ...
+# Subtest: Endgame breakdown adds up to the established Influence and final score
+ok 5 - Endgame breakdown adds up to the established Influence and final score
+  ---
+  duration_ms: 2.777248
+  type: 'test'
+  ...
+# Subtest: Phone and TV explain scoring and preserve help, lore and sound features
+ok 6 - Phone and TV explain scoring and preserve help, lore and sound features
+  ---
+  duration_ms: 3.42031
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 94.481377
+Portrait checks passed: 72 valid Neutral/Smug/Furious assets, era switching, same-era mood fallback and both generated screens.
+Phase 13: all 72 portraits, 18 audio tracks, 90s stereo music, music controls and Sound Lab passed
+Phase 14: 10 MP3s decoded, music ducking, Sound Lab and expired-installer removal checked
+Phase 15 preflight PASSED: 72 portraits, 18 working audio headers, logo/help/lore, server health, TV/PC/phone controllers
+Audio tier: Mirelo-derived mastered effects — nine verified (receipt absent)
+TAP version 13
+# Subtest: host alone can opt in before match; default is off; neither can change it mid-game
+ok 1 - host alone can opt in before match; default is off; neither can change it mid-game
+  ---
+  duration_ms: 552.262395
+  type: 'test'
+  ...
+# Subtest: disabled Playtest Mode does not store reports or send game telemetry
+ok 2 - disabled Playtest Mode does not store reports or send game telemetry
+  ---
+  duration_ms: 2.466949
+  type: 'test'
+  ...
+# Subtest: both download controls and observation sheet are included, with offline-only Blob downloads
+ok 3 - both download controls and observation sheet are included, with offline-only Blob downloads
+  ---
+  duration_ms: 6.194433
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 617.644458
+TAP version 13
+# Subtest: stations scale from 6 up to 10 across 2–8 players, with valid hex totals
+ok 1 - stations scale from 6 up to 10 across 2–8 players, with valid hex totals
+  ---
+  duration_ms: 269.0392
+  type: 'test'
+  ...
+# Subtest: own territory and own lane access are free; a reachable rival lane costs one Credit
+ok 2 - own territory and own lane access are free; a reachable rival lane costs one Credit
+  ---
+  duration_ms: 8.883372
+  type: 'test'
+  ...
+# Subtest: paid rival Found transfers funds exactly once at authoritative resolution
+ok 3 - paid rival Found transfers funds exactly once at authoritative resolution
+  ---
+  duration_ms: 1.084694
+  type: 'test'
+  ...
+# Subtest: insufficient Credits for a rival Found gives the existing failed-order refund, no owner payment
+ok 4 - insufficient Credits for a rival Found gives the existing failed-order refund, no owner payment
+  ---
+  duration_ms: 0.605406
+  type: 'test'
+  ...
+# Subtest: own lanes cost no toll and long lanes score; owned station pairs score via own-only connections
+ok 5 - own lanes cost no toll and long lanes score; owned station pairs score via own-only connections
+  ---
+  duration_ms: 0.585155
+  type: 'test'
+  ...
+# Subtest: Missions can use rival lanes, paying every lane once; cannot complete when Credit-poor
+ok 6 - Missions can use rival lanes, paying every lane once; cannot complete when Credit-poor
+  ---
+  duration_ms: 0.916586
+  type: 'test'
+  ...
+# Subtest: breakdown rows add up to Influence for network scoring
+ok 7 - breakdown rows add up to Influence for network scoring
+  ---
+  duration_ms: 1.295026
+  type: 'test'
+  ...
+# Subtest: public register shows lane owner, scoring and toll; private legal list previews costs
+ok 8 - public register shows lane owner, scoring and toll; private legal list previews costs
+  ---
+  duration_ms: 0.576563
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 348.814533
+TAP version 13
+# Subtest: Quick gets three primary commands; Standard/Advanced get two
+ok 1 - Quick gets three primary commands; Standard/Advanced get two
+  ---
+  duration_ms: 3.979828
+  type: 'test'
+  ...
+# Subtest: a successful primary does not spend or consume the queued Backup
+ok 2 - a successful primary does not spend or consume the queued Backup
+  ---
+  duration_ms: 0.690541
+  type: 'test'
+  ...
+# Subtest: failed primary immediately runs affordable Backup at same slot, no failed-order refund
+ok 3 - failed primary immediately runs affordable Backup at same slot, no failed-order refund
+  ---
+  duration_ms: 0.342476
+  type: 'test'
+  ...
+# Subtest: if both primary and Backup fail only one Credit is awarded
+ok 4 - if both primary and Backup fail only one Credit is awarded
+  ---
+  duration_ms: 0.261497
+  type: 'test'
+  ...
+# Subtest: a second failed command cannot trigger the same Backup twice
+ok 5 - a second failed command cannot trigger the same Backup twice
+  ---
+  duration_ms: 0.304321
+  type: 'test'
+  ...
+# Subtest: without a Backup the original +1 Credit failure rule is unchanged
+ok 6 - without a Backup the original +1 Credit failure rule is unchanged
+  ---
+  duration_ms: 0.16259
+  type: 'test'
+  ...
+# Subtest: host alone changes reveal speed, input whitelist and public speed are enforced
+ok 7 - host alone changes reveal speed, input whitelist and public speed are enforced
+  ---
+  duration_ms: 0.532808
+  type: 'test'
+  ...
+# Subtest: independent animation groups refuse shared sectors and complex commands
+ok 8 - independent animation groups refuse shared sectors and complex commands
+  ---
+  duration_ms: 0.356137
+  type: 'test'
+  ...
+# Subtest: UI, local instructions and server share the backup/speed/three-order protocol
+ok 9 - UI, local instructions and server share the backup/speed/three-order protocol
+  ---
+  duration_ms: 0.829728
+  type: 'test'
+  ...
+# Subtest: the real Quick reveal phase executes the third command slot
+ok 10 - the real Quick reveal phase executes the third command slot
+  ---
+  duration_ms: 24.462949
+  type: 'test'
+  ...
+# Subtest: full reveal executes a Backup in the failed order position and leaves subsequent orders intact
+ok 11 - full reveal executes a Backup in the failed order position and leaves subsequent orders intact
+  ---
+  duration_ms: 18.767304
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104.807813
+TAP version 13
+# Subtest: quick changes era without making any upgrade offer or blocking on picks
+ok 1 - quick changes era without making any upgrade offer or blocking on picks
+  ---
+  duration_ms: 9.840667
+  type: 'test'
+  ...
+# Subtest: quick Research cannot purchase an upgrade even with stale injected leftovers
+ok 2 - quick Research cannot purchase an upgrade even with stale injected leftovers
+  ---
+  duration_ms: 1.157101
+  type: 'test'
+  ...
+# Subtest: standard changes era without making any upgrade offer or blocking on picks
+ok 3 - standard changes era without making any upgrade offer or blocking on picks
+  ---
+  duration_ms: 6.159642
+  type: 'test'
+  ...
+# Subtest: standard Research cannot purchase an upgrade even with stale injected leftovers
+ok 4 - standard Research cannot purchase an upgrade even with stale injected leftovers
+  ---
+  duration_ms: 0.195339
+  type: 'test'
+  ...
+# Subtest: Advanced still generates choices and bots pick legal upgrades
+ok 5 - Advanced still generates choices and bots pick legal upgrades
+  ---
+  duration_ms: 6.32667
+  type: 'test'
+  ...
+# Subtest: Advanced unfinished Mission penalty has a single cap; breakdown reconciles
+ok 6 - Advanced unfinished Mission penalty has a single cap; breakdown reconciles
+  ---
+  duration_ms: 0.671473
+  type: 'test'
+  ...
+# Subtest: Standard never applies unfinished Mission penalty
+ok 7 - Standard never applies unfinished Mission penalty
+  ---
+  duration_ms: 0.292292
+  type: 'test'
+  ...
+# Subtest: successful Strike keeps source garrison, moves Fleets in and defender loses exactly one
+ok 8 - successful Strike keeps source garrison, moves Fleets in and defender loses exactly one
+  ---
+  duration_ms: 0.537154
+  type: 'test'
+  ...
+# Subtest: failed Strike loses exactly one attacking Fleet; victorious defenders take no losses
+ok 9 - failed Strike loses exactly one attacking Fleet; victorious defenders take no losses
+  ---
+  duration_ms: 0.531957
+  type: 'test'
+  ...
+# Subtest: single-Fleet capture is not stranded at source
+ok 10 - single-Fleet capture is not stranded at source
+  ---
+  duration_ms: 0.989795
+  type: 'test'
+  ...
+# Subtest: TV, phone and official guide match combat outcomes and mode rules
+ok 11 - TV, phone and official guide match combat outcomes and mode rules
+  ---
+  duration_ms: 1.009683
+  type: 'test'
+  ...
+# Subtest: Phase 5 tunable values are centrally defined
+ok 12 - Phase 5 tunable values are centrally defined
+  ---
+  duration_ms: 0.077365
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 87.687787
+TAP version 13
+# Subtest: batch simulation defaults to 300 seeded games per setup
+ok 1 - batch simulation defaults to 300 seeded games per setup
+  ---
+  duration_ms: 1.081089
+  type: 'test'
+  ...
+# Subtest: reject invalid cohorts and profile names
+ok 2 - reject invalid cohorts and profile names
+  ---
+  duration_ms: 0.272773
+  type: 'test'
+  ...
+# Subtest: simulation balancing settings cannot leak into ordinary production server
+ok 3 - simulation balancing settings cannot leak into ordinary production server
+  ---
+  duration_ms: 4.153705
+  type: 'test'
+  ...
+# Subtest: summary uses each seat, fractional tied wins, total command denominator and exact breakdown
+ok 4 - summary uses each seat, fractional tied wins, total command denominator and exact breakdown
+  ---
+  duration_ms: 1.075461
+  type: 'test'
+  ...
+# Subtest: full game cohort is reproducible for the same seed
+ok 5 - full game cohort is reproducible for the same seed
+  ---
+  duration_ms: 315.79065
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 381.967424
+Mirelo-derived mix: nine mastered sources, eight phone cuts, TV priorities and Sound Lab OK
+

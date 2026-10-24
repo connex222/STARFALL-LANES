@@ -3,9 +3,9 @@
   "source": "local",
   "checks": {
     "portraits": 72,
-    "audioFiles": 10,
+    "audioFiles": 18,
     "controllers": 2,
-    "publicBytes": 8359263,
+    "publicBytes": 8526919,
     "serverAuthority": "game rules remain in server.js"
   },
   "limits": {
