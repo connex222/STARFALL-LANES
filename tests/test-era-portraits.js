@@ -3,14 +3,14 @@ const vm = require('vm');
 const assert = require('node:assert/strict');
 const path = require('path');
 const ids = ['kaia','zibzob','oolu','vex','pyrrhus','nim','skrill','bramble'];
-const root = require('node:path').join(__dirname,'..');
+const root = require('node:path').join(__dirname, '..');
 for(const id of ids){
  for(const era of ['frontier','expansion','ascension']) {
   for (const mood of ['neutral','smug','furious']) {
   const f = path.join(root,'public/art/avatars', `${id}_${era}_${mood}.webp`);
   assert(fs.existsSync(f),`Missing ${f}`);
   const p=fs.readFileSync(f);
-  assert.equal(p.toString('ascii',0,4),'RIFF',`Not PNG: ${f}`);
+  assert.equal(p.subarray(0,4).toString('hex'),'52494646',`Not WebP: ${f}`);
   assert.equal(p.readUInt16LE(26),256,`Bad width: ${f}`);
   assert.equal(p.readUInt16LE(28),256,`Bad height: ${f}`);
   }

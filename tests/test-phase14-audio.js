@@ -23,13 +23,13 @@ for(const n of cues){
 }
 for(const name of ['src/tv.html','public/tv.html']){
   const html=fs.readFileSync(path.join(root,name),'utf8');
-  for(const k of ['duckMusic()',"['solar-storm','fleet-clash','era-transition','victory','spire-build']",'command-bridge-theme','musicToggle']){
+  for(const k of ['duckMusic(',"['solar-storm','fleet-clash','era-transition','victory','spire-build']",'command-bridge-theme','musicToggle']){
     assert.ok(html.includes(k),`${name}: missing ${k}`);
   }
 }
 const lab=fs.readFileSync(path.join(root,'public/sound-lab.html'),'utf8');
 const count=(lab.match(/\['command-bridge-theme','Command Bridge Theme'/g)||[]).length;
 assert.equal(count,1,'Music listed more than once in Sound Lab');
-assert.ok(lab.includes('solar-storm'),'Sound Lab does not recognise installed premium assets');
-assert.ok(!fs.existsSync(path.join(root,'tools/download_mirelo_audio.py')));
-console.log('Phase 14: 10 MP3s decoded, music ducking, Sound Lab and premium installer wiring passed');
+assert.ok(lab.includes('nine premium sound effects'),'Sound Lab description does not match bundled audio');
+assert.ok(!fs.existsSync(path.join(root,'tools/download_mirelo_audio.py')),'Expired installer should be removed');
+console.log('Phase 14: 10 MP3s decoded, music ducking, Sound Lab and expired-installer removal checked');

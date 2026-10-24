@@ -40,7 +40,7 @@ check('Existing 9 MP3 cues and 8 canonical master portraits are intact',()=>{
   assert.ok(fs.statSync(path.join(root,'public/audio',cue+'.mp3')).size>6000);
  }
  for(const id of ['kaia','zibzob','oolu','vex','pyrrhus','nim','skrill','bramble']){
-  assert.ok(fs.statSync(path.join(root,'public/art/avatars',id+'_frontier_neutral.webp')).size>5000);
+  assert.ok(fs.statSync(path.join(root,'public/art/avatars',id+'_frontier_neutral.webp')).size>10000);
  }
 });
 check('Seeded balance evidence is recorded, but win conditions are unchanged',()=>{

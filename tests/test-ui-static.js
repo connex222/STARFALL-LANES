@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const root = require('node:path').join(__dirname,'..');
+const root = require('node:path').join(__dirname, '..');
 const read = (area, name) => fs.readFileSync(path.join(root, area, name), 'utf8');
 const checks = [];
 function check(label, fn) { fn(); checks.push(label); }

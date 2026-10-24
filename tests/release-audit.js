@@ -6,7 +6,7 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..'), pub=path.join(root,'public');
 const leader=['kaia','zibzob','oolu','vex','pyrrhus','nim','skrill','bramble'];
 const era=['frontier','expansion','ascension'], mood=['neutral','smug','furious'];
-const audio=['ambient-orbit','solar-storm','hyperlane-open','spire-build','fleet-move','fleet-clash','era-transition','victory','credits','command-bridge-theme'];
+const audio=['ambient-orbit','solar-storm','hyperlane-open','spire-build','fleet-move','fleet-clash','era-transition','victory','credits','command-bridge-theme','phone-join','phone-ready','phone-trade','phone-turn','phone-storm','phone-battle','phone-victory','phone-alert'];
 const compiled=['tv.html','phone.html'];
 const sizeOf=p=>fs.statSync(path.join(pub,p)).size;
 const report={phase:10,source:'local',checks:{},limits:{realWebSockets:'not tested by static audit',physicalDevices:'not tested',realPlayers:'not tested'}};

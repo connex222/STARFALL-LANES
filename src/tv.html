@@ -296,8 +296,9 @@ body{background:radial-gradient(circle at 52% 37%,#103154 0%,#081427 46%,#040a17
 // All audio starts muted and requires an explicit user gesture. No CDN / external requests.
 const Snd = {
   ctx: null, output: null, ambience: null, music: null, musicEnabled: true, on: false, buffers: {}, loading: null,
-  volume: .4,
-  tracks: ['ambient-orbit','solar-storm','hyperlane-open','spire-build','fleet-move','fleet-clash','era-transition','victory','credits','command-bridge-theme'],
+  volume: .4, lastPlayed: {}, activeCounts: {}, activeTotal: 0,
+  cueMix: {'lane-toll': .43, 'backup-order': .52, 'mission-complete': .58, 'order-failed': .28, 'credits': .46, 'era-transition': .70, 'fleet-clash': .70, 'fleet-move': .64, 'hyperlane-open': .68, 'solar-storm': .70, 'spire-build': .68, 'victory': .70},
+  tracks: ['ambient-orbit','solar-storm','hyperlane-open','spire-build','fleet-move','fleet-clash','era-transition','victory','credits','command-bridge-theme','lane-toll','backup-order','mission-complete','order-failed','exploration-theme'],
   getContext() {
     if (!this.ctx) {
       const AudioClass = window.AudioContext || window.webkitAudioContext;
@@ -344,20 +345,29 @@ const Snd = {
   },
   play(k,gain=1) {
     if(!this.on||!this.ctx||!this.buffers[k])return false;
-    const c=this.ctx,src=c.createBufferSource(),g=c.createGain();
-    src.buffer=this.buffers[k];g.gain.value=Math.min(.85,Math.max(.02,gain*.55));
-    if(['solar-storm','fleet-clash','era-transition','victory','spire-build'].includes(k))this.duckMusic();
-    src.connect(g).connect(this.output);src.start();return true;
+    const c=this.ctx,now=c.currentTime;
+    // During a busy eight-player Reveal, avoid layering ten long identical hits.
+    if((now-(this.lastPlayed[k]??-100)<.16)||(this.activeCounts[k]||0)>=2||this.activeTotal>=5)return false;
+    this.lastPlayed[k]=now;
+    const src=c.createBufferSource(),g=c.createGain();
+    src.buffer=this.buffers[k];
+    const mix=this.cueMix[k]??.58;
+    g.gain.value=Math.min(.78,Math.max(.02,gain*mix));
+    if(['solar-storm','fleet-clash','era-transition','victory','spire-build'].includes(k))this.duckMusic(src.buffer.duration);
+    src.connect(g).connect(this.output);
+    this.activeCounts[k]=(this.activeCounts[k]||0)+1;this.activeTotal++;
+    src.onended=()=>{this.activeCounts[k]=Math.max(0,(this.activeCounts[k]||1)-1);this.activeTotal=Math.max(0,this.activeTotal-1);try{src.disconnect();g.disconnect();}catch(_){}};
+    src.start();return true;
   },
-  duckMusic(){
-    // Keep cinematic effects intelligible without abrupt music cut-offs.
+  duckMusic(effectDuration=2.5){
+    // The music recovers only after the latest cinematic impact, including overlapping ones.
     if(!this.on||!this.ctx||!this.music)return;
-    const t=this.ctx.currentTime, level=this.music.gain.gain;
-    level.cancelScheduledValues(t);
-    level.setValueAtTime(level.value,t);
-    level.linearRampToValueAtTime(.048,t+.1);
-    level.setValueAtTime(.048,t+.8);
-    level.linearRampToValueAtTime(.19,t+2.6);
+    const t=this.ctx.currentTime,level=this.music.gain.gain;
+    const releaseAt=t+Math.max(1.2,Math.min(4.8,effectDuration*.76));
+    level.cancelScheduledValues(t);level.setValueAtTime(level.value,t);
+    level.linearRampToValueAtTime(.045,t+.13);
+    level.setValueAtTime(.045,releaseAt);
+    level.linearRampToValueAtTime(.19,releaseAt+1.15);
   },
   startAmbience() {
     if(!this.on||!this.ctx)return;
@@ -397,14 +407,14 @@ const Snd = {
     g.gain.exponentialRampToValueAtTime(.0001,t+d+.03);
     o.connect(g).connect(this.output);o.start(t);o.stop(t+d+.05);
   },
-  chime(){if(!this.play('credits'))this.tone(880,.2,'sine',.07);},
-  whoosh(){if(!this.play('hyperlane-open'))this.tone(240,.4,'triangle',.06,940);},
-  beam(){if(!this.play('spire-build'))this.tone(180,.36,'triangle',.06,660);},
-  zap(){if(!this.play('fleet-clash'))this.tone(1300,.35,'sawtooth',.06,180);},
-  fanfare(){if(!this.play('era-transition'))[523,659,784].forEach((f,i)=>this.tone(f,.28,'triangle',.05,null,i*.13));},
-  victory(){if(!this.play('victory'))this.fanfare();},
+  chime(){if(this.buffers['credits'])this.play('credits');else this.tone(880,.2,'sine',.07);},
+  whoosh(){if(this.buffers['hyperlane-open'])this.play('hyperlane-open');else this.tone(240,.4,'triangle',.06,940);},
+  beam(){if(this.buffers['spire-build'])this.play('spire-build');else this.tone(180,.36,'triangle',.06,660);},
+  zap(){if(this.buffers['fleet-clash'])this.play('fleet-clash');else this.tone(1300,.35,'sawtooth',.06,180);},
+  fanfare(){if(this.buffers['era-transition'])this.play('era-transition');else [523,659,784].forEach((f,i)=>this.tone(f,.28,'triangle',.05,null,i*.13));},
+  victory(){if(this.buffers['victory'])this.play('victory');else this.fanfare();},
   tick(){this.tone(940,.05,'sine',.027);},
-  low(){if(!this.play('solar-storm'))this.tone(150,.35,'triangle',.05,65);}
+  low(){if(this.buffers['solar-storm'])this.play('solar-storm');else this.tone(150,.35,'triangle',.05,65);}
 };
 const soundBtn=document.getElementById('sound');
 const musicBtn=document.getElementById('musicToggle');
@@ -623,7 +633,7 @@ function onFx(f) {
   map.addFx(f);
   const g = pub.game;
   if (f.k === 'found') {
-    Snd.beam();scene('NEW COLONY','OUTPOST FOUNDED',f.toll ? `Rival hyperlane toll paid: ${f.toll} Credit${f.toll===1?'':'s'}` : 'A new world joins a rival house');
+    Snd.beam();if(f.toll)Snd.play('lane-toll');scene('NEW COLONY','OUTPOST FOUNDED',f.toll ? `Rival hyperlane toll paid: ${f.toll} Credit${f.toll===1?'':'s'}` : 'A new world joins a rival house');
     if (f.toll) {
       const owners=[...new Set(f.recipients || [])].map(id=>P(id)?.name).filter(Boolean).join(', ');
       popup(`<div class="clash toll-flow"><strong>${esc(P(f.pid)?.name || 'House')}</strong><span class="toll-coin">${f.toll}₡</span><strong>→ ${esc(owners || 'Rival lane owner')}</strong><div class="bd">Hyperlane toll paid</div></div>`,1400);
@@ -634,7 +644,7 @@ function onFx(f) {
   if (f.k === 'fleet' || f.k === 'move') { if(!Snd.play('fleet-move'))Snd.tone(500,.2,'triangle',.08,900); }
   if (f.k === 'income') Snd.chime();
   if (f.k === 'storm') { Snd.low(); scene('SOLAR ANOMALY','STORM SURGE','The solar front is changing',true); }
-  if (f.k === 'fail') Snd.low();
+  if (f.k === 'fail') {if(!Snd.play('order-failed'))Snd.low();}
   if (f.k === 'era') { /* phase transition will play its own single cue */ }
   if (f.k === 'over') {lastWinScene=true;Snd.victory();}
   if (f.k === 'draft') {
@@ -643,12 +653,12 @@ function onFx(f) {
     popup(`<div class="clash">${avatarHTML(AV(p), { size: 44, era: g.era })}<div><b>${esc(p.name)}</b> drafts <b>${esc(d.name)}</b><div class="bd">${esc(d.text)}</div></div></div>`, 1000);
   }
   if (f.k === 'toll') {
-    Snd.chime();
+    if(!Snd.play('lane-toll'))Snd.chime();
     const payer=P(f.pid), owner=P(f.to);
     if (payer && owner) popup(`<div class="clash">${avatarHTML(AV(payer), {size:48,era:g.era})}<div><b>${esc(payer.name)}</b> pays <b>${f.credits} Credit toll</b> to <b>${esc(owner.name)}</b><div class="bd">Rival hyperlane ${esc(f.lane)}</div></div></div>`, 1200);
   }
   if (f.k === 'mission' || f.k === 'trophy') {
-    Snd.fanfare();
+    if(!(f.k==='mission'&&Snd.play('mission-complete')))Snd.fanfare();
     const p = P(f.pid);
     const txt = f.k === 'mission' ? `Mission complete: ${esc(f.text)} (+${f.inf})${f.toll?` · ${f.toll} Credit toll paid`:''}` : `Takes ${f.key === 'network' ? 'Longest Network' : 'Grand Armada'} (+2)`;
     popup(`<div class="clash">${avatarHTML(AV(p), { size: 56, mood: 'smug', era: g.era })}<div><b>${esc(p.name)}</b><div>${txt}</div></div></div>`, 1500);

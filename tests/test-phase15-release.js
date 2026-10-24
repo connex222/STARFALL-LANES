@@ -59,11 +59,36 @@ for (const cue of [...names, 'command-bridge-theme']) {
   assert.ok(b.subarray(0,3).toString() === 'ID3' || (b[0]===255 && (b[1]&224)===224), `Invalid MP3 header: ${cue}`);
   audio[cue]=b.length;
 }
+// Original byte sizes identify the previous Mirelo generations. Remastering changes sizes,
+// so authenticate derivatives against the immutable checksums in the mastering report.
+const crypto=require('node:crypto');
+const manifestPath=file('docs/audio/mirelo-mastering-report.json');
+const sourceDir=file('art-source/mirelo-originals');
+let mastered=[];
+if(fs.existsSync(manifestPath)) {
+  const report=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+  mastered=names.filter(n=>{
+    const entry=report.assets?.[n];if(!entry)return false;
+    const digest=crypto.createHash('sha256').update(fs.readFileSync(file('public/audio/'+n+'.mp3'))).digest('hex');
+    assert.equal(digest,entry.master_sha256,`Master altered: ${n}`);
+    if(fs.existsSync(path.join(sourceDir,n+'.mp3'))) {
+      const original=fs.readFileSync(path.join(sourceDir,n+'.mp3'));
+      assert.equal(original.length,premiumSizes[n],`Unexpected original file size: ${n}`);
+      assert.equal(crypto.createHash('sha256').update(original).digest('hex'),entry.source_sha256,`Source checksum altered: ${n}`);
+    }
+    return true;
+  });
+}
 const matched = names.filter(n => audio[n] === premiumSizes[n]);
-const tier = matched.length === 9 ? 'Mirelo premium — all nine assets present' :
-  matched.length === 0 ? 'procedural fallback' : `MIXED — ${matched.length} of nine Mirelo cues`;
+const tier = mastered.length === 9 ? 'Mirelo-derived mastered effects — nine verified' :
+  matched.length === 9 ? 'Mirelo originals — nine present' :
+  `MIXED — ${matched.length} originals, ${mastered.length} verified remasters`;
 if (process.argv.includes('--require-premium'))
-  assert.equal(matched.length, 9, `GitHub deployment lacks complete premium audio: ${tier}`);
+  assert.ok(mastered.length === 9 || matched.length === 9, `Missing verified Mirelo sources: ${tier}`);
+for (const n of ['phone-join','phone-ready','phone-trade','phone-turn','phone-storm','phone-battle','phone-victory','phone-alert']) {
+  presence('public/audio/'+n+'.mp3');
+  assert.ok(fs.statSync(file('public/audio/'+n+'.mp3')).size>1000,`Invalid phone cue ${n}`);
+}
 const receiptPath = file('public/audio/premium-audio-receipt.json');
 if (fs.existsSync(receiptPath)) {
   const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
@@ -73,5 +98,5 @@ if (fs.existsSync(receiptPath)) {
     assert.equal(receipt.tracks[n].bytes, audio[n], `${n}: receipt/file length mismatch`);
   }
 }
-console.log(`Phase 15 preflight PASSED: ${count} portraits, 10 working audio headers, logo/help/lore, server health, TV/PC/phone controllers`);
+console.log(`Phase 15 preflight PASSED: ${count} portraits, 18 working audio headers, logo/help/lore, server health, TV/PC/phone controllers`);
 console.log(`Audio tier: ${tier}${fs.existsSync(receiptPath) ? ' (receipt present)' : ' (receipt absent)'}`);

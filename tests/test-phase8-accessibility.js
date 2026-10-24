@@ -15,7 +15,7 @@ check('Portraits preserve names and house identity while using era and status cu
 check('All eight existing neutral master portraits remain intact',()=>{
   for(const id of ['kaia','zibzob','oolu','vex','pyrrhus','nim','skrill','bramble']){
     const p=path.join(root,'public/art/avatars',id+'_frontier_neutral.webp');
-    assert.ok(fs.statSync(p).size>5000,p);
+    assert.ok(fs.statSync(p).size>10000,p);
   }
 });
 check('Modal keyboard trap, Escape/close and focus restoration are in the live phone code',()=>{
